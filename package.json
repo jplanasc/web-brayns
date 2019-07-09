@@ -1,0 +1,48 @@
+{
+  "name": "web-brayns",
+  "version": "0.1.0",
+  "private": false,
+  "homepage": "./",
+  "dependencies": {
+    "@types/jest": "^24.0.13",
+    "@types/node": "^11.13.14",
+    "@types/ol": "^4.6.5",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.2",
+    "archiver": "^3.0.0",
+    "brayns": "^0.8.0",
+    "markdown-to-jsx": "^6.10.2",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-redux": "^6.0.1",
+    "react-scripts": "2.1.8",
+    "redux": "^4.0.1",
+    "rockets-client": "^0.3.0",
+    "typescript": "^3.5.1"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "test": "react-app-rewired test",
+    "test:dbg": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "gh-pages": "^2.0.1",
+    "react-app-rewire-yaml": "^1.1.0",
+    "react-app-rewired": "^2.1.3",
+    "react-dev-utils": "^8.0.0",
+    "redux-devtools-extension": "^2.13.8"
+  }
+}
