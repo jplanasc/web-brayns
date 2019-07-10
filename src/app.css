@@ -1,0 +1,34 @@
+html, body {
+    font-family: josefin-sans;
+}
+
+
+#splash-screen.vanish {
+    opacity: 0;
+    transition: opacity .6s;
+}
+
+
+div.App {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+div.App > div.view {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+}
+
+div.App > div.view > canvas {
+    margin: 0;
+}

@@ -26,3 +26,6 @@ braynsService --http-server :5000 \
               --plugin braynsCircuitExplorer \
               --module braynsCircuitExplorer
 ```
+
+In the example above, the host name you need is:
+__`r1i7n12.bbp.epfl.ch:5000`__
