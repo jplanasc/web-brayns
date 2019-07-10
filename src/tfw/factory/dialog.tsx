@@ -122,21 +122,24 @@ class Dialog {
 }
 
 function alert(content: string | React.ReactElement<any>,
-               onClose: (() => void) | undefined = undefined): Dialog {
-    const dialog = new Dialog({ onClose, content, maxWidth: 420 });
-    dialog.footer = (<Button
-        icon="close"
-        label={_('close')}
-        flat={true}
-        onClick={dialog.hide} />);
-    dialog.show();
-    return dialog;
+               onClose: (() => void) | undefined = undefined): Promise<void> {
+    return new Promise(resolve => {
+        const dialog = new Dialog({ onClose: resolve, content, maxWidth: 420 });
+        dialog.footer = (<Button
+            icon="close"
+            label={_('close')}
+            flat={true}
+            onClick={resolve} />);
+        dialog.show();
+    });
 }
 
 /**
- * @param {string} caption - Title and button caption.
- * @param {any} content - Content to display.
- * @return Promise<boolean> Confirmed or not?
+ * ```
+ * const isConfirmed = await Dialog.confirm("Delete file", <p>Are you sure?</p>);
+ * ```
+ * @param caption - Title and button caption.
+ * @param content - Content to display.
  */
 function confirm( caption: string, content: string | React.ReactElement<any>): Promise<boolean> {
     return new Promise( resolve => {

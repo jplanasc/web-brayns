@@ -101,6 +101,16 @@ class Gesture {
         });
     }
 
+    /**
+     * Returns true if current gesture has at least one of the provided handlers.
+     */
+    private hasHandlerFor(...names: string[]) {
+        for( const name of names ) {
+            if (this.handlers[name]) return true;
+        }
+        return false;
+    }
+
     private getPointer(index: number) {
         const pointers = this.pointers;
         if (typeof pointers[index] === 'undefined') {
