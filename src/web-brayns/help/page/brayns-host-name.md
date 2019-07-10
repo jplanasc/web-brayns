@@ -1,0 +1,28 @@
+# How to get a Brayns' Host Name?
+
+First you have to connect to the BB5 super computer with ssh:
+```
+ssh bbpv1
+```
+
+Once there, you need to allocate nodes:
+```
+salloc --account=proj3 \
+       --partition=interactive \
+       --time=8:00:00 \
+       -N 1 \
+       --exclusive \
+       --constraint=cpu \
+       -c 72 \
+       --mem 0
+```
+This will give you the hostname (near to the last output line). It looks something like this: `r1i7n12`. This allocation will last for 8 hours (`--time=8:00:00`).
+
+Now, you must start a Brayns service on a port of your choice (choose __5000__ if you don't know what to pick up):
+```
+module purge
+module load nix/viz/circuit-explorer/latest
+braynsService --http-server :5000 \
+              --plugin braynsCircuitExplorer \
+              --module braynsCircuitExplorer
+```
