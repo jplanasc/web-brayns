@@ -21,14 +21,58 @@ div.App {
     align-items: center;
 }
 
+div.App {
+    --panel-width: 320px;
+}
+
+div.App > div.panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--panel-width);
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
 div.App > div.view {
-    margin: 0;
-    padding: 0;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: var(--panel-width);
+    height: 100%;
+    width: calc(100% - var(--panel-width));
     overflow: hidden;
-    border-radius: 32px;
 }
 
 div.App > div.view > canvas {
-    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 70%;
+    width: 100%;
+}
+
+div.App > div.view > div {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 30%;
+    width: 100%;
+    overflow: auto;
+}
+
+div.App > div.panel > header {
+    height: 2rem;
+    flex: 0 0 auto;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+div.App > div.panel > header > div {
+    padding: 0 .5rem;
 }

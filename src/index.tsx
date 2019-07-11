@@ -1,9 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux'
+
 import ServiceHost from "./web-brayns/service/host"
+import Scene from "./web-brayns/scene"
 import Dialog from "./tfw/factory/dialog"
 import Theme from "./tfw/theme"
 import App from './app';
+import State from './web-brayns/state'
 
 import "./tfw/font/josefin.css"
 
@@ -15,10 +19,19 @@ async function start() {
     console.info("hostName=", hostName);
 
     try {
-        const client = await Dialog.wait("Connecting to Brayns service...", ServiceHost.connect(hostName));
+        const client = await Dialog.wait(
+            "Connecting to Brayns service...",
+            Scene.connect(hostName)
+        );
+
+        await Dialog.wait(
+            "Clearing the scene...",
+            Scene.clear()
+        );
+
         // Entry point for our app
         const root = document.getElementById('root') as HTMLElement;
-        ReactDOM.render(<App brayns={client}/>, root);
+        ReactDOM.render(<Provider store={State.store}><App brayns={client}/></Provider>, root);
 
         const splash = document.getElementById('splash-screen');
         if (splash) {
