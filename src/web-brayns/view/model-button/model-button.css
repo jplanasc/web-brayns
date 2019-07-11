@@ -1,0 +1,9 @@
+div.webBrayns-view-ModelButton {
+    padding: .25rem;
+    margin: .25rem;
+    border-radius: .25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: stretch;
+}

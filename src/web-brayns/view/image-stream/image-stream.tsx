@@ -1,6 +1,8 @@
 import React from 'react';
 import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
 
+import Scene from '../../scene'
+
 import "./image-stream.css"
 
 interface IImageStreamProps {
@@ -50,6 +52,20 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                         srcW, srcH
                     )
                 });
+
+        this.updateViewPort();
+        window.onfocus = this.updateViewPort;
+    }
+
+    private updateViewPort = () => {
+        const canvas = this.canvasRef.current;
+        if (!canvas ) return;
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.floor(rect.width);
+        const h = Math.floor(rect.height);
+        canvas.width = w;
+        canvas.height = h;
+        Scene.setViewPort(w, h);
     }
 
     componentWillUnmount() {
@@ -62,7 +78,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
             <canvas
                 ref={this.canvasRef}
                 className="webBrayns-view-ImageStream"
-                width={800} height={600}
                 moz-opaque="true" />
         );
     }
