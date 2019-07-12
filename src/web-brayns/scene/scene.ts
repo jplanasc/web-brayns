@@ -2,16 +2,22 @@
  * There is only one scene in Brayns.
  */
 
-import { Client as BraynsClient } from "brayns"
+import { Client as BraynsClient } from "Scene.brayns"
 
 import { IModel } from '../types'
 import State from '../state'
 import ServiceHost from '../service/host'
 import Model from './model'
+import Camera from './camera'
 
 // Brayns' client.
-let brayns: (BraynsClient | null) = null;
-
+const Scene: {
+    brayns: (BraynsClient | null),
+    camera: (Camera | null);
+} = {
+    brayns: null,
+    camera: null
+}
 
 export default {
     clear,
@@ -19,30 +25,33 @@ export default {
     loadMeshFromPath,
     request,
     setViewPort,
-    get brayns() { return brayns; }
+    get brayns() { return Scene.brayns; },
+    get camera(): Camera { return Scene.camera || new Camera({}); }
  }
 
 /**
  * Try to connect to a Brayns service and fails if it takes too long.
  */
 async function connect(hostName: string): Promise<BraynsClient> {
-    brayns = await ServiceHost.connect(hostName);
-    console.info("brayns=", brayns);
-    return brayns;
+    Scene.brayns = await ServiceHost.connect(hostName);
+    console.info("Scene.brayns=", Scene.brayns);
+    const cameraParams = await request('get-camera-params');
+    Scene.camera = new Camera(cameraParams);
+    return Scene.brayns;
 }
 
 async function request(method: string, params: {} = {}) {
     console.info("request(", method, params, ")");
 
     return new Promise((resolve, reject) => {
-        if (!brayns) {
+        if (!Scene.brayns) {
             console.error("No BraynsService!");
             reject();
             return;
         }
-        const loader = brayns.request(method, params);
+        const loader = Scene.brayns.request(method, params);
         loader.then((output: any) => {
-            console.info(">>> output:", output);
+            console.info("request(", method, ") => ", output);
             resolve(output)
         }, reject);
     })
@@ -57,7 +66,7 @@ async function clear(): Promise<boolean> {
     const models = scene.models;
     if (!models) return false;
     const ids = models.map( (model: any) => model.id );
-    request("remove-model", ids);
+    await request("remove-model", ids);
 
     const rendererParams: any = await request("get-renderer-params", {});
     if (rendererParams) {
@@ -65,10 +74,20 @@ async function clear(): Promise<boolean> {
         rendererParams.pixelAlpha = 1.7;
         rendererParams.shadows = 1;
         rendererParams.softShadows = 0.9;
-        request("set-renderer-params", rendererParams);
+        await request("set-renderer-params", rendererParams);
     }
 
-    request("set-environment-map", {
+    await request('set-renderer', {
+        accumulation: true,
+        backgroundColor: [.2,.1,0],
+        current: "advanced_simulation",
+        headLight: true,
+        maxAccumFrames: 1000,
+        samplesPerPixel: 1,
+        subsampling: 1
+    });
+
+    await request("set-environment-map", {
         filename: "/gpfs/bbp.cscs.ch/project/proj3/resources/envmap/0101.jpg"
     });
 
@@ -76,7 +95,7 @@ async function clear(): Promise<boolean> {
 }
 
 async function setViewPort(width: number, height: number) {
-    //brayns.set_application_parameters(viewport=[800,600])
+    //Scene.brayns.set_application_parameters(viewport=[800,600])
     return await request("set-application-parameters", {
         viewport: [width, height]
     });

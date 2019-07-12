@@ -23,7 +23,6 @@ export default {
 
 
 function add(state: IModel[], action: IAction): IModel[] {
-    console.info("action=", action);
     const models = state.slice();
     models.push(action.model);
     return models;

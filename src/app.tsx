@@ -27,9 +27,11 @@ export default class App extends React.Component<IAppProps, {}> {
         try {
             //Scene.clear();
             const astro1 = await loadAstrocyte(1);
-            astro1.locate([-30, 0, 0]);
+            await astro1.locate([-30, 0, 0]);
             const astro2 = await loadAstrocyte(2);
-            astro2.locate([30, 0, 0]);
+            await astro2.locate([30, 0, 0]);
+
+            Scene.camera.lookAtWholeScene();
         }
         catch( ex ) {
             console.error(ex);
@@ -53,7 +55,8 @@ export default class App extends React.Component<IAppProps, {}> {
                     <div>Web-Brayns</div>
                     <div>
                         <Icon content='import' onClick={this.handleLoadMesh}/>
-                        <Icon content='bug'/>
+                        <Icon content='gps' onClick={() => Scene.camera.lookAtWholeScene()}/>
+                        {/* <Icon content='bug'/> */}
                     </div>
                 </header>
                 <ModelList />
@@ -69,7 +72,6 @@ export default class App extends React.Component<IAppProps, {}> {
 
 async function loadAstrocyte(id: number): Promise<Model> {
     const path = `/gpfs/bbp.cscs.ch/project/proj3/resources/meshes/astrocytes/GLIA_${pad(id)}.h5_decimated.off`;
-    console.info("path=", path);
     return await Scene.loadMeshFromPath(path);
 }
 

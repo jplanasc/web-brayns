@@ -33,6 +33,7 @@ type THandlers = {
     swipeleft?: (event: IEvent) => void;
     keydown?: (event: KeyboardEvent) => void;
     keyup?: (event: KeyboardEvent) => void;
+    wheel?: (event: IWheelEvent) => void;
     [key: string]: ((evt: any) => void) | undefined;
 };
 
@@ -43,6 +44,13 @@ interface IEvent extends IBasicEvent {
     x: number;
     y: number;
 }
+
+interface IWheelEvent extends IEvent {
+    delatX: number,
+    deltaY: number,
+    deltaZ: number
+}
+
 /*
 interface IInternalEvent {
     x?: number;
@@ -64,7 +72,7 @@ interface IPointer {
     id?: number;
 }
 
-const STANDARD_EVENTS = ["keydown", "keyup"];
+const STANDARD_EVENTS = ["keydown", "keyup", "wheel"];
 
 class Gesture {
     //private readonly basicHandler: BasicHandler;
@@ -90,7 +98,7 @@ class Gesture {
     get identifier() { return this.id; }
 
     on(handlers: THandlers) {
-        this.handlers = Object.assign(this.handlers, handlers);
+        this.handlers = wrapSpecialHandlers(Object.assign(this.handlers, handlers));
         Object.keys(this.handlers).forEach(eventName => {
             if (STANDARD_EVENTS.indexOf(eventName) === -1) return;
             // This is a non-pointer event. (i.e., keyboard, resize, ...)
@@ -321,4 +329,29 @@ export default function(elem: IHTMLElementWithGesture): Gesture {
     gesture = new Gesture(elem);
     elem[SYMBOL] = gesture;
     return gesture;
+}
+
+
+/**
+ * Somw event (like "wheel") need their handler to be wrapped in order to
+ * map the event is something else.
+ */
+function wrapSpecialHandlers(rawHandlers: THandlers): THandlers {
+    const handlers: THandlers = {};
+    for( const eventName of Object.keys(rawHandlers) ) {
+        if (eventName === 'wheel') {
+            handlers.wheel = (evt: WheelEvent) => {
+                rawHandlers.wheel({
+                    deltaX: evt.deltaX,
+                    deltaY: evt.deltaY,
+                    deltaZ: evt.deltaZ,
+                    x: 0,
+                    y: 0
+                });
+            }
+            continue;
+        }
+        handlers[eventName] = rawHandlers[eventName];
+    }
+    return handlers;
 }
