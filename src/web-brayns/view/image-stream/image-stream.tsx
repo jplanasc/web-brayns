@@ -2,6 +2,7 @@ import React from 'react';
 import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
 
 import Scene from '../../scene'
+import Model from '../../scene/model'
 import Gesture from '../../../tfw/gesture'
 
 import "./image-stream.css"
@@ -58,8 +59,9 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                 const x = evt.x / rect.width;
                 const y = evt.y / rect.height;
                 const hitResult = await Scene.request('inspect', [x, y]);
-                
-                console.info("hitResult=", hitResult);
+                if (hitResult.hit === true) {
+                    await Scene.camera.setTarget(hitResult.position);
+                }
             },
             wheel(evt) {
                 if (!Scene.camera) return;

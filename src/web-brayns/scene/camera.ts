@@ -5,6 +5,8 @@
 import { Client as BraynsClient, BoundingBox } from "brayns"
 import { ICamera, IVector } from '../types'
 import Scene from './scene'
+import Geom from '../geometry'
+
 
  export default class Camera {
      constructor(private params: ICamera) {}
@@ -21,6 +23,14 @@ import Scene from './scene'
 
      get target(): IVector {
          return this.params.target.slice() as IVector;
+     }
+
+     async setTarget(value: IVector) {
+         const translation = Geom.vectorFromPoints(this.params.target, value);
+         console.info("translation=", translation);
+         this.params.position = Geom.addVectors(this.params.position, translation);
+         this.params.target = value;
+         return await this.applyCamera();
      }
 
      /**
