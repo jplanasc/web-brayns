@@ -12,12 +12,10 @@ import Geom from '../geometry'
      constructor(private params: ICamera) {}
 
      private async applyCamera(): Promise<boolean> {
-         console.log('applyCamera');
          const { orientation, position, target } = this.params;
          const result = await Scene.request('set-camera', {
              orientation, position, target
          });
-         console.info("result=", result);
          return true;
      }
 
@@ -25,26 +23,26 @@ import Geom from '../geometry'
          return this.params.target.slice() as IVector;
      }
 
-     async setTarget(value: IVector) {
-         const translation = Geom.vectorFromPoints(this.params.target, value);
-         console.info("translation=", translation);
-         this.params.position = Geom.addVectors(this.params.position, translation);
-         this.params.target = value;
+     async setTarget(target: IVector) {
+         const direction = this.direction;
+         const distance = Geom.scalarProduct(
+             Geom.vectorFromPoints(this.params.position, target),
+             direction
+         );
+         this.params.position = Geom.addVectors(
+             target,
+             Geom.scale(direction, -distance)
+         );
+         this.params.target = target;
          return await this.applyCamera();
      }
 
      /**
       * Normalized vector giving the direction of sight.
       */
-     get direction(): number[] {
+     get direction(): IVector {
          const { position, target } = this.params;
-         const x = target[0] - position[0];
-         const y = target[1] - position[1];
-         const z = target[2] - position[2];
-         const len2 = x*x + y*y + z*z;
-         if (len2 < 0.00000001) return [0,0,0];
-         const factor = 1 / Math.sqrt(len2);
-         return [x * factor, y * factor, z * factor];
+         return Geom.normalize(Geom.vectorFromPoints(position, target));
      }
 
      async moveForward(dist: number) {
