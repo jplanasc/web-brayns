@@ -16,9 +16,17 @@ export default class modelList extends React.Component<IModelListProps, {}> {
 
     render() {
         return (<div className="webBrayns-view-ModelList">{
-            this.props.models.map( (model: IModel) => (
-                <ModelButton key={model.id} model={model}/>
-            ))
+            this.props.models
+                .sort((model1, model2) => {
+                    const name1 = model1.name.toLowerCase();
+                    const name2 = model2.name.toLowerCase();
+                    if (name1 < name2 ) return -1;
+                    if (name1 > name2 ) return +1;
+                    return 0;
+                })
+                .map( (model: IModel) => (
+                    <ModelButton key={model.id} model={model}/>
+                ))
         }</div>)
     }
 }

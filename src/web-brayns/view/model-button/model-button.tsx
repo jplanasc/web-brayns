@@ -20,6 +20,16 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
         await model.focus();
     }
 
+    handleShow = async () => {
+        const model = new Model(this.props.model);
+        await model.show();
+    }
+
+    handleHide = async () => {
+        const model = new Model(this.props.model);
+        await model.hide();
+    }
+
     render() {
         const { model } = this.props;
         return (<div className="webBrayns-view-ModelButton thm-ele-button thm-bg2" title={model.path}>
@@ -27,10 +37,14 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
             <div className="icons">
                 <div>
                     <Button small={true} icon="gps" onClick={this.handleFocus}/>
-                    <Button small={true} icon="more"/>
+                    <Button enabled={false} small={true} icon="more"/>
                 </div>
-                <Button small={true} icon="show"/>
-                <Button small={true} icon="delete" warning={true}/>
+                {
+                    model.visible ?
+                    <Button small={true} icon="hide" onClick={this.handleHide}/> :
+                    <Button small={true} icon="show" onClick={this.handleShow}/>
+                }
+                <Button enabled={false} small={true} icon="delete" warning={true}/>
             </div>
         </div>)
     }
