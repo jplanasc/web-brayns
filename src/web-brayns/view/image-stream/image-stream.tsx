@@ -57,7 +57,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                 if (!canvas) return;
                 const rect = canvas.getBoundingClientRect();
                 const x = evt.x / rect.width;
-                const y = evt.y / rect.height;
+                const y = 1 - (evt.y / rect.height);
                 const hitResult = await Scene.request('inspect', [x, y]);
                 if (hitResult.hit === true) {
                     await Scene.camera.setTarget(hitResult.position);
