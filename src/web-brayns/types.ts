@@ -33,6 +33,15 @@ export interface IModel extends IModelParams {
 
 }
 
+export interface ICamera {
+    // Current camera type.
+    current: string,
+    // Can be "orthographic", "panoramic", "perspective", "perspectiveParallax", ...
+    types: string[],
+    orientation: IQuaternion,
+    position: IVector,
+    target: IVector
+}
 
 export interface IAppState {
     models: IModel[]

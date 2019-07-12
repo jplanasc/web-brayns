@@ -6,4 +6,12 @@ div.webBrayns-view-ModelButton {
     flex-direction: column;
     justify-content: space-around;
     align-items: stretch;
+    height: 96px;
+}
+
+div.webBrayns-view-ModelButton > div.icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }

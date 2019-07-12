@@ -2,17 +2,31 @@ import React from 'react';
 import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
 
 import Scene from '../../scene'
+import Gesture from '../../../tfw/gesture'
 
 import "./image-stream.css"
 
+interface IScreenPoint {
+    screenX: number,
+    screenY: number
+}
+
+interface IHitPoint extends IScreenPoint {
+    x: number,
+    y: number,
+    z: number
+}
+
 interface IImageStreamProps {
-    brayns: BraynsClient
+    brayns: BraynsClient,
+    onHit?: (point: IHitPoint) => void,
+    onTap?: (point: IScreenPoint) => void
 }
 
 export default class ImageStream extends React.Component<IImageStreamProps> {
     private readonly canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
 
-    get canvas() {
+    get canvas(): HTMLCanvasElement | null {
         return this.canvasRef.current;
     }
     get ctx() {
@@ -27,9 +41,39 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
     componentDidMount() {
         // If there's no container el we can bind the camera to,
         // there's no point in continuing
-        if (!this.ctx) {
+        if (!this.canvas) {
             return;
         }
+
+        const that = this;
+
+        Gesture(this.canvas).on({
+            down(evt) {
+                console.info("evt=", evt);
+            },
+            async tap(evt) {
+                const canvas = that.canvas;
+                if (!canvas) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = evt.x / rect.width;
+                const y = evt.y / rect.height;
+                const hitResult = await Scene.request('inspect', [x, y]);
+                
+                console.info("hitResult=", hitResult);
+            },
+            wheel(evt) {
+                if (!Scene.camera) return;
+                if (evt.deltaY < 0) {
+                    Scene.camera.moveForward(10);
+                }
+                else if (evt.deltaY > 0) {
+                    Scene.camera.moveBackward(10);
+                }
+            },
+            pan(evt) {
+                console.info("PAN=", evt);
+            }
+        });
 
         this.props.brayns
                 .observe(IMAGE_JPEG)
@@ -57,7 +101,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         window.onfocus = this.updateViewPort;
     }
 
-    private updateViewPort = () => {
+    private updateViewPort = async () => {
         const canvas = this.canvasRef.current;
         if (!canvas ) return;
         const rect = canvas.getBoundingClientRect();
@@ -65,7 +109,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         const h = Math.floor(rect.height);
         canvas.width = w;
         canvas.height = h;
-        Scene.setViewPort(w, h);
+        await Scene.setViewPort(w, h);
     }
 
     componentWillUnmount() {

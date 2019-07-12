@@ -22,7 +22,7 @@ div.App {
 }
 
 div.App {
-    --panel-width: 320px;
+    --panel-width: 400px;
 }
 
 div.App > div.panel {
@@ -71,6 +71,7 @@ div.App > div.panel > header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    height: 48px;
 }
 
 div.App > div.panel > header > div {
