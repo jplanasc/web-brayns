@@ -42,7 +42,7 @@ div.tfw-view-list > div.space {
   background-repeat  : repeat-y;
   background-position: 0 0;
   background-size    : 263px 36px;
-  background-image   : url("./list/item-blur.jpg");
+  background-image   : url("./item-blur.jpg");
 }
 div.tfw-view-list > div.screen {
   position      : absolute;

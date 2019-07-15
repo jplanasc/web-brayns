@@ -9,14 +9,17 @@ import State from '../state'
 import ServiceHost from '../service/host'
 import Model from './model'
 import Camera from './camera'
+import GesturesHandler from './gestures-handler'
 
 // Brayns' client.
 const Scene: {
     brayns: (BraynsClient | null),
-    camera: (Camera | null);
+    camera: (Camera | null),
+    gestures: GesturesHandler
 } = {
     brayns: null,
-    camera: null
+    camera: null,
+    gestures: new GesturesHandler()
 }
 
 export default {
@@ -26,7 +29,8 @@ export default {
     request,
     setViewPort,
     get brayns() { return Scene.brayns; },
-    get camera(): Camera { return Scene.camera || new Camera({}); }
+    get camera(): Camera { return Scene.camera || new Camera({}); },
+    get gestures(): GesturesHandler { return Scene.gestures }
  }
 
 /**
@@ -88,7 +92,7 @@ async function clear(): Promise<boolean> {
     });
 
     await request("set-environment-map", {
-        filename: "/gpfs/bbp.cscs.ch/project/proj3/resources/envmap/0101.jpg"
+        filename: "/gpfs/bbp.cscs.ch/project/proj3/resources/envmap/space.jpg"
     });
 
     return true;

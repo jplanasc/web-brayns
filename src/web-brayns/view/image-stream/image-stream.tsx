@@ -1,31 +1,31 @@
 import React from 'react';
 import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
 
+import { IQuaternion, IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
 import Scene from '../../scene'
-import Model from '../../scene/model'
 import Gesture from '../../../tfw/gesture'
+import { IEvent } from '../../../tfw/gesture/types'
 
 import "./image-stream.css"
-
-interface IScreenPoint {
-    screenX: number,
-    screenY: number
-}
-
-interface IHitPoint extends IScreenPoint {
-    x: number,
-    y: number,
-    z: number
-}
 
 interface IImageStreamProps {
     brayns: BraynsClient,
     onHit?: (point: IHitPoint) => void,
-    onTap?: (point: IScreenPoint) => void
+    // Hitting the void, actually
+    onTap?: (point: IScreenPoint) => void,
+    onPanStart?: (panning: IPanningEvent) => void,
+    onPan?: (panning: IPanningEvent) => void
 }
 
 export default class ImageStream extends React.Component<IImageStreamProps> {
     private readonly canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
+    private orientation: IQuaternion = [0,0,0,1];
+
+    constructor(props: IImageStreamProps) {
+        super(props);
+        // @TODO: add a throttler.
+        this.handleRotation = this.handleRotation;
+    }
 
     get canvas(): HTMLCanvasElement | null {
         return this.canvasRef.current;
@@ -49,9 +49,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         const that = this;
 
         Gesture(this.canvas).on({
-            down(evt) {
-                console.info("evt=", evt);
-            },
+            down: this.handleDown,
             async tap(evt) {
                 const canvas = that.canvas;
                 if (!canvas) return;
@@ -72,9 +70,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                     Scene.camera.moveBackward(10);
                 }
             },
-            pan(evt) {
-                console.info("PAN=", evt);
-            }
+            pan: this.handlePan
         });
 
         this.props.brayns
@@ -101,6 +97,54 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
 
         this.updateViewPort();
         window.onfocus = this.updateViewPort;
+    }
+
+    private handleDown = (evt: IEvent) => {
+        console.info("evt=", evt);
+        const handler = this.props.onPanStart;
+        if (typeof handler !== 'function') return;
+        handler(Object.assign(
+            { button: evt.buttons },
+            this.getScreenPoint(evt.x, evt.y)));
+    }
+
+    private handlePan = (evt: IEvent) => {
+        console.info("evt=", evt);
+        const handler = this.props.onPan;
+        if (typeof handler !== 'function') return;
+        handler(Object.assign(
+            { button: evt.buttons },
+            this.getScreenPoint(evt.x, evt.y)));
+    }
+
+    private handleRotation = (evt: IEvent) => {
+        if (!this.canvas) return;
+        const { width, height } = this.canvas;
+        const x = (evt.x - (evt.startX || 0)) / width;
+        const y = (evt.y - (evt.startY || 0)) / height;
+        const orientation = this.orientation;
+        Scene.camera.setOrientation([
+            orientation[0] + y,
+            orientation[1] + x,
+            orientation[2],
+            orientation[3]
+        ]);
+    }
+
+    /**
+     * Get pixel coordinates and return a ScreenPoint.
+     * In a screen point, every coordinate is a real number
+     * between 0 and 1.
+     */
+    private getScreenPoint(x: number, y: number): IScreenPoint {
+        if (!this.canvas) return { screenX: -1, screenY: -1, aspect: 1 };
+        const w = this.canvas.clientWidth;
+        const h = this.canvas.clientHeight;
+        return {
+            screenX: x / w,
+            screenY: 1 - (y / h),
+            aspect: w / h
+        }
     }
 
     private updateViewPort = async () => {

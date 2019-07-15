@@ -7,6 +7,12 @@ export interface IMetaData {
     [key: string]: string
 }
 
+export interface IAxis {
+    x: IVector,
+    y: IVector,
+    z: IVector
+}
+
 export type IQuaternion = [number, number, number, number]
 
 export type IVector = [number, number, number]
@@ -19,7 +25,7 @@ export interface ITransformation {
 }
 
 export interface IModelParams {
-    boundingBox: false,
+    boundingBox: boolean,
     bounds: IBounds,
     id: number,
     metadata: IMetaData,
@@ -30,7 +36,7 @@ export interface IModelParams {
 }
 
 export interface IModel extends IModelParams {
-
+    $selected: boolean
 }
 
 export interface ICamera {
@@ -50,4 +56,24 @@ export interface IAppState {
 export interface IAction {
     type: string;
     [key: string]: any;
+}
+
+export interface IScreenPoint {
+    screenX: number,
+    screenY: number,
+    // Aspect ratio: width / height
+    aspect: number
+}
+
+export interface IHitPoint extends IScreenPoint {
+    x: number,
+    y: number,
+    z: number
+}
+
+export interface IPanningEvent extends IScreenPoint {
+    // 1: left
+    // 2: right
+    // 4: middle
+    button: number
 }

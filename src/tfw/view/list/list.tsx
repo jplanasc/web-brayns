@@ -1,14 +1,16 @@
 import * as React from "react"
 import "./list.css"
-import Debouncer from "../debouncer";
-import Button from "./button"
-import castUnit from "../converter/unit"
-import castBoolean from "../converter/boolean"
-import castInteger from "../converter/integer"
-import Gesture from "../gesture"
+import Debouncer from "../../debouncer";
+import Button from "./../button"
+import castUnit from "../../converter/unit"
+import castBoolean from "../../converter/boolean"
+import castInteger from "../../converter/integer"
+import Gesture from "../../gesture"
 
 interface IListProps {
+    // Array of all the items to hold.
     items: any[];
+    // Function which takes an item and return a component.
     mapper: (item: any) => React.ReactElement;
     itemHeight?: number;
     width?: string;
