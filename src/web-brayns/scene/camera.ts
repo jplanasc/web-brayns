@@ -2,8 +2,8 @@
  * Everything related to Camera.
  */
 
-import { Client as BraynsClient, BoundingBox } from "brayns"
-import { ICamera, IVector } from '../types'
+import { BoundingBox } from "brayns"
+import { ICamera, IVector, IQuaternion, IAxis } from '../types'
 import Scene from './scene'
 import Geom from '../geometry'
 
@@ -13,10 +13,59 @@ import Geom from '../geometry'
 
      private async applyCamera(): Promise<boolean> {
          const { orientation, position, target } = this.params;
-         const result = await Scene.request('set-camera', {
+         await Scene.request('set-camera', {
              orientation, position, target
          });
          return true;
+     }
+
+     get position(): IVector {
+         return this.params.position.slice() as IVector;
+     }
+
+     setPosition(position: IVector) {
+         this.params.position = position;
+         this.applyCamera();
+     }
+
+     get orientation(): IQuaternion {
+         return this.params.orientation.slice() as IQuaternion;
+     }
+
+     setOrientation(orientation: IQuaternion) {
+         this.params.orientation = orientation;
+         this.applyCamera();
+     }
+
+     get axis(): IAxis {
+         const [b, c, d, a] = this.orientation;
+         const aa = a*a;
+         const bb = b*b;
+         const cc = c*c;
+         const dd = d*d;
+         const ab2 = 2*a*b;
+         const ac2 = 2*a*c;
+         const ad2 = 2*a*d;
+         const bc2 = 2*b*c;
+         const bd2 = 2*b*d;
+         const cd2 = 2*c*d;
+         return {
+             x: [
+                 aa + bb + cc + dd,
+                 ad2 + bc2,
+                 bd2 - ac2
+             ],
+             y:[
+                 bc2 - ad2,
+                 aa - bb + cc - dd,
+                 ab2 + cd2
+             ],
+             z:[
+                 ac2 + bd2,
+                 cd2 - ab2,
+                 aa - bb - cc + dd
+             ]
+         }
      }
 
      get target(): IVector {
@@ -35,6 +84,18 @@ import Geom from '../geometry'
          );
          this.params.target = target;
          return await this.applyCamera();
+     }
+
+     getTargetDistance(): number {
+         const vectorZ = this.axis.z;
+         // Warning! the camera's Z axis is turning its back to the target.
+         return Geom.scalarProduct(
+             vectorZ,
+             Geom.vectorFromPoints(
+                 this.params.target,
+                 this.params.position
+             )
+         )
      }
 
      /**

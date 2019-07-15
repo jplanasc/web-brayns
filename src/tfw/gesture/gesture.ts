@@ -8,15 +8,16 @@
 import Moves from "./moves"
 import BasicHandler from "./basic-handler"
 import { IBasicEvent } from "./basic-handler.types"
+import { IEvent, IWheelEvent } from "./types"
 
 const SYMBOL = Symbol("gesture");
 
-interface IHTMLElementWithGesture extends HTMLElement {
+let ID = 0;
+
+export interface IHTMLElementWithGesture extends HTMLElement {
     // A special attribute to attach Gesture object.
     [SYMBOL]?: Gesture
 }
-
-let ID = 0;
 
 type THandlers = {
     tap?: (event: IEvent) => void;
@@ -37,27 +38,6 @@ type THandlers = {
     [key: string]: ((evt: any) => void) | undefined;
 };
 
-interface IEvent extends IBasicEvent {
-    preventDefault?: () => void;
-    stopPropagation?: () => void;
-    target: IHTMLElementWithGesture;
-    x: number;
-    y: number;
-}
-
-interface IWheelEvent extends IEvent {
-    delatX: number,
-    deltaY: number,
-    deltaZ: number
-}
-
-/*
-interface IInternalEvent {
-    x?: number;
-    y?: number;
-    event: PointerEvent;
-}
-*/
 interface IPointer {
     isDown: boolean;
     moves: Moves;

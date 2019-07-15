@@ -1,7 +1,9 @@
-import { IVector } from '../types'
+import { IVector, IQuaternion } from '../types'
 
 export default {
     addVectors,
+    makeQuaternionAsAxisRotation,
+    multiplyQuaternions,
     normalize,
     scalarProduct,
     scale,
@@ -14,6 +16,27 @@ function addVectors(a: IVector, b: IVector): IVector {
         b[0] + a[0],
         b[1] + a[1],
         b[2] + a[2]
+    ];
+}
+
+
+function makeQuaternionAsAxisRotation(angle: number, axis: IVector): IQuaternion {
+    const halfAngle = angle * 0.5;
+    const c = Math.cos(halfAngle);
+    const s = Math.sin(halfAngle);
+    const [x, y, z] = axis;
+    return [ x * s, y * s, z * s, c ] as IQuaternion;
+}
+
+
+function multiplyQuaternions(q1: IQuaternion, q2: IQuaternion): IQuaternion {
+    const [w1, x1, y1, z1] = q1;
+    const [w2, x2, y2, z2] = q2;
+    return [
+        w1*x2 + x1*w2 - y1*z2 + z1*y2,
+        w1*y2 + x1*z2 + y1*w2 - z1*x2,
+        w1*z2 - x1*y2 + y1*x2 + z1*w2,
+        w1*w2 - x1*x2 - y1*y2 - z1*z2
     ];
 }
 

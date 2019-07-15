@@ -62,7 +62,10 @@ export default class App extends React.Component<IAppProps, {}> {
                 <ModelList />
             </div>
             <div className='view'>
-                <ImageStream brayns={this.props.brayns}/>
+                <ImageStream
+                    brayns={this.props.brayns}
+                    onPan={Scene.gestures.handlePan}
+                    onPanStart={Scene.gestures.handlePanStart}/>
                 <WebsocketConsole/>
             </div>
         </div>)

@@ -3,13 +3,13 @@ import { Client as BraynsClient } from "brayns"
 import Scene from './scene'
 import State from '../state'
 
-import { IModelParams, IVector } from '../types'
+import { IModel, IVector } from '../types'
 
 
 export default class Model {
     private readonly brayns: BraynsClient;
 
-    constructor(private params: IModelParams) {
+    constructor(private params: IModel) {
         this.brayns = Scene.brayns || new BraynsClient('');
     }
 
@@ -23,6 +23,23 @@ export default class Model {
      */
     async remove() {
         return await Scene.request("remove-model", [this.params.id]);
+    }
+
+    /**
+     * When a model is selected, we show its boundingBox.
+     */
+    get seleted(): boolean {
+        return this.params.$selected;
+    }
+
+    async setSelected(selected: boolean) {
+        this.params.$selected = selected;
+        this.params.boundingBox = selected;
+        await Scene.request('update-model', {
+            id: this.params.id,
+            boundingBox: selected
+        });
+        this.updateState();
     }
 
     get visible(): boolean {

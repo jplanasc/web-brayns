@@ -8,7 +8,8 @@ import "./touchable.css"
 interface ITouchableProps {
     enabled?: boolean;
     onClick?: ()=>void;
-    classes?: string[];
+    title?: string;
+    classNames?: string[];
     color?: string;
     children?: React.ReactElement<any>|React.ReactElement<any>[];
 }
@@ -39,9 +40,12 @@ export default class Touchable extends React.Component<ITouchableProps, {}> {
     render() {
         const p = this.props;
         const enabled = castBoolean(p.enabled, true);
-        const classes = ["tfw-view-touchable"].concat(castArray(p.classes));
+        const classes = ["tfw-view-touchable"].concat(castArray(p.classNames));
         if( enabled ) classes.push("enabled");
-        return <div ref={this.ref} tabIndex={0} className={classes.join(" ")}>{
+        return <div ref={this.ref}
+                tabIndex={0}
+                className={classes.join(" ")}
+                title={p.title}>{
             p.children
         }</div>
     }
