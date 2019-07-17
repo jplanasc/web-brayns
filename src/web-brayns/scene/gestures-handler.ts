@@ -5,7 +5,8 @@ import { IVector, IQuaternion, IAxis, IScreenPoint, IPanningEvent } from '../typ
 
 
 export default class GesturesHandler {
-    private savedTranslation: IVector = [0,0,0];
+    private savedTarget: IVector = [0,0,0];
+    private savedPosition: IVector = [0,0,0];
     private savedOrientation: IQuaternion = [0,0,0,0];
     private savedAxis: IAxis = {
         x: [0,0,0], y: [0,0,0], z: [0,0,0]
@@ -19,7 +20,8 @@ export default class GesturesHandler {
     handlePanStart = (evt: IPanningEvent) => {
         console.info("[PanStart] evt=", evt);
         const axis = Scene.camera.axis;
-        this.savedTranslation = Scene.camera.position;
+        this.savedTarget = Scene.camera.target;
+        this.savedPosition = Scene.camera.position;
         this.savedOrientation = Scene.camera.orientation;
         this.savedAxis = axis;
         this.savedScreenPoint = {
@@ -33,6 +35,7 @@ export default class GesturesHandler {
 
     handlePan =  (evt: IPanningEvent) => {
         if (evt.button === 1) this.translateCamera(evt);
+        else if (evt.button === 4) this.orbitCamera(evt);
         else this.rotateCamera(evt);
     }
 
@@ -40,7 +43,7 @@ export default class GesturesHandler {
         const axis = this.savedAxis;
         const x = evt.screenX - this.savedScreenPoint.screenX;
         const y = evt.screenY - this.savedScreenPoint.screenY;
-        const oldTranslation = this.savedTranslation.slice() as IVector;
+        const oldTranslation = this.savedPosition.slice() as IVector;
         const factor = Scene.camera.getTargetDistance() * 1.0;
         const newTranslation = Geometry.addVectors(
             oldTranslation,
@@ -52,12 +55,38 @@ export default class GesturesHandler {
         Scene.camera.setPosition(newTranslation);
     }
 
-    private rotateCamera(evt: IPanningEvent) {
+    private orbitCamera(evt: IPanningEvent) {
         const axis = this.savedAxis;
         const x = evt.screenX - this.savedScreenPoint.screenX;
         const y = evt.screenY - this.savedScreenPoint.screenY;
         const oldOrientation = this.savedOrientation.slice() as IQuaternion;
         const angleX = Math.PI * y;
+        const angleY = 2 * Math.PI * x;
+        const quaternionX = Geometry.makeQuaternionAsAxisRotation(angleX, axis.x);
+        const quaternionY = Geometry.makeQuaternionAsAxisRotation(angleY, axis.y);
+        const quaternionXY = Geometry.multiplyQuaternions(quaternionX, quaternionY);
+        const newOrientation = Geometry.multiplyQuaternions(quaternionXY, oldOrientation);
+
+        const positionVector = Geometry.vectorFromPoints(
+            this.savedTarget,
+            this.savedPosition
+        );
+        const rotatedPositionVector = Geometry.rotateWithQuaternion(
+            positionVector,
+            quaternionXY
+        );
+        const newPosition = Geometry.addVectors(this.savedTarget, rotatedPositionVector);
+
+        Scene.camera.setPositionAndOrientation(newPosition, newOrientation);
+        //Scene.camera.setPosition(newPosition);
+    }
+
+    private rotateCamera(evt: IPanningEvent) {
+        const axis = this.savedAxis;
+        const x = evt.screenX - this.savedScreenPoint.screenX;
+        const y = evt.screenY - this.savedScreenPoint.screenY;
+        const oldOrientation = this.savedOrientation.slice() as IQuaternion;
+        const angleX = - Math.PI * y;
         const angleY = 2 * Math.PI * x;
         const quaternionX = Geometry.makeQuaternionAsAxisRotation(angleX, axis.x);
         const quaternionY = Geometry.makeQuaternionAsAxisRotation(angleY, axis.y);

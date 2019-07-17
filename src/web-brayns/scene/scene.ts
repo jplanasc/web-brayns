@@ -1,28 +1,32 @@
 /**
  * There is only one scene in Brayns.
  */
+import { Client as BraynsClient } from "brayns"
 
-import { Client as BraynsClient } from "Scene.brayns"
-
+import Api from "./api"
 import { IModel } from '../types'
 import State from '../state'
 import ServiceHost from '../service/host'
 import Model from './model'
 import Camera from './camera'
+import Renderer from './renderer'
 import GesturesHandler from './gestures-handler'
 
 // Brayns' client.
 const Scene: {
     brayns: (BraynsClient | null),
     camera: (Camera | null),
+    renderer: Renderer,
     gestures: GesturesHandler
 } = {
     brayns: null,
     camera: null,
+    renderer: new Renderer(),
     gestures: new GesturesHandler()
 }
 
 export default {
+    Api,
     clear,
     connect,
     loadMeshFromPath,
@@ -30,6 +34,7 @@ export default {
     setViewPort,
     get brayns() { return Scene.brayns; },
     get camera(): Camera { return Scene.camera || new Camera({}); },
+    get renderer(): Renderer { return Scene.renderer },
     get gestures(): GesturesHandler { return Scene.gestures }
  }
 
@@ -41,6 +46,7 @@ async function connect(hostName: string): Promise<BraynsClient> {
     console.info("Scene.brayns=", Scene.brayns);
     const cameraParams = await request('get-camera-params');
     Scene.camera = new Camera(cameraParams);
+    Scene.renderer.init(Scene.brayns);
     return Scene.brayns;
 }
 

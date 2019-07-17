@@ -25,18 +25,6 @@ div.App {
     --panel-width: 400px;
 }
 
-div.App > div.panel {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: var(--panel-width);
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-}
-
 div.App > div.view {
     position: absolute;
     top: 0;
@@ -44,6 +32,7 @@ div.App > div.view {
     height: 100%;
     width: calc(100% - var(--panel-width));
     overflow: hidden;
+    background: #500;
 }
 
 div.App > div.view > canvas {
@@ -74,6 +63,26 @@ div.App > div.panel > header {
     height: 48px;
 }
 
+div.App > div.panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--panel-width);
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
 div.App > div.panel > header > div {
     padding: 0 .5rem;
+}
+
+div.App > div.panel > div {
+    height: calc(100% - 2rem);
+}
+
+div.App > div.panel > div > * {
+    flex: 1 1 auto;
 }

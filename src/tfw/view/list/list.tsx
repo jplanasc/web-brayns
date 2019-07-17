@@ -1,7 +1,6 @@
 import * as React from "react"
 import "./list.css"
 import Debouncer from "../../debouncer";
-import Button from "./../button"
 import castUnit from "../../converter/unit"
 import castBoolean from "../../converter/boolean"
 import castInteger from "../../converter/integer"
@@ -167,9 +166,6 @@ export default class List extends React.Component<IListProps, IListState> {
                     children
                 }</div>
                 <div className="space" ref={this.refTail} />
-                <div className="screen">
-                    <Button icon="refresh" wait={true} />
-                </div>
             </div>
         );
     }

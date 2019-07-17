@@ -9,21 +9,23 @@ import Scene from '../../scene'
 import "./websocket-console.css"
 
 
-interface IWebsocketConsole {
+interface IWebsocketConsoleState {
     method: string,
     params: string,
     output: string,
+    error: string | null,
     querying: boolean
 }
 
 
-export default class WebsocketConsole extends React.Component<{}, IWebsocketConsole> {
+export default class WebsocketConsole extends React.Component<{}, IWebsocketConsoleState> {
     constructor( props: {} ) {
         super( props );
         this.state = {
             method: get("method", "get-renderer-params"),
             params: get("params", "{}"),
             output: "",
+            error: null,
             querying: false
         }
     }
@@ -32,7 +34,7 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
         this.setState({ method });
     }
 
-    handleParamsChange = (event: string) => {
+    handleParamsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         this.setState({ params: event.target.value });
     }
 
@@ -42,14 +44,15 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
         set("method", method);
         set("params", params);
 
-        this.setState({ querying: true, output: '' });
+        this.setState({ querying: true, output: `${Date.now()}`, error: null });
         try {
-            const input = JSON.parse(params);
+            const input = parseJSON(params);
             const output = await Scene.request(method, input);
-            this.setState({ output: JSON.stringify(output, null, '  ') });
+            this.setState({ error: null, output: JSON.stringify(output, null, '  ') });
         }
         catch( ex ) {
             console.error("WebSocket console error:", ex);
+            this.setState({ error: parseError(ex) });
         }
         finally {
             this.setState({ querying: false });
@@ -57,28 +60,26 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
     }
 
     render() {
-        return (<div className="webBrayns-view-WebsocketConsole">
+        return (<div className="webBrayns-view-WebsocketConsole thm-bg0">
             <div className="head">
                 <Input
                     label="Method"
                     value={this.state.method}
                     onChange={this.handleMethodChange}
+                    onEnter={this.handleExecute}
                     wide={true}/>
                 <Button
                     wait={this.state.querying}
-                    label="Execute"
                     icon="gear"
                     onClick={this.handleExecute}/>
             </div>
             <div className="body">
-                <div>
-                    <textarea
-                        onChange={this.handleParamsChange}
-                        defaultValue={this.state.params}></textarea>
-                </div>
-                <div className="output">{
-                    this.state.querying ?
-                    <Icon content="wait" animate={true} size={128}/> :
+                <textarea
+                    onChange={this.handleParamsChange}
+                    defaultValue={this.state.params}></textarea>
+                <div className="output thm-bg1">{
+                    this.state.error ?
+                    <div className="error">{this.state.error}</div> :
                     <pre>{this.state.output}</pre>
                 }</div>
             </div>
@@ -95,4 +96,23 @@ function get(key: string, defaultValue: any): any {
 
 function set(key: string, value: any): any {
     return Storage.local.set(`${STORAGE_PREFIX}${key}`, value);
+}
+
+
+function parseJSON(json: string): any {
+    try {
+        return JSON.parse(json);
+    }
+    catch(ex) {
+        throw Error(`This parameter is not in valid JSON format:\n${json}\n\nReason: ${ex}!`);
+    }
+}
+
+
+function parseError(ex: any) {
+    let output = JSON.stringify(ex, null, '  ');
+    if (ex && typeof ex.toString === 'function') {
+        output += '\n\n' + ex.toString();
+    }
+    return output;
 }

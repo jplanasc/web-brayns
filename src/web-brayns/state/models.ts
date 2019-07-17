@@ -12,6 +12,7 @@ export default {
         const command = action.type.substr(PREFIX.length);
         switch (command) {
             case "add": return add(state, action);
+            case "reset": return reset(state, action);
             case "update": return update(state, action);
             default: throw Error(`Unknown action "${type}"!`);
         }
@@ -19,6 +20,10 @@ export default {
 
     add(model: IModel): IAction {
         return { type: `${PREFIX}add`, model };
+    },
+
+    reset(models: IModel[]): IAction {
+        return { type: `${PREFIX}reset`, models };
     },
 
     update(model: IModel): IAction {
@@ -32,6 +37,23 @@ function add(state: IModel[], action: IAction): IModel[] {
     models.push(action.model);
     return models;
 }
+
+/**
+ * This function seem complicated, but it aism to remove doubles.
+ * It's strange but its true thay Brayns can return doubles when you call "get-scene".
+ */
+function reset(state: IModel[], action: IAction): IModel[] {
+    const alreadyAddedIds: number[] = [];
+    const models = action.models.filter( (model: {id: number}) => {
+        const id = model.id;
+        const alreadyHere = alreadyAddedIds.includes(id);
+        if (alreadyHere) return false;
+        alreadyAddedIds.push(id);
+        return true;
+    });
+    return models;
+}
+
 
 function update(state: IModel[], action: IAction): IModel[] {
     const { model } = action;

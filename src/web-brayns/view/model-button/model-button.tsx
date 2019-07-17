@@ -40,11 +40,18 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
     render() {
         const { model } = this.props;
         const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
-        classNames.push(model.$selected ? "thm-bgSL" : "thm-bg2");
+        if (model.visible) {
+            classNames.push(model.$selected ? "thm-bgSL" : "thm-bg2");
+        } else {
+            classNames.push(model.$selected ? "thm-bgSD" : "thm-bg0");
+        }
         return (<Touchable classNames={classNames.join((" "))}
                            onClick={this.handleToggleSelection}
-                           title={model.id}>
-                <div className="name">{model.name}</div>
+                           title={model.path}>
+                <div className="name">
+                    <div className={model.visible ? "visible" : "invisible"}>{model.name}</div>
+                    <div className='id'>{`#${model.id}`}</div>
+                </div>
                 <div className="icons">
                     <div>
                         <Button small={true} icon="gps" onClick={this.handleFocus}/>

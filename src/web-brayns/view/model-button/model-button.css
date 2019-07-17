@@ -15,3 +15,24 @@ div.webBrayns-view-ModelButton > div.icons {
     justify-content: space-between;
     align-items: center;
 }
+
+div.webBrayns-view-ModelButton div.id {
+    display: inline-block;
+    padding: 0 .25rem;
+    opacity: .5;
+    font-size: 80%;
+}
+
+div.webBrayns-view-ModelButton div.name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+div.webBrayns-view-ModelButton div.name > div.invisible {
+    text-decoration: line-through;
+}
+
+div.webBrayns-view-ModelButton div.name > div.visible {
+    font-weight: bold;
+}

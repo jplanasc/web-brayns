@@ -23,20 +23,10 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
 
     constructor(props: IImageStreamProps) {
         super(props);
-        // @TODO: add a throttler.
-        this.handleRotation = this.handleRotation;
     }
 
     get canvas(): HTMLCanvasElement | null {
         return this.canvasRef.current;
-    }
-    get ctx() {
-        const canvas = this.canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            return ctx;
-        }
-        return null;
     }
 
     componentDidMount() {
@@ -45,6 +35,8 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         if (!this.canvas) {
             return;
         }
+
+        Scene.renderer.canvas = this.canvas;
 
         const that = this;
 
@@ -72,37 +64,14 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
             },
             pan: this.handlePan
         });
-
-        this.props.brayns
-                .observe(IMAGE_JPEG)
-                .subscribe(async (blob) => {
-                    const canvas = this.canvasRef.current;
-                    if (!canvas ) return;
-                    const ctx = this.ctx;
-                    if (!ctx) return;
-
-                    const img = await blobToImg(blob);
-                    const srcW = img.naturalWidth;
-                    const srcH = img.naturalHeight;
-                    const dstW = canvas.width;
-                    const dstH = canvas.height;
-                    const dstX = (dstW - srcW) / 2;
-                    const dstY = (dstH - srcH) / 2;
-                    ctx.drawImage(
-                        img,
-                        dstX, dstY,
-                        srcW, srcH
-                    )
-                });
-
         this.updateViewPort();
         window.onfocus = this.updateViewPort;
     }
 
     private handleDown = (evt: IEvent) => {
-        console.info("evt=", evt);
         const handler = this.props.onPanStart;
         if (typeof handler !== 'function') return;
+        evt.clear();
         handler(Object.assign(
             { button: evt.buttons },
             this.getScreenPoint(evt.x, evt.y)));
@@ -115,20 +84,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         handler(Object.assign(
             { button: evt.buttons },
             this.getScreenPoint(evt.x, evt.y)));
-    }
-
-    private handleRotation = (evt: IEvent) => {
-        if (!this.canvas) return;
-        const { width, height } = this.canvas;
-        const x = (evt.x - (evt.startX || 0)) / width;
-        const y = (evt.y - (evt.startY || 0)) / height;
-        const orientation = this.orientation;
-        Scene.camera.setOrientation([
-            orientation[0] + y,
-            orientation[1] + x,
-            orientation[2],
-            orientation[3]
-        ]);
     }
 
     /**
@@ -158,9 +113,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         await Scene.setViewPort(w, h);
     }
 
-    componentWillUnmount() {
-    }
-
     // We use moz-opaque to improve the perf. of the canvas
     // See https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
     render() {
@@ -171,21 +123,4 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                 moz-opaque="true" />
         );
     }
-}
-
-
-function blobToImg(blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    const img: any = new Image();
-    return new Promise<HTMLImageElement>(resolve => {
-        img.src = url;
-        // https://medium.com/dailyjs/image-loading-with-image-decode-b03652e7d2d2
-        if (img.decode) {
-            img.decode()
-                // TODO: Figure out why decode() throws DOMException
-                .then(() => resolve(img));
-        } else {
-            img.onload = () => resolve(img);
-        }
-    });
 }

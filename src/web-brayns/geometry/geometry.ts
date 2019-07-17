@@ -5,6 +5,7 @@ export default {
     makeQuaternionAsAxisRotation,
     multiplyQuaternions,
     normalize,
+    rotateWithQuaternion,
     scalarProduct,
     scale,
     vectorFromPoints
@@ -29,14 +30,14 @@ function makeQuaternionAsAxisRotation(angle: number, axis: IVector): IQuaternion
 }
 
 
-function multiplyQuaternions(q1: IQuaternion, q2: IQuaternion): IQuaternion {
-    const [w1, x1, y1, z1] = q1;
-    const [w2, x2, y2, z2] = q2;
+function multiplyQuaternions(q: IQuaternion, r: IQuaternion): IQuaternion {
+    const [q1, q2, q3, q0] = q;
+    const [r1, r2, r3, r0] = r;
     return [
-        w1*x2 + x1*w2 - y1*z2 + z1*y2,
-        w1*y2 + x1*z2 + y1*w2 - z1*x2,
-        w1*z2 - x1*y2 + y1*x2 + z1*w2,
-        w1*w2 - x1*x2 - y1*y2 - z1*z2
+        r0*q1 + r1*q0 - r2*q3 + r3*q2,
+        r0*q2 + r1*q3 + r2*q0 - r3*q1,
+        r0*q3 - r1*q2 + r2*q1 + r3*q0,
+        r0*q0 - r1*q1 - r2*q2 - r3*q3
     ];
 }
 
@@ -54,6 +55,20 @@ function scalarProduct(v1: IVector, v2: IVector): number {
     const [x1, y1, z1] = v1;
     const [x2, y2, z2] = v2;
     return x1*x2 + y1*y2 + z1*z2;
+}
+
+
+function rotateWithQuaternion(point: IVector, quaternion: IQuaternion): IVector {
+    const Q = quaternion;
+    const [x, y, z] = point;
+    const [qx, qy, qz, qw] = Q;
+    const invQ: IQuaternion = [-qx, -qy, -qz, qw];
+    const P: IQuaternion = [x, y, z, 0];
+
+    const R = multiplyQuaternions(
+        Q, multiplyQuaternions(P, invQ)
+    )
+    return [R[0], R[1], R[2]];
 }
 
 

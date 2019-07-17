@@ -5,7 +5,8 @@ import Storage from "../../../tfw/storage"
 
 
 interface IHostNameInputProps {
-    onChange: (hostName: string) => void
+    onChange: (hostName: string) => void,
+    onEnter: () => void
 }
 
 interface IHostNameInputState {
@@ -27,6 +28,13 @@ export default class HostNameInput extends React.Component<IHostNameInputProps, 
         }
     }
 
+    handleEnter = () => {
+        const handler = this.onEnter;
+        if (typeof handler === 'function') {
+            handler();
+        }
+    }
+
     componentDidMount() {
         this.handleChange(this.state.hostName);
     }
@@ -37,11 +45,12 @@ export default class HostNameInput extends React.Component<IHostNameInputProps, 
                 wide={true}
                 label="Brayns host name"
                 value={this.state.hostName}
+                onEnter={this.handleEnter}
                 onChange={this.handleChange}/>
             <Button
-                wide={true} small={true} flat={true}
+                wide={true} flat={true}
                 label="How can I find that Brayns host name?"
-                icon="link"/>
+                icon="help"/>
         </div>)
     }
 }
