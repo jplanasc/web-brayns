@@ -2,14 +2,15 @@ import React from "react"
 import { Client as BraynsClient } from "brayns"
 
 import Scene from './web-brayns/scene'
+import State from './web-brayns/state'
 import Model from './web-brayns/scene/model'
 import ImageStream from './web-brayns/view/image-stream'
 import Icon from './tfw/view/icon'
 import Dialog from './tfw/factory/dialog'
 import InputPath from './web-brayns/view/input-path'
 import WebsocketConsole from './web-brayns/view/websocket-console'
-
 import ModelList from './web-brayns/view/model-list/container'
+import { IVector } from './web-brayns/types'
 
 import "./app.css"
 
@@ -25,12 +26,37 @@ export default class App extends React.Component<IAppProps, {}> {
 
     async componentDidMount() {
         try {
+            /*
             //Scene.clear();
-            const astro1 = await loadAstrocyte(1);
-            await astro1.locate([-30, 0, 0]);
-            const astro2 = await loadAstrocyte(2);
-            await astro2.locate([30, 0, 0]);
+            let modelNumber = 1;
+            const factor = 200;
+            const models: Model[] = [];
+            const positions: IVector[] = [];
 
+            for (let x=-1; x<=1; x++) {
+                for (let y=-1; y<=1; y++) {
+                    for (let z=-1; z<=1; z++) {
+                        const astro = await loadAstrocyte(modelNumber++);
+                        models.push(astro);
+                        positions.push([
+                            factor * x,
+                            factor * y,
+                            factor * z
+                        ])
+                    }
+                }
+            }
+
+            models.forEach( async (model: Model, index: number) => {
+                await model.locate(positions[index]);
+            })*/
+
+            const scene = await Scene.Api.getScene();
+            const models = scene.models.sort((a,b) => {
+                return a.id - b.id;
+            });
+            console.info("models=", models);
+            State.dispatch(State.Models.reset(scene.models));
             Scene.camera.lookAtWholeScene();
         }
         catch( ex ) {

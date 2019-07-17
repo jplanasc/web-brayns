@@ -22,12 +22,14 @@ interface IInputProps {
     size?: number;
     focus?: boolean;
     width?: string;
+    placeholder?: string;
     type?: "text" | "password" | "submit" | "color" | "date"
     | "datetime-local" | "email" | "month" | "number" | "range"
     | "search" | "tel" | "time" | "url" | "week";
     validator?: (value: string) => boolean | string;
     onValidation?: (validation: boolean | string) => void;
-    onChange?: IStringSlot
+    onChange?: IStringSlot,
+    onEnter?: () => void
 }
 
 interface IInputState {
@@ -69,6 +71,17 @@ export default class Input extends React.Component<IInputProps, IInputState> {
         } catch(ex) {
             console.error("Error in handleValidation(validation): ", validation);
             console.error(ex);
+        }
+    }
+
+    handleKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
+        if (evt.key === "enter") {
+            evt.preventDefault();
+            evt.stopPropagation();
+            const handler = this.props.onEnter;
+            if (typeof handler === 'function') {
+                handler();
+            }
         }
     }
 
@@ -157,6 +170,7 @@ export default class Input extends React.Component<IInputProps, IInputState> {
             type = castString(p.type, "text"),
             label = castString(p.label, ""),
             value = castString(p.value, ""),
+            placeholder = castString(p.placeholder, ""),
             wide = castBoolean(p.wide, false),
             size = Math.max(1, castInteger(p.size, 8)),
             error = this.state.error,
@@ -180,12 +194,14 @@ export default class Input extends React.Component<IInputProps, IInputState> {
             <input
                 ref={this.input}
                 className="thm-bg3 thm-ele-button"
+                placeholder={placeholder}
                 type={type}
                 id={id}
                 size={size}
                 onFocus={this.onFocus}
                 onBlur={this.onBlur}
                 onChange={this.onChange}
+                onKeyDown={this.handleKeyDown}
                 value={newValue}/>
         </div>);
     }

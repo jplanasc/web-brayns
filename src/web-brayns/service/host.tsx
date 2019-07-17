@@ -2,6 +2,7 @@ import { Client as BraynsClient } from "brayns"
 import React from 'react';
 import UrlArgs from "../../tfw/url-args"
 import Dialog from "../../tfw/factory/dialog"
+import Button from "../../tfw/view/button"
 import InputHostName from "../view/input-host-name"
 
 // Timeout connection to Brayns service.
@@ -19,20 +20,36 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
         if (!ignoreQueryString) {
             const urlArgs = UrlArgs.parse();
             const hostFromQueryString = urlArgs.host;
-            if (typeof hostFromQueryString === 'string') resolve(hostFromQueryString);
+            if (typeof hostFromQueryString === 'string') {
+                resolve(hostFromQueryString);
+                return;
+            }
         }
 
         let hostName = "";
-        const input = <InputHostName onChange={(value: string) => hostName = value}/>;
-        const userHasConfirmed = await Dialog.confirm("Connect to Brayns", input);
-        if (userHasConfirmed) {
-            resolve(hostName);
-            return;
-        }
-
-        await Dialog.alert((<p>Web-Brayns absolutly needs to be connected to the Brayns server...</p>));
-        location.reload();
-        resolve("");
+        let validated = false;
+        const input = <InputHostName
+            onEnter={() => { dialog.hide() }}
+            onChange={(value: string) => hostName = value}/>;
+        const dialog = Dialog.show({
+            closeOnEscape: true,
+            content: input,
+            footer: <Button label="Connect to Brayns Service"
+                            onClick={() => {
+                                validated = true;
+                                dialog.hide();
+                                resolve(hostName);
+                            }}
+                            icon="plug"/>,
+            icon: "plug",
+            title: "Connect to Brayns Service",
+            onClose: async () => {
+                if (validated) return;
+                await Dialog.alert((<p>Web-Brayns absolutly needs to be connected to the Brayns server...</p>));
+                location.reload();
+                resolve("");
+            }
+        });
     });
 }
 

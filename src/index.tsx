@@ -24,11 +24,6 @@ async function start() {
             Scene.connect(hostName)
         );
 
-        await Dialog.wait(
-            "Clearing the scene...",
-            Scene.clear()
-        );
-
         // Entry point for our app
         const root = document.getElementById('root') as HTMLElement;
         ReactDOM.render(<Provider store={State.store}><App brayns={client}/></Provider>, root);

@@ -37,6 +37,12 @@ import Geom from '../geometry'
          this.applyCamera();
      }
 
+     setPositionAndOrientation(position: IVector, orientation: IQuaternion) {
+         this.params.position = position;
+         this.params.orientation = orientation;
+         this.applyCamera();
+     }
+
      get axis(): IAxis {
          const [b, c, d, a] = this.orientation;
          const aa = a*a;
