@@ -6,6 +6,8 @@ import { BoundingBox } from "brayns"
 import { ICamera, IVector, IQuaternion, IAxis } from '../types'
 import Scene from './scene'
 import Geom from '../geometry'
+import Models from '../models'
+import State from '../state'
 
 
  export default class Camera {
@@ -145,8 +147,11 @@ import Geom from '../geometry'
      }
 
      async lookAtWholeScene() {
-         const scene = await Scene.request('get-scene');
-         const bounds: BoundingBox = scene.bounds || { min: [0,0,0], max: [0,0,0] };
+         const bounds = Models.getModelsBounds(State.store.getState().models.map(m => (
+             {
+                 brayns: m
+             }
+         )))
          await this.lookAtBounds(bounds);
      }
 
