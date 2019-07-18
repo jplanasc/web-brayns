@@ -4,12 +4,13 @@ import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
 import { IQuaternion, IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
 import Scene from '../../scene'
 import Gesture from '../../../tfw/gesture'
+import Button from '../../../tfw/view/button'
+
 import { IEvent } from '../../../tfw/gesture/types'
 
 import "./image-stream.css"
 
 interface IImageStreamProps {
-    brayns: BraynsClient,
     onHit?: (point: IHitPoint) => void,
     // Hitting the void, actually
     onTap?: (point: IScreenPoint) => void,
@@ -117,10 +118,15 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
     // See https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
     render() {
         return (
-            <canvas
-                ref={this.canvasRef}
-                className="webBrayns-view-ImageStream"
-                moz-opaque="true" />
+            <div className="webBrayns-view-ImageStream">
+                <canvas
+                    ref={this.canvasRef}
+                    className=""
+                    moz-opaque="true" />
+                <div className="icons">
+                    <Button icon="camera" warning={true}/>
+                </div>
+            </div>
         );
     }
 }

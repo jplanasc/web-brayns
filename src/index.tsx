@@ -6,7 +6,7 @@ import ServiceHost from "./web-brayns/service/host"
 import Scene from "./web-brayns/scene"
 import Dialog from "./tfw/factory/dialog"
 import Theme from "./tfw/theme"
-import App from './app';
+import App from './app.container';
 import State from './web-brayns/state'
 
 import "./tfw/font/josefin.css"
@@ -23,6 +23,9 @@ async function start() {
             "Connecting to Brayns service...",
             Scene.connect(hostName)
         );
+
+        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene());
+        State.dispatch(State.Models.reset(scene.models));
 
         // Entry point for our app
         const root = document.getElementById('root') as HTMLElement;
