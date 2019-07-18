@@ -55,7 +55,7 @@ export default {
    updateModel /* Update the model with the given values */}
 
 //========================================================================
-// "add-clip-plane" - Add a clip plane; returns the clip plane descriptor 
+// "add-clip-plane" - Add a clip plane; returns the clip plane descriptor
 //------------------------------------------------------------------------
 export type API_addClipPlane_Param0 = [
    number,
@@ -82,7 +82,7 @@ async function addClipPlane(plane: API_addClipPlane_Param0): Promise<API_addClip
    return out as API_addClipPlane_Return
 }
 //============================================
-// "add-light-ambient" - Add an ambient light 
+// "add-light-ambient" - Add an ambient light
 //--------------------------------------------
 export type API_addLightAmbient_Param0 = {
    color: [
@@ -102,7 +102,7 @@ async function addLightAmbient(light: API_addLightAmbient_Param0): Promise<API_a
    return out as API_addLightAmbient_Return
 }
 //===================================================
-// "add-light-directional" - Add a directional light 
+// "add-light-directional" - Add a directional light
 //---------------------------------------------------
 export type API_addLightDirectional_Param0 = {
    angularDiameter: number;
@@ -128,7 +128,7 @@ async function addLightDirectional(light: API_addLightDirectional_Param0): Promi
    return out as API_addLightDirectional_Return
 }
 //=====================================
-// "add-light-quad" - Add a quad light 
+// "add-light-quad" - Add a quad light
 //-------------------------------------
 export type API_addLightQuad_Param0 = {
    color: [
@@ -163,7 +163,7 @@ async function addLightQuad(light: API_addLightQuad_Param0): Promise<API_addLigh
    return out as API_addLightQuad_Return
 }
 //=========================================
-// "add-light-sphere" - Add a sphere light 
+// "add-light-sphere" - Add a sphere light
 //-----------------------------------------
 export type API_addLightSphere_Param0 = {
    color: [
@@ -189,7 +189,7 @@ async function addLightSphere(light: API_addLightSphere_Param0): Promise<API_add
    return out as API_addLightSphere_Return
 }
 //================================================
-// "add-light-spot" - Add a spotlight, returns id 
+// "add-light-spot" - Add a spotlight, returns id
 //------------------------------------------------
 export type API_addLightSpot_Param0 = {
    color: [
@@ -222,7 +222,7 @@ async function addLightSpot(light: API_addLightSpot_Param0): Promise<API_addLigh
    return out as API_addLightSpot_Return
 }
 //===============================================================================
-// "add-model" - Add model from remote path; returns model descriptor on success 
+// "add-model" - Add model from remote path; returns model descriptor on success
 //-------------------------------------------------------------------------------
 export type API_addModel_Param0 = {
    bounding_box?: boolean;
@@ -308,7 +308,7 @@ async function addModel(model_param: API_addModel_Param0): Promise<API_addModel_
    return out as API_addModel_Return
 }
 //=================================================================
-// "chunk" - Indicate sending of a binary chunk after this message 
+// "chunk" - Indicate sending of a binary chunk after this message
 //-----------------------------------------------------------------
 export type API_chunk_Param0 = {
    id?: string;
@@ -322,7 +322,7 @@ async function chunk(chunk: API_chunk_Param0): Promise<API_chunk_Return> {
    return out as API_chunk_Return
 }
 //=================================================
-// "clear-lights" - Remove all lights in the scene 
+// "clear-lights" - Remove all lights in the scene
 //-------------------------------------------------
 export type API_clearLights_Return = undefined
 /**
@@ -333,7 +333,7 @@ async function clearLights(): Promise<API_clearLights_Return> {
    return out as API_clearLights_Return
 }
 //============================================================================
-// "get-animation-parameters" - Get the current state of animation-parameters 
+// "get-animation-parameters" - Get the current state of animation-parameters
 //----------------------------------------------------------------------------
 export type API_getAnimationParameters_Return = {
    current?: (number /* Integer */);
@@ -351,7 +351,7 @@ async function getAnimationParameters(): Promise<API_getAnimationParameters_Retu
    return out as API_getAnimationParameters_Return
 }
 //================================================================================
-// "get-application-parameters" - Get the current state of application-parameters 
+// "get-application-parameters" - Get the current state of application-parameters
 //--------------------------------------------------------------------------------
 export type API_getApplicationParameters_Return = {
    engine?: string;
@@ -370,7 +370,7 @@ async function getApplicationParameters(): Promise<API_getApplicationParameters_
    return out as API_getApplicationParameters_Return
 }
 //================================================
-// "get-camera" - Get the current state of camera 
+// "get-camera" - Get the current state of camera
 //------------------------------------------------
 export type API_getCamera_Return = {
    current?: string;
@@ -400,7 +400,7 @@ async function getCamera(): Promise<API_getCamera_Return> {
    return out as API_getCamera_Return
 }
 //============================================================
-// "get-camera-params" - Get the params of the current camera 
+// "get-camera-params" - Get the params of the current camera
 //------------------------------------------------------------
 export type API_getCameraParams_Return = (
    {
@@ -428,7 +428,7 @@ async function getCameraParams(): Promise<API_getCameraParams_Return> {
    return out as API_getCameraParams_Return
 }
 //=========================================
-// "get-clip-planes" - Get all clip planes 
+// "get-clip-planes" - Get all clip planes
 //-----------------------------------------
 export type API_getClipPlanes_Return = (
       null
@@ -449,7 +449,7 @@ async function getClipPlanes(): Promise<API_getClipPlanes_Return> {
    return out as API_getClipPlanes_Return
 }
 //================================================================
-// "get-environment-map" - Get the environment map from the scene 
+// "get-environment-map" - Get the environment map from the scene
 //----------------------------------------------------------------
 export type API_getEnvironmentMap_Return = {
    filename: string;
@@ -462,7 +462,7 @@ async function getEnvironmentMap(): Promise<API_getEnvironmentMap_Return> {
    return out as API_getEnvironmentMap_Return
 }
 //=================================
-// "get-instances" - Get instances 
+// "get-instances" - Get instances
 //---------------------------------
 export type API_getInstances_Param0 = {
    id: (number /* Integer */);
@@ -508,7 +508,7 @@ async function getInstances(id, range: API_getInstances_Param0): Promise<API_get
    return out as API_getInstances_Return
 }
 //===============================
-// "get-lights" - get all lights 
+// "get-lights" - get all lights
 //-------------------------------
 export type API_getLights_Return = {
       id: (number /* Integer */);
@@ -523,7 +523,7 @@ async function getLights(): Promise<API_getLights_Return> {
    return out as API_getLights_Return
 }
 //=================================
-// "get-loaders" - Get all loaders 
+// "get-loaders" - Get all loaders
 //---------------------------------
 export type API_getLoaders_Return = {
       extensions: string[];
@@ -538,7 +538,7 @@ async function getLoaders(): Promise<API_getLoaders_Return> {
    return out as API_getLoaders_Return
 }
 //================================================================
-// "get-model-properties" - Get the properties of the given model 
+// "get-model-properties" - Get the properties of the given model
 //----------------------------------------------------------------
 export type API_getModelProperties_Param0 = {
    id: (number /* Integer */);
@@ -552,7 +552,7 @@ async function getModelProperties(id: API_getModelProperties_Param0): Promise<AP
    return out as API_getModelProperties_Return
 }
 //==============================================================================
-// "get-model-transfer-function" - Get the transfer function of the given model 
+// "get-model-transfer-function" - Get the transfer function of the given model
 //------------------------------------------------------------------------------
 export type API_getModelTransferFunction_Param0 = {
    id: (number /* Integer */);
@@ -583,7 +583,7 @@ async function getModelTransferFunction(id: API_getModelTransferFunction_Param0)
    return out as API_getModelTransferFunction_Return
 }
 //====================================================
-// "get-renderer" - Get the current state of renderer 
+// "get-renderer" - Get the current state of renderer
 //----------------------------------------------------
 export type API_getRenderer_Return = {
    accumulation?: boolean;
@@ -608,7 +608,7 @@ async function getRenderer(): Promise<API_getRenderer_Return> {
    return out as API_getRenderer_Return
 }
 //================================================================
-// "get-renderer-params" - Get the params of the current renderer 
+// "get-renderer-params" - Get the params of the current renderer
 //----------------------------------------------------------------
 export type API_getRendererParams_Return = (
    {
@@ -691,7 +691,7 @@ async function getRendererParams(): Promise<API_getRendererParams_Return> {
    return out as API_getRendererParams_Return
 }
 //==============================================
-// "get-scene" - Get the current state of scene 
+// "get-scene" - Get the current state of scene
 //----------------------------------------------
 export type API_getScene_Return = {
    bounds?: {
@@ -760,7 +760,7 @@ async function getScene(): Promise<API_getScene_Return> {
    return out as API_getScene_Return
 }
 //========================================================
-// "get-statistics" - Get the current state of statistics 
+// "get-statistics" - Get the current state of statistics
 //--------------------------------------------------------
 export type API_getStatistics_Return = {
    fps: number;
@@ -774,7 +774,7 @@ async function getStatistics(): Promise<API_getStatistics_Return> {
    return out as API_getStatistics_Return
 }
 //======================================================================
-// "get-volume-parameters" - Get the current state of volume-parameters 
+// "get-volume-parameters" - Get the current state of volume-parameters
 //----------------------------------------------------------------------
 export type API_getVolumeParameters_Return = {
    adaptive_max_sampling_rate?: number;
@@ -824,7 +824,7 @@ async function getVolumeParameters(): Promise<API_getVolumeParameters_Return> {
    return out as API_getVolumeParameters_Return
 }
 //====================================================
-// "image-jpeg" - Get the current state of image-jpeg 
+// "image-jpeg" - Get the current state of image-jpeg
 //----------------------------------------------------
 export type API_imageJpeg_Return = {
    data: string;
@@ -837,7 +837,7 @@ async function imageJpeg(): Promise<API_imageJpeg_Return> {
    return out as API_imageJpeg_Return
 }
 //===============================================
-// "inspect" - Inspect the scene at x-y position 
+// "inspect" - Inspect the scene at x-y position
 //-----------------------------------------------
 export type API_inspect_Param0 = [
    number,
@@ -859,7 +859,7 @@ async function inspect(position: API_inspect_Param0): Promise<API_inspect_Return
    return out as API_inspect_Return
 }
 //===================================================
-// "loaders-schema" - Get the schema for all loaders 
+// "loaders-schema" - Get the schema for all loaders
 //---------------------------------------------------
 export type API_loadersSchema_Return = {}[]
 /**
@@ -870,7 +870,7 @@ async function loadersSchema(): Promise<API_loadersSchema_Return> {
    return out as API_loadersSchema_Return
 }
 //==================================================================
-// "model-properties-schema" - Get the property schema of the model 
+// "model-properties-schema" - Get the property schema of the model
 //------------------------------------------------------------------
 export type API_modelPropertiesSchema_Param0 = {
    id: (number /* Integer */);
@@ -884,7 +884,7 @@ async function modelPropertiesSchema(id: API_modelPropertiesSchema_Param0): Prom
    return out as API_modelPropertiesSchema_Return
 }
 //===============================
-// "quit" - Quit the application 
+// "quit" - Quit the application
 //-------------------------------
 export type API_quit_Return = undefined
 /**
@@ -895,7 +895,7 @@ async function quit(): Promise<API_quit_Return> {
    return out as API_quit_Return
 }
 //===========================================================================
-// "remove-clip-planes" - Remove clip planes from the scene given their gids 
+// "remove-clip-planes" - Remove clip planes from the scene given their gids
 //---------------------------------------------------------------------------
 export type API_removeClipPlanes_Param0 = (number /* Integer */)[]
 export type API_removeClipPlanes_Return = boolean
@@ -907,7 +907,7 @@ async function removeClipPlanes(ids: API_removeClipPlanes_Param0): Promise<API_r
    return out as API_removeClipPlanes_Return
 }
 //================================================
-// "remove-lights" - Remove light given their IDs 
+// "remove-lights" - Remove light given their IDs
 //------------------------------------------------
 export type API_removeLights_Param0 = (number /* Integer */)[]
 export type API_removeLights_Return = boolean
@@ -919,7 +919,7 @@ async function removeLights(ids: API_removeLights_Param0): Promise<API_removeLig
    return out as API_removeLights_Return
 }
 //==========================================================================
-// "remove-model" - Remove the model(s) with the given ID(s) from the scene 
+// "remove-model" - Remove the model(s) with the given ID(s) from the scene
 //--------------------------------------------------------------------------
 export type API_removeModel_Param0 = (number /* Integer */)[]
 export type API_removeModel_Return = boolean
@@ -931,7 +931,7 @@ async function removeModel(ids: API_removeModel_Param0): Promise<API_removeModel
    return out as API_removeModel_Return
 }
 //==============================================================================================================================================
-// "request-model-upload" - Request upload of blob to trigger adding of model after blob has been received; returns model descriptor on success 
+// "request-model-upload" - Request upload of blob to trigger adding of model after blob has been received; returns model descriptor on success
 //----------------------------------------------------------------------------------------------------------------------------------------------
 export type API_requestModelUpload_Param0 = {
    bounding_box?: boolean;
@@ -1020,7 +1020,7 @@ async function requestModelUpload(param: API_requestModelUpload_Param0): Promise
    return out as API_requestModelUpload_Return
 }
 //==========================================================
-// "reset-camera" - Resets the camera to its initial values 
+// "reset-camera" - Resets the camera to its initial values
 //----------------------------------------------------------
 export type API_resetCamera_Return = undefined
 /**
@@ -1031,7 +1031,7 @@ async function resetCamera(): Promise<API_resetCamera_Return> {
    return out as API_resetCamera_Return
 }
 //=================================================
-// "schema" - Get the schema of the given endpoint 
+// "schema" - Get the schema of the given endpoint
 //-------------------------------------------------
 export type API_schema_Param0 = {
    endpoint: string;
@@ -1045,7 +1045,7 @@ async function schema(endpoint: API_schema_Param0): Promise<API_schema_Return> {
    return out as API_schema_Return
 }
 //========================================================================
-// "set-animation-parameters" - Set the new state of animation-parameters 
+// "set-animation-parameters" - Set the new state of animation-parameters
 //------------------------------------------------------------------------
 export type API_setAnimationParameters_Param0 = {
    current?: (number /* Integer */);
@@ -1064,7 +1064,7 @@ async function setAnimationParameters(param: API_setAnimationParameters_Param0):
    return out as API_setAnimationParameters_Return
 }
 //============================================================================
-// "set-application-parameters" - Set the new state of application-parameters 
+// "set-application-parameters" - Set the new state of application-parameters
 //----------------------------------------------------------------------------
 export type API_setApplicationParameters_Param0 = {
    engine?: string;
@@ -1084,7 +1084,7 @@ async function setApplicationParameters(param: API_setApplicationParameters_Para
    return out as API_setApplicationParameters_Return
 }
 //============================================
-// "set-camera" - Set the new state of camera 
+// "set-camera" - Set the new state of camera
 //--------------------------------------------
 export type API_setCamera_Param0 = {
    current?: string;
@@ -1115,7 +1115,7 @@ async function setCamera(param: API_setCamera_Param0): Promise<API_setCamera_Ret
    return out as API_setCamera_Return
 }
 //============================================================
-// "set-camera-params" - Set the params on the current camera 
+// "set-camera-params" - Set the params on the current camera
 //------------------------------------------------------------
 export type API_setCameraParams_Param0 = (
    {
@@ -1144,7 +1144,7 @@ async function setCameraParams(input0: API_setCameraParams_Param0): Promise<API_
    return out as API_setCameraParams_Return
 }
 //============================================================
-// "set-environment-map" - Set a environment map in the scene 
+// "set-environment-map" - Set a environment map in the scene
 //------------------------------------------------------------
 export type API_setEnvironmentMap_Param0 = {
    filename: string;
@@ -1158,7 +1158,7 @@ async function setEnvironmentMap(filename: API_setEnvironmentMap_Param0): Promis
    return out as API_setEnvironmentMap_Return
 }
 //================================================================
-// "set-model-properties" - Set the properties of the given model 
+// "set-model-properties" - Set the properties of the given model
 //----------------------------------------------------------------
 export type API_setModelProperties_Param0 = {
    id: (number /* Integer */);
@@ -1173,7 +1173,7 @@ async function setModelProperties(param: API_setModelProperties_Param0): Promise
    return out as API_setModelProperties_Return
 }
 //==============================================================================
-// "set-model-transfer-function" - Set the transfer function of the given model 
+// "set-model-transfer-function" - Set the transfer function of the given model
 //------------------------------------------------------------------------------
 export type API_setModelTransferFunction_Param0 = {
    id: (number /* Integer */);
@@ -1205,7 +1205,7 @@ async function setModelTransferFunction(param: API_setModelTransferFunction_Para
    return out as API_setModelTransferFunction_Return
 }
 //================================================
-// "set-renderer" - Set the new state of renderer 
+// "set-renderer" - Set the new state of renderer
 //------------------------------------------------
 export type API_setRenderer_Param0 = {
    accumulation?: boolean;
@@ -1231,7 +1231,7 @@ async function setRenderer(param: API_setRenderer_Param0): Promise<API_setRender
    return out as API_setRenderer_Return
 }
 //================================================================
-// "set-renderer-params" - Set the params on the current renderer 
+// "set-renderer-params" - Set the params on the current renderer
 //----------------------------------------------------------------
 export type API_setRendererParams_Param0 = (
    {
@@ -1315,7 +1315,7 @@ async function setRendererParams(input0: API_setRendererParams_Param0): Promise<
    return out as API_setRendererParams_Return
 }
 //==========================================
-// "set-scene" - Set the new state of scene 
+// "set-scene" - Set the new state of scene
 //------------------------------------------
 export type API_setScene_Param0 = {
    bounds?: {
@@ -1385,7 +1385,7 @@ async function setScene(param: API_setScene_Param0): Promise<API_setScene_Return
    return out as API_setScene_Return
 }
 //==================================================================
-// "set-volume-parameters" - Set the new state of volume-parameters 
+// "set-volume-parameters" - Set the new state of volume-parameters
 //------------------------------------------------------------------
 export type API_setVolumeParameters_Param0 = {
    adaptive_max_sampling_rate?: number;
@@ -1436,7 +1436,7 @@ async function setVolumeParameters(param: API_setVolumeParameters_Param0): Promi
    return out as API_setVolumeParameters_Return
 }
 //==================================================
-// "snapshot" - Make a snapshot of the current view 
+// "snapshot" - Make a snapshot of the current view
 //--------------------------------------------------
 export type API_snapshot_Param0 = {
    animation_parameters?: (
@@ -1508,7 +1508,7 @@ async function snapshot(settings: API_snapshot_Param0): Promise<API_snapshot_Ret
    return out as API_snapshot_Return
 }
 //=======================================================================
-// "update-clip-plane" - Update a clip plane with the given coefficients 
+// "update-clip-plane" - Update a clip plane with the given coefficients
 //-----------------------------------------------------------------------
 export type API_updateClipPlane_Param0 = {
    id: (number /* Integer */);
@@ -1528,7 +1528,7 @@ async function updateClipPlane(clip_plane: API_updateClipPlane_Param0): Promise<
    return out as API_updateClipPlane_Return
 }
 //===============================================================
-// "update-instance" - Update the instance with the given values 
+// "update-instance" - Update the instance with the given values
 //---------------------------------------------------------------
 export type API_updateInstance_Param0 = {
    bounding_box?: boolean;
@@ -1568,7 +1568,7 @@ async function updateInstance(model_instance: API_updateInstance_Param0): Promis
    return out as API_updateInstance_Return
 }
 //=========================================================
-// "update-model" - Update the model with the given values 
+// "update-model" - Update the model with the given values
 //---------------------------------------------------------
 export type API_updateModel_Param0 = {
    bounding_box?: boolean;
