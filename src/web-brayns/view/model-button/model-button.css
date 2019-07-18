@@ -30,7 +30,7 @@ div.webBrayns-view-ModelButton div.name {
 }
 
 div.webBrayns-view-ModelButton div.name > div.invisible {
-    text-decoration: line-through;
+    font-style: italic;
 }
 
 div.webBrayns-view-ModelButton div.name > div.visible {

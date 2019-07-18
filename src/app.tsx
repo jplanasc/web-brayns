@@ -2,21 +2,21 @@ import React from "react"
 import { Client as BraynsClient } from "brayns"
 
 import Scene from './web-brayns/scene'
-import State from './web-brayns/state'
 import Model from './web-brayns/scene/model'
 import ImageStream from './web-brayns/view/image-stream'
-import Icon from './tfw/view/icon'
-import Dialog from './tfw/factory/dialog'
-import InputPath from './web-brayns/view/input-path'
+import Stack from './tfw/layout/stack'
 import WebsocketConsole from './web-brayns/view/websocket-console'
-import ModelList from './web-brayns/view/model-list/container'
+import PanelModel from './web-brayns/view/panel/model'
+import PanelClip from './web-brayns/view/panel/clip'
+
 import { IVector } from './web-brayns/types'
 
 import "./app.css"
 
 
 interface IAppProps {
-    brayns: BraynsClient
+    panel: string,
+    showConsole: boolean
 }
 
 export default class App extends React.Component<IAppProps, {}> {
@@ -51,12 +51,6 @@ export default class App extends React.Component<IAppProps, {}> {
                 await model.locate(positions[index]);
             })*/
 
-            const scene = await Scene.Api.getScene();
-            const models = scene.models.sort((a,b) => {
-                return a.id - b.id;
-            });
-            console.info("models=", models);
-            State.dispatch(State.Models.reset(scene.models));
             Scene.camera.lookAtWholeScene();
         }
         catch( ex ) {
@@ -64,35 +58,19 @@ export default class App extends React.Component<IAppProps, {}> {
         }
     }
 
-    handleLoadMesh = async () => {
-        let path = '';
-        const confirmed = await Dialog.confirm(
-            "Load Mesh",
-            <InputPath onChange={(p: string) => path = p}/>);
-        if (!confirmed) return;
-        const model = await Scene.loadMeshFromPath(path);
-        console.info("model=", model);
-    }
-
     render() {
         return (<div className="App">
             <div className="panel">
-                <header className="thm-bgPD thm-ele-nav">
-                    <div>Web-Brayns</div>
-                    <div>
-                        <Icon content='import' onClick={this.handleLoadMesh}/>
-                        <Icon content='gps' onClick={() => Scene.camera.lookAtWholeScene()}/>
-                        {/* <Icon content='bug'/> */}
-                    </div>
-                </header>
-                <ModelList />
+                <Stack value={this.props.panel}>
+                    <PanelModel key="model"/>
+                    <PanelClip key="clip"/>
+                </Stack>
             </div>
             <div className='view'>
                 <ImageStream
-                    brayns={this.props.brayns}
                     onPan={Scene.gestures.handlePan}
                     onPanStart={Scene.gestures.handlePanStart}/>
-                <WebsocketConsole/>
+                <WebsocketConsole visible={this.props.showConsole}/>
             </div>
         </div>)
     }

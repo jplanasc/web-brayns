@@ -170,7 +170,7 @@ function show(options: IOptions): Dialog {
     return dialog;
 }
 
-function wait(label: string, task: Promise<any>): Promise<any> {
+function wait(label: string, task: Promise<any>, modal: boolean = true): Promise<any> {
     const content = (
         <Flex dir="row" justifyContent="flex-start" alignItems="center" >
             <Icon content="wait" animate={true}/>
