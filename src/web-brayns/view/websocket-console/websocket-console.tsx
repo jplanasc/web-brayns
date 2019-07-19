@@ -64,9 +64,10 @@ export default class WebsocketConsole extends React.Component<IWebsocketConsoleP
     }
 
     render() {
-        if (this.props.visible === false) return null;
-        
-        return (<div className="webBrayns-view-WebsocketConsole thm-bg0">
+        const classNames = ["webBrayns-view-WebsocketConsole", "thm-bg0"];
+        if (this.props.visible) classNames.push("visible");
+
+        return (<div className={classNames.join(' ')}>
             <div className="head">
                 <Input
                     label="Method"
@@ -74,21 +75,25 @@ export default class WebsocketConsole extends React.Component<IWebsocketConsoleP
                     onChange={this.handleMethodChange}
                     onEnter={this.handleExecute}
                     wide={true}/>
+            </div>
+            <textarea
+                className="input"
+                onChange={this.handleParamsChange}
+                defaultValue={this.state.params}></textarea>
+            <div className="button">
                 <Button
+                    label="Execute request"
+                    wide={true}
                     wait={this.state.querying}
                     icon="gear"
                     onClick={this.handleExecute}/>
             </div>
-            <div className="body">
-                <textarea
-                    onChange={this.handleParamsChange}
-                    defaultValue={this.state.params}></textarea>
-                <div className="output thm-bg1">{
-                    this.state.error ?
-                    <div className="error">{this.state.error}</div> :
-                    <pre>{this.state.output}</pre>
-                }</div>
-            </div>
+            {
+                this.state.error ?
+                <div className="error">{this.state.error}</div> :
+                <textarea className="output thm-bgPL" value={this.state.output}>
+                </textarea>
+            }
         </div>)
     }
 }

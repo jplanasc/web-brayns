@@ -33,24 +33,18 @@ div.App > div.view {
     width: calc(100% - var(--panel-width));
     overflow: hidden;
     background: #500;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
+    display: block;
 }
 
-div.App > div.view > canvas {
-    position: static;
+div.App > div.view > div:first-child {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     display: block;
-    flex: 1 1 auto;
-}
-
-div.App > div.view > div {
-    position: static;
-    display: block;
-    width: 300px;
-    max-width: 300px;
-    flex: 0 0 auto;
 }
 
 div.App > div.panel > header {

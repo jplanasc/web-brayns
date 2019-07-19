@@ -7,7 +7,7 @@ import ImageStream from './web-brayns/view/image-stream'
 import Stack from './tfw/layout/stack'
 import WebsocketConsole from './web-brayns/view/websocket-console'
 import PanelModel from './web-brayns/view/panel/model'
-import PanelClip from './web-brayns/view/panel/clip'
+import PanelClip from './web-brayns/view/panel/clip/container'
 
 import { IVector } from './web-brayns/types'
 

@@ -1,7 +1,8 @@
-import { IBounds, IModel, IBraynsModel } from './models/types'
-export { IBounds, IModel, IBraynsModel } from './models/types'
+export * from './models/types'
 import { IAxis, IVector, IQuaternion } from './geometry/types'
-export { IAxis, IVector, IQuaternion } from './geometry/types'
+export * from './geometry/types'
+export * from './state/types'
+
 
 export interface IMetaData {
     [key: string]: string
@@ -15,21 +16,6 @@ export interface ICamera {
     orientation: IQuaternion,
     position: IVector,
     target: IVector
-}
-
-export interface INavigation {
-    panel: string,
-    showConsole: boolean
-}
-
-export interface IAppState {
-    models: IModel[],
-    navigation: INavigation
-}
-
-export interface IAction {
-    type: string;
-    [key: string]: any;
 }
 
 export interface IScreenPoint {
