@@ -1,0 +1,10 @@
+div.webBrayns-view-Range {
+    display: block;
+    margin: .5rem 0;
+    padding: 0;
+}
+
+div.webBrayns-view-Range > canvas {
+    displaz: block;
+    width: 100%;
+}
