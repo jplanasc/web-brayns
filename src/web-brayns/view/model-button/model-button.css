@@ -29,6 +29,17 @@ div.webBrayns-view-ModelButton div.name {
     align-items: center;
 }
 
+div.webBrayns-view-ModelButton div.name > div:last-child {
+    flex: 0 0 auto;
+}
+
+div.webBrayns-view-ModelButton div.name > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1 1 auto;
+}
+
 div.webBrayns-view-ModelButton div.name > div.invisible {
     font-style: italic;
 }

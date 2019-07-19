@@ -67,15 +67,26 @@ export default class Model extends React.Component<IClipProps, {}> {
         this.minPlaneZ = 0;
         this.maxPlaneZ = 0;
 
+        const idsOfPlanesToRemove: number[] = [];
+
         planes.forEach( (plane: ({ id: number, plane: number[]} | null)) => {
             if (!plane) return;
             const [x, y, z] = plane.plane;
-            if (x === 1 && y === 0 && z === 0 ) this.minPlaneX;
-            else if (x === -1 && y === 0 && z === 0 ) this.maxPlaneX;
-            else if (x === 0 && y === 1 && z === 0 ) this.minPlaneY;
-            else if (x === 0 && y === -1 && z === 0 ) this.maxPlaneY;
-            else if (x === 0 && y === 0 && z === 1 ) this.minPlaneZ;
-            else if (x === 0 && y === 0 && z === -1 ) this.maxPlaneZ;
+            if (x === 1 && y === 0 && z === 0 && this.minPlaneX === 0)
+                this.minPlaneX = plane.id;
+            else if (x === -1 && y === 0 && z === 0 && this.maxPlaneX === 0)
+                this.maxPlaneX = plane.id;
+            else if (x === 0 && y === 1 && z === 0 && this.minPlaneY === 0)
+                this.minPlaneY = plane.id;
+            else if (x === 0 && y === -1 && z === 0 && this.maxPlaneY === 0)
+                this.maxPlaneY = plane.id;
+            else if (x === 0 && y === 0 && z === 1 && this.minPlaneZ === 0)
+                this.minPlaneZ = plane.id;
+            else if (x === 0 && y === 0 && z === -1 && this.maxPlaneZ === 0)
+                this.maxPlaneZ = plane.id;
+            else {
+                idsOfPlanesToRemove.push(plane.id);
+            }
         }, this);
 
         if (this.minPlaneX === 0) {
@@ -96,6 +107,8 @@ export default class Model extends React.Component<IClipProps, {}> {
         if (this.maxPlaneZ === 0) {
             this.maxPlaneZ = await addPlane(this.getDefOfMaxPlaneZ());
         }
+
+        Scene.Api.removeClipPlanes(idsOfPlanesToRemove);
 
         this.updatePlanes();
     }
@@ -220,27 +233,24 @@ export default class Model extends React.Component<IClipProps, {}> {
             <div>
                 <p>
                     You can slice the scene according to three axis:<br/>
-                    <b>X</b>, <b>Y</b> and <b>Z</b>.
+                    <b>X</b>, <b>Y</b> and <b>Z</b>.<br/><br/>
+                    Slide the colored bars below to set the thickness of the slices.
                 </p>
-                <Checkbox
-                    label="Activate Slicing"
-                    value={this.props.activated}
-                    onChange={this.handleActivatedChange}/>
                 <Range
                     label="X"
-                    color="red"
+                    color="#f00"
                     min={this.props.minX}
                     max={this.props.maxX}
                     onChange={this.handleXChange}/>
                 <Range
                     label="Y"
-                    color="green"
+                    color="#0f0"
                     min={this.props.minY}
                     max={this.props.maxY}
                     onChange={this.handleYChange}/>
                 <Range
                     label="Z"
-                    color="blue"
+                    color="#00f"
                     min={this.props.minZ}
                     max={this.props.maxZ}
                     onChange={this.handleZChange}/>

@@ -2,6 +2,7 @@ import React from "react"
 
 import Label from '../../../tfw/view/label'
 import Gesture from '../../../tfw/gesture'
+import Color from '../../../tfw/color'
 
 import "./range.css"
 
@@ -84,7 +85,7 @@ export default class Range extends React.Component<IRangeProps, {}> {
 
         ctx.clearRect(0, 0, w, h);
         const space = w - 2 * MARGIN;
-        if (space < MARGIN) return;   // Too narrwo to paint anything useful.
+        if (space < MARGIN) return;   // Too narrow to paint anything useful.
 
         ctx.strokeStyle = "#333";
         ctx.fillStyle = "#999";
@@ -92,6 +93,26 @@ export default class Range extends React.Component<IRangeProps, {}> {
         ctx.rect(MARGIN, 0, space, h);
         ctx.fill();
         ctx.stroke();
+
+        const { min, max } = normalize(this.props.min, this.props.max);
+        const a = MARGIN + space * min;
+        const b = MARGIN + space * max;
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, "#000");
+        grad.addColorStop(1, this.props.color);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.rect(a,0, b - a, h);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = "#fff5";
+        ctx.rect(a,0, b - a, h * .5);
+        ctx.fill();
+        ctx.restore();
+
         ctx.beginPath();
         ctx.moveTo(0,0);
         ctx.lineTo(w,0);
@@ -99,14 +120,6 @@ export default class Range extends React.Component<IRangeProps, {}> {
         ctx.lineTo(w,h);
         ctx.stroke();
 
-        const { min, max } = normalize(this.props.min, this.props.max);
-        const a = MARGIN + space * min;
-        const b = MARGIN + space * max;
-        ctx.fillStyle = this.props.color;
-        ctx.beginPath();
-        ctx.rect(a,0, b - a, h);
-        ctx.stroke();
-        ctx.fill();
     }
 
     componentDidUpdate() {
