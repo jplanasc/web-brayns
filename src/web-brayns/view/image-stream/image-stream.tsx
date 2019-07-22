@@ -79,7 +79,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
     }
 
     private handlePan = (evt: IEvent) => {
-        console.info("evt=", evt);
         const handler = this.props.onPan;
         if (typeof handler !== 'function') return;
         handler(Object.assign(
