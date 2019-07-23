@@ -19,12 +19,12 @@ async function start() {
     console.info("hostName=", hostName);
 
     try {
-        const client = await Dialog.wait(
-            "Connecting to Brayns service...",
-            Scene.connect(hostName)
-        );
+        const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false);
+        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false);
+        const planes = await Scene.Api.getClipPlanes();
+        const planeIds = planes.map( p => p.id );
+        Scene.Api.removeClipPlanes(planeIds);
 
-        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene());
         State.dispatch(State.Models.reset(scene.models));
 
         // Entry point for our app

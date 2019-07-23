@@ -1,21 +1,21 @@
-type Action<T> = (arg: T) => void;
-type Debouncer<T> = (arg: T) => void;
+type Action = (...args: any[]) => void;
 
 /**
- * @param {function} action -  Action to call. Two consecutive actions cannot be  called if there is
- * less than `delay` ms between them.
- * @param {number} delay - Number of milliseconds.
- * @returns {function} The function to call as much as you want. It will perform the debouce for you.
+ * The function to call as much as you want. It will perform the debouce for you.
  * Put in the same args as the `action` function.
+ *
+ * * action -  Action to call. Two consecutive actions cannot be  called if there is
+ * less than `delay` ms between them.
+ * * delay - Number of milliseconds.
  */
-export default function <T>(action: Action<T>, delay: number): Debouncer<T> {
+export default function (action: Action, delay: number): Action {
     let timer: number = 0;
 
-    return function(this: { delay: number }, arg: T) {
+    return function(this: { delay: number }, ...args: any[]) {
         if (timer) window.clearTimeout(timer);
         timer = window.setTimeout(() => {
             timer = 0;
-            action(arg);
+            action(...args);
         }, delay) as number;
     }
 }

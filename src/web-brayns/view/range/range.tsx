@@ -20,7 +20,8 @@ interface IRangeProps {
 export default class Range extends React.Component<IRangeProps, {}> {
     private readonly refCanvas: React.RefObject<HTMLCanvasElement> = React.createRef();
     private ctx: CanvasRenderingContext2D | null = null;
-    private isMinSelected: boolean = false;
+    // -1 left bound, +1 right bound, 0 center (to move both bounds).
+    private selection: number = 0;
 
     constructor( props: IRangeProps ) {
         super( props );
@@ -44,24 +45,51 @@ export default class Range extends React.Component<IRangeProps, {}> {
     handleDown = (evt) => {
         const x = this.getX(evt);
         const { min, max, onChange } = this.props;
-        const distToMin = Math.abs(min - x);
-        const distToMax = Math.abs(max - x);
-        this.isMinSelected = distToMin <= distToMax;
-        if (this.isMinSelected) {
+        const A = Math.abs(min - x);
+        const B = Math.abs(max - x);
+        const M = Math.abs(x - (max + min) / 2);
+
+        if (A < M) {
+            if (A < B) this.selection = -1;
+            else this.selection = +1;
+        }
+        // M < A
+        else {
+            if (M <= B) this.selection = 0;
+            else this.selection = +1;
+        }
+        this.moveTo(x);
+    }
+
+    moveTo(x: number) {
+        const { min, max, onChange } = this.props;
+        const { selection } = this;
+
+        if (selection === -1) {
             onChange(clamp(x, 0, max), max);
-        } else {
+        }
+        else if (selection === +1) {
             onChange(min, clamp(x, min, 1));
+        }
+        else {
+            const shift = (max - min) / 2;
+            let A = x - shift;
+            let B = x + shift;
+            if (A < 0) {
+                B -= A;
+                A = 0;
+            }
+            else if (B > 1) {
+                A += B - 1;
+                B = 1;
+            }
+            onChange(A, B);
         }
     }
 
     handlePan = (evt) => {
         const x = this.getX(evt);
-        const { min, max, onChange } = this.props;
-        if (this.isMinSelected) {
-            onChange(clamp(x, 0, max), max);
-        } else {
-            onChange(min, clamp(x, min, 1));
-        }
+        this.moveTo(x);
     }
 
     getX(evt) {

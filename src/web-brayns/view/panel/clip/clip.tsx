@@ -6,7 +6,7 @@ import Models from '../../../models'
 import Icon from '../../../../tfw/view/icon'
 import Checkbox from '../../../../tfw/view/checkbox'
 import Range from '../../range'
-import Debouncer from '../../../../tfw/debouncer'
+import Throttler from '../../../../tfw/throttler'
 
 import { IBounds } from '../../../types'
 
@@ -117,14 +117,14 @@ export default class Model extends React.Component<IClipProps, {}> {
         this.updatePlanes();
     }
 
-    updatePlanes = Debouncer(() => {
+    updatePlanes = Throttler(() => {
         Scene.Api.updateClipPlane({id: this.minPlaneX, plane: this.getDefOfMinPlaneX()});
         Scene.Api.updateClipPlane({id: this.maxPlaneX, plane: this.getDefOfMaxPlaneX()});
         Scene.Api.updateClipPlane({id: this.minPlaneY, plane: this.getDefOfMinPlaneY()});
         Scene.Api.updateClipPlane({id: this.maxPlaneY, plane: this.getDefOfMaxPlaneY()});
         Scene.Api.updateClipPlane({id: this.minPlaneZ, plane: this.getDefOfMinPlaneZ()});
         Scene.Api.updateClipPlane({id: this.maxPlaneZ, plane: this.getDefOfMaxPlaneZ()});
-    }, 300);
+    }, 100)
 
     getDefOfMinPlaneX(): [number, number, number, number] {
         const { min, max } = this.bounds;
