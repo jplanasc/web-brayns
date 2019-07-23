@@ -141,7 +141,8 @@ function alert(content: string | React.ReactElement<any>,
  * @param caption - Title and button caption.
  * @param content - Content to display.
  */
-function confirm( caption: string, content: string | React.ReactElement<any>): Promise<boolean> {
+function confirm( caption: string,
+                  content: string | React.ReactElement<any>): Promise<boolean> {
     return new Promise( resolve => {
         const dialog = new Dialog({ title: caption, content, maxWidth: 420 });
         const close = (confirmed: boolean) => {
@@ -170,7 +171,10 @@ function show(options: IOptions): Dialog {
     return dialog;
 }
 
-function wait(label: string, task: Promise<any>, modal: boolean = true): Promise<any> {
+async function wait(label: string, task: Promise<any>, blocking: boolean = true): Promise<any> {
+    if (!blocking) {
+        return await task;
+    }
     const content = (
         <Flex dir="row" justifyContent="flex-start" alignItems="center" >
             <Icon content="wait" animate={true}/>
