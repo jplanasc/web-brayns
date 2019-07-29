@@ -94,6 +94,20 @@ import State from '../state'
          return await this.applyCamera();
      }
 
+     async getCloser(target: IVector, distanceFactor: number) {
+         const direction = this.direction;
+         const distance = Geom.scalarProduct(
+             Geom.vectorFromPoints(this.params.position, target),
+             direction
+         ) * distanceFactor;
+         this.params.position = Geom.addVectors(
+             target,
+             Geom.scale(direction, -distance)
+         );
+         this.params.target = target;
+         return await this.applyCamera();
+     }
+
      getTargetDistance(): number {
          const vectorZ = this.axis.z;
          // Warning! the camera's Z axis is turning its back to the target.

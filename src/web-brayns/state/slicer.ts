@@ -7,10 +7,9 @@ export default {
         activated: false,
         minX: 0,
         maxX: 1,
-        minY: 0,
-        maxY: 1,
-        minZ: 0,
-        maxZ: 1
+        latitude: 0,
+        longitude: 0,
+        collageDepth: 1
     },
 
     reducer(state: ISlicerState, action: IAction): ISlicerState {

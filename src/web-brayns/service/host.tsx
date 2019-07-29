@@ -28,18 +28,19 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
 
         let hostName = "";
         let validated = false;
+        const onOk = () => {
+            validated = true;
+            dialog.hide();
+            resolve(hostName);
+        }
         const input = <InputHostName
-            onEnter={() => { dialog.hide() }}
+            onEnterPressed={onOk}
             onChange={(value: string) => hostName = value}/>;
         const dialog = Dialog.show({
             closeOnEscape: true,
             content: input,
             footer: <Button label="Connect to Brayns Service"
-                            onClick={() => {
-                                validated = true;
-                                dialog.hide();
-                                resolve(hostName);
-                            }}
+                            onClick={onOk}
                             icon="plug"/>,
             icon: "plug",
             title: "Connect to Brayns Service",

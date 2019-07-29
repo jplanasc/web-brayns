@@ -73,7 +73,7 @@ export default class WebsocketConsole extends React.Component<IWebsocketConsoleP
                     label="Method"
                     value={this.state.method}
                     onChange={this.handleMethodChange}
-                    onEnter={this.handleExecute}
+                    onEnterPressed={this.handleExecute}
                     wide={true}/>
             </div>
             <textarea
@@ -91,7 +91,10 @@ export default class WebsocketConsole extends React.Component<IWebsocketConsoleP
             {
                 this.state.error ?
                 <div className="error">{this.state.error}</div> :
-                <textarea className="output thm-bgPL" value={this.state.output}>
+                <textarea
+                    className="output thm-bgPL"
+                    readOnly={true}
+                    value={this.state.output}>
                 </textarea>
             }
         </div>)

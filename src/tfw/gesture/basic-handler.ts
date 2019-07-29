@@ -37,6 +37,7 @@ interface IDeviceHandlers {
     mousedown?: TMouseEventHandler;
     mouseup?: TMouseEventHandler;
     mousemove?: TMouseEventHandler;
+    mouseout?: TMouseEventHandler;
 }
 
 export default class BasicHandler {
@@ -45,6 +46,7 @@ export default class BasicHandler {
     pointerTypeTime: number = 0;
     deviceHandlers: IDeviceHandlers = {};
     fingers: Finger = new Finger();
+    pressed: boolean = false;
 
     constructor(element: HTMLElement,
         handleDown: TBasicHandler,
@@ -78,7 +80,7 @@ export default class BasicHandler {
     detachEvents() {
         const element = this.element;
         const {
-            touchstart, touchend, touchmove, mousedown, mouseup, mousemove
+            touchstart, touchend, touchmove, mousedown, mouseup, mouseout, mousemove
         } = this.deviceHandlers;
 
         if (touchstart) element.removeEventListener("touchstart", touchstart, false);
@@ -86,6 +88,7 @@ export default class BasicHandler {
         if (touchmove) element.removeEventListener("touchmove", touchmove, false);
         if (mousedown) element.removeEventListener("mousedown", mousedown, false);
         if (mouseup) element.removeEventListener("mouseup", mouseup, false);
+        if (mouseout) element.removeEventListener("mouseout", mouseout, false);
         if (mousemove) element.removeEventListener("mousemove", mousemove, false);
     }
 }
@@ -121,6 +124,7 @@ function attachDownEventMouse(this: BasicHandler, handleDown: TBasicHandler) {
     const { element, deviceHandlers } = this;
     const handler = (evt: MouseEvent) => {
         if (!this.checkPointerType("mouse")) return;
+        this.pressed = true;
         handleDown({
             x: evt.clientX,
             y: evt.clientY,
@@ -138,6 +142,8 @@ function attachDownEventMouse(this: BasicHandler, handleDown: TBasicHandler) {
 function attachUpEvent(this: BasicHandler, handleUp: TBasicHandler) {
     attachUpEventTouch.call(this, handleUp);
     attachUpEventMouse.call(this, handleUp);
+    // When the cursor is out of the element, we trigger a UP event.
+    attachLeaveEvent.call(this, handleUp);
 }
 
 
@@ -166,6 +172,8 @@ function attachUpEventMouse(this: BasicHandler, handleUp: TBasicHandler) {
     const { element, deviceHandlers } = this;
     const handler = (evt: MouseEvent) => {
         if (!this.checkPointerType("mouse")) return;
+        this.pressed = false;
+        console.log('MOUSE UP');
         handleUp({
             x: evt.clientX,
             y: evt.clientY,
@@ -177,6 +185,25 @@ function attachUpEventMouse(this: BasicHandler, handleUp: TBasicHandler) {
     };
     deviceHandlers.mouseup = handler;
     element.addEventListener("mouseup", handler, false);
+}
+
+
+function attachLeaveEvent(this: BasicHandler, handleUp: TBasicHandler) {
+    const { element, deviceHandlers } = this;
+    const handler = (evt: MouseEvent) => {
+        if (!this.pressed || !this.checkPointerType("mouse")) return;
+        console.log('MOUSE OUT');
+        handleUp({
+            x: evt.clientX,
+            y: evt.clientY,
+            index: 0,
+            buttons: evt.buttons,
+            pointer: "mouse",
+            clear: createClear(evt)
+        });
+    };
+    deviceHandlers.mouseout = handler;
+    element.addEventListener("mouseout", handler, false);
 }
 
 

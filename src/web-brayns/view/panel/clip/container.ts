@@ -10,7 +10,10 @@ function mapStateToProps(state: IAppState) {
         minY: state.slicer.minY,
         maxY: state.slicer.maxY,
         minZ: state.slicer.minZ,
-        maxZ: state.slicer.maxZ
+        maxZ: state.slicer.maxZ,
+        latitude: state.slicer.latitude,
+        longitude: state.slicer.longitude,
+        collageDepth: state.slicer.collageDepth
     };
 }
 

@@ -1,10 +1,11 @@
 import React from 'react';
-import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
 
+import SnapshotService from '../../service/snapshot'
 import { IQuaternion, IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
 import Scene from '../../scene'
 import Gesture from '../../../tfw/gesture'
 import Button from '../../../tfw/view/button'
+import Snapshot from '../../dialog/snapshot'
 
 import { IEvent } from '../../../tfw/gesture/types'
 
@@ -44,6 +45,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         Gesture(this.canvas).on({
             down: this.handleDown,
             async tap(evt) {
+                console.info("doubletap=", evt);
                 const canvas = that.canvas;
                 if (!canvas) return;
                 const rect = canvas.getBoundingClientRect();
@@ -51,7 +53,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                 const y = 1 - (evt.y / rect.height);
                 const hitResult = await Scene.request('inspect', [x, y]);
                 if (hitResult.hit === true) {
-                    await Scene.camera.setTarget(hitResult.position);
+                    Scene.camera.getCloser(hitResult.position, 0.5);
                 }
             },
             wheel(evt) {
@@ -113,6 +115,14 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         await Scene.setViewPort(w, h);
     }
 
+    private handleScreenShot = async () => {
+        console.log("handleScreenShot");
+        const options = await Snapshot.show();
+        if (!options) return;  // Action cancelled.
+        const canvas = await SnapshotService.getCanvas(options);
+        await SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`);
+    }
+
     // We use moz-opaque to improve the perf. of the canvas
     // See https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
     render() {
@@ -123,7 +133,10 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                     className=""
                     moz-opaque="true" />
                 <div className="icons">
-                    <Button icon="camera" warning={true}/>
+                    <Button
+                        icon="camera"
+                        onClick={this.handleScreenShot}
+                        warning={true}/>
                 </div>
             </div>
         );

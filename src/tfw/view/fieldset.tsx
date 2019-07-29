@@ -1,5 +1,5 @@
 import * as React from "react"
-import "./Fieldset.css"
+import "./fieldset.css"
 
 interface IFieldsetProps {
     label: string;
