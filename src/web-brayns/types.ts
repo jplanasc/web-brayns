@@ -1,8 +1,8 @@
 export * from './models/types'
-import { IAxis, IVector, IQuaternion } from './geometry/types'
 export * from './geometry/types'
 export * from './state/types'
 
+import { IAxis, IVector, IQuaternion } from './geometry/types'
 
 export interface IMetaData {
     [key: string]: string

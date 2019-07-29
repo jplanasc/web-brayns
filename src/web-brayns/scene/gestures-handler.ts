@@ -33,8 +33,8 @@ export default class GesturesHandler {
     }
 
     handlePan = Debouncer((evt: IPanningEvent) => {
-        if (evt.button === 1) this.translateCamera(evt);
-        else if (evt.button === 4) this.orbitCamera(evt);
+        if (evt.button === 4) this.translateCamera(evt);
+        else if (evt.button === 1) this.orbitCamera(evt);
         else this.rotateCamera(evt);
     }, 10)
 
@@ -47,8 +47,8 @@ export default class GesturesHandler {
         const newTranslation = Geometry.addVectors(
             oldTranslation,
             Geometry.addVectors(
-                Geometry.scale(axis.x, -factor * x * evt.aspect),
-                Geometry.scale(axis.y, -factor * y),
+                Geometry.scale(axis.x, factor * x * evt.aspect),
+                Geometry.scale(axis.y, factor * y),
             )
         );
         Scene.camera.setPosition(newTranslation);

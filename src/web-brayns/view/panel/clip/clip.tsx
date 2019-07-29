@@ -1,12 +1,19 @@
 import React from "react"
 
+import SnapshotService from '../../../service/snapshot'
+import Snapshot from '../../../dialog/snapshot'
 import State from '../../../state'
 import Scene from '../../../scene'
 import Models from '../../../models'
+import Geom from '../../../geometry'
+import Util from '../../../../tfw/util'
 import Icon from '../../../../tfw/view/icon'
-import Checkbox from '../../../../tfw/view/checkbox'
+import Button from '../../../../tfw/view/button'
+import Slider from '../../../../tfw/view/slider'
 import Range from '../../range'
 import Throttler from '../../../../tfw/throttler'
+import Debouncer from '../../../../tfw/debouncer'
+import Theme from '../../../../tfw/theme'
 
 import { IBounds } from '../../../types'
 
@@ -24,23 +31,27 @@ interface IClipProps {
     minY: number,
     maxY: number,
     minZ: number,
-    maxZ: number
+    maxZ: number,
+    latitude: number,
+    longitude: number,
+    collageDepth: number
 }
 
 export default class Model extends React.Component<IClipProps, {}> {
     // 6 Planes for the slices. We hold the id in order to update them.
-    private minPlaneX: number = 0;
-    private maxPlaneX: number = 0;
-    private minPlaneY: number = 0;
-    private maxPlaneY: number = 0;
-    private minPlaneZ: number = 0;
-    private maxPlaneZ: number = 0;
+    private minPlaneIndex: number = 0;
+    private maxPlaneIndex: number = 0;
+    // Most of the time, we display the main slice, but while you are sliding on
+    // the frames count slider, we display the last slice.
+    private indexOfFrameToShow: number = 0;
 
-    private bounds: IBounds = { min: [0,0,0], max: [0,0,0] };
+    private sceneCenter: [number,number,number] = [0,0,0];
+    private sceneRadius: number = 1;
 
-    constructor(props: IClipProps) {
-        super(props);
-    }
+    private resetIndexOfFrameToShow = Debouncer(() => {
+        this.indexOfFrameToShow = 0;
+        this.updatePlanes();
+    }, 600);
 
     private async removeAllClipPlanes() {
         const planes = await Scene.Api.getClipPlanes();
@@ -50,65 +61,7 @@ export default class Model extends React.Component<IClipProps, {}> {
     }
 
     async componentDidMount() {
-        // Comp[uting current scene bounding box.]
-        const state = State.store.getState();
-        const models = state.models
-            .filter(m => m.visible)
-            .map(Models.createModelFromBraynsData);
-        this.bounds = Models.getModelsBounds(models);
-
-        // Trying to find our clipping planes and taking theirs ids.
-        const planes = await Scene.Api.getClipPlanes();
-
-        this.minPlaneX = 0;
-        this.maxPlaneX = 0;
-        this.minPlaneY = 0;
-        this.maxPlaneY = 0;
-        this.minPlaneZ = 0;
-        this.maxPlaneZ = 0;
-
-        const idsOfPlanesToRemove: number[] = [];
-
-        planes.forEach( (plane: ({ id: number, plane: number[]} | null)) => {
-            if (!plane) return;
-            const [x, y, z] = plane.plane;
-            if (x === 1 && y === 0 && z === 0 && this.minPlaneX === 0)
-                this.minPlaneX = plane.id;
-            else if (x === -1 && y === 0 && z === 0 && this.maxPlaneX === 0)
-                this.maxPlaneX = plane.id;
-            else if (x === 0 && y === 1 && z === 0 && this.minPlaneY === 0)
-                this.minPlaneY = plane.id;
-            else if (x === 0 && y === -1 && z === 0 && this.maxPlaneY === 0)
-                this.maxPlaneY = plane.id;
-            else if (x === 0 && y === 0 && z === 1 && this.minPlaneZ === 0)
-                this.minPlaneZ = plane.id;
-            else if (x === 0 && y === 0 && z === -1 && this.maxPlaneZ === 0)
-                this.maxPlaneZ = plane.id;
-            else {
-                idsOfPlanesToRemove.push(plane.id);
-            }
-        }, this);
-
-        if (this.minPlaneX === 0) {
-            this.minPlaneX = await addPlane(this.getDefOfMinPlaneX());
-        }
-        if (this.maxPlaneX === 0) {
-            this.maxPlaneX = await addPlane(this.getDefOfMaxPlaneX());
-        }
-        if (this.minPlaneY === 0) {
-            this.minPlaneY = await addPlane(this.getDefOfMinPlaneY());
-        }
-        if (this.maxPlaneY === 0) {
-            this.maxPlaneY = await addPlane(this.getDefOfMaxPlaneY());
-        }
-        if (this.minPlaneZ === 0) {
-            this.minPlaneZ = await addPlane(this.getDefOfMinPlaneZ());
-        }
-        if (this.maxPlaneZ === 0) {
-            this.maxPlaneZ = await addPlane(this.getDefOfMaxPlaneZ());
-        }
-
-        Scene.Api.removeClipPlanes(idsOfPlanesToRemove);
+        this.clear();
 
         this.updatePlanes();
     }
@@ -118,84 +71,55 @@ export default class Model extends React.Component<IClipProps, {}> {
     }
 
     updatePlanes = Throttler(() => {
-        Scene.Api.updateClipPlane({id: this.minPlaneX, plane: this.getDefOfMinPlaneX()});
-        Scene.Api.updateClipPlane({id: this.maxPlaneX, plane: this.getDefOfMaxPlaneX()});
-        Scene.Api.updateClipPlane({id: this.minPlaneY, plane: this.getDefOfMinPlaneY()});
-        Scene.Api.updateClipPlane({id: this.maxPlaneY, plane: this.getDefOfMaxPlaneY()});
-        Scene.Api.updateClipPlane({id: this.minPlaneZ, plane: this.getDefOfMinPlaneZ()});
-        Scene.Api.updateClipPlane({id: this.maxPlaneZ, plane: this.getDefOfMaxPlaneZ()});
+        Scene.Api.updateClipPlane({id: this.minPlaneIndex, plane: this.getDefOfMinPlaneX()});
+        Scene.Api.updateClipPlane({id: this.maxPlaneIndex, plane: this.getDefOfMaxPlaneX()});
     }, 100)
 
+    private computePlaneDirection(): [number, number, number] {
+        const lat = Math.PI * this.props.latitude / 180;
+        const lng = Math.PI * this.props.longitude / 180;
+        const y = Math.sin(lng);
+        const radius = Math.cos(lng);
+        const x = Math.cos(lat) * radius;
+        const z = Math.sin(lat) * radius;
+        return [x,y,z];
+    }
+
+    private computeThickness() {
+        const { sceneRadius, props } = this;
+        return sceneRadius * Math.abs(props.maxX - props.minX);
+    }
+
     getDefOfMinPlaneX(): [number, number, number, number] {
-        const { min, max } = this.bounds;
-        const minX = min[0];
-        const maxX = max[0];
-        return [
-            1,
-            0,
-            0,
-            -minX - this.props.minX * (maxX - minX)
-        ];
+        const { sceneRadius, sceneCenter } = this;
+        const thickness = this.computeThickness();
+        const distanceFromCenter = sceneRadius * (this.props.minX - .5)
+            + thickness * this.indexOfFrameToShow;
+        const [x,y,z] = this.computePlaneDirection();
+        const pointOnPlan = Geom.addVectors(
+            sceneCenter,
+            Geom.scale([x,y,z], -distanceFromCenter)
+        );
+        const distanceFromOrigin = Geom.scalarProduct(
+            pointOnPlan, [x,y,z]
+        );
+        return [x, y, z, distanceFromOrigin];
     }
 
     getDefOfMaxPlaneX(): [number, number, number, number] {
-        const { min, max } = this.bounds;
-        const minX = min[0];
-        const maxX = max[0];
-        return [
-            -1,
-            0,
-            0,
-            minX + this.props.maxX * (maxX - minX)
-        ];
-    }
-
-    getDefOfMinPlaneY(): [number, number, number, number] {
-        const { min, max } = this.bounds;
-        const minY = min[1];
-        const maxY = max[1];
-        return [
-            0,
-            1,
-            0,
-            -minY - this.props.minY * (maxY - minY)
-        ];
-    }
-
-    getDefOfMaxPlaneY(): [number, number, number, number] {
-        const { min, max } = this.bounds;
-        const minY = min[1];
-        const maxY = max[1];
-        return [
-            0,
-            -1,
-            0,
-            minY + this.props.maxY * (maxY - minY)
-        ];
-    }
-
-    getDefOfMinPlaneZ(): [number, number, number, number] {
-        const { min, max } = this.bounds;
-        const minZ = min[2];
-        const maxZ = max[2];
-        return [
-            0,
-            0,
-            1,
-            -minZ - this.props.minZ * (maxZ - minZ)
-        ];
-    }
-
-    getDefOfMaxPlaneZ(): [number, number, number, number] {
-        const { min, max } = this.bounds;
-        const minZ = min[2];
-        const maxZ = max[2];
-        return [
-            0,
-            0,
-            -1,
-            minZ + this.props.maxZ * (maxZ - minZ)
-        ];
+        const { sceneRadius, sceneCenter } = this;
+        const thickness = this.computeThickness();
+        const distanceFromCenter = sceneRadius * (this.props.maxX - .5)
+            + thickness * this.indexOfFrameToShow;
+        const [x,y,z] = Geom.scale(this.computePlaneDirection(), -1);
+        const pointOnPlan = Geom.addVectors(
+            sceneCenter,
+            Geom.scale([x,y,z], distanceFromCenter)
+        );
+        const distanceFromOrigin = Geom.scalarProduct(
+            pointOnPlan, [x,y,z]
+        );
+        return [x, y, z, distanceFromOrigin];
     }
 
     componentWillUnmount() {
@@ -214,15 +138,95 @@ export default class Model extends React.Component<IClipProps, {}> {
         State.dispatch(State.Slicer.update({ minX: min, maxX: max }));
     }
 
-    handleYChange(min: number, max: number) {
-        State.dispatch(State.Slicer.update({ minY: min, maxY: max }));
+    handleLatitudeChange = (latitude: number) => {
+        console.info("latitude=", latitude);
+        State.dispatch(State.Slicer.update({ latitude }));
     }
 
-    handleZChange(min: number, max: number) {
-        State.dispatch(State.Slicer.update({ minZ: min, maxZ: max }));
+    handleLongitudeChange = (longitude: number) => {
+        State.dispatch(State.Slicer.update({ longitude }));
+    }
+
+    handleCollageDepthChange = (collageDepth: number) => {
+        this.indexOfFrameToShow = collageDepth;
+        this.resetIndexOfFrameToShow();
+        State.dispatch(State.Slicer.update({ collageDepth }));
+    }
+
+    clear = async () => {
+        // Computing current scene bounding box.]
+        const state = State.store.getState();
+        const models = state.models
+            .filter(m => m.visible)
+            .map(Models.createModelFromBraynsData);
+        const bounds = Models.getModelsBounds(models);
+        const [x,y,z] = bounds.min;
+        const [X,Y,Z] = bounds.max;
+        const xx = x - X;
+        const yy = x - X;
+        const zz = x - X;
+        this.sceneRadius = Math.sqrt(xx*xx + yy*yy + zz*zz);
+        this.sceneCenter[0] = (x + X) / 2;
+        this.sceneCenter[1] = (y + Y) / 2;
+        this.sceneCenter[2] = (z + Z) / 2;
+
+        // Trying to find our clipping planes and taking theirs ids.
+        const planes = await Scene.Api.getClipPlanes();
+        await Scene.Api.removeClipPlanes(planes.map(p => p.id));
+
+        this.minPlaneIndex = await addPlane(this.getDefOfMinPlaneX());
+        this.maxPlaneIndex = await addPlane(this.getDefOfMaxPlaneX());
+
+        State.dispatch(State.Slicer.update({
+            maxX: 1, minX: 0
+        }));
+    }
+
+    handleMovieClick = async () => {
+        const queryForPlanes = Scene.Api.getClipPlanes();
+        const snapshotOptions = await Snapshot.show();
+        if (!snapshotOptions) return;
+        const planes =await queryForPlanes;
+        const minPlane = planes.find(p => p.id === this.minPlaneIndex);
+        if (!minPlane) return;
+        const maxPlane = planes.find(p => p.id === this.maxPlaneIndex);
+        if (!maxPlane) return;
+        const planesPerFrame = this.getPlanesPerFrame(minPlane, maxPlane);
+        for( let frame = 0; frame < this.props.collageDepth; frame++ ) {
+            const [planeA, planeB] = planesPerFrame[frame];
+            console.info("frame, planeA, planeB=", frame, planeA, planeB);
+            await Scene.Api.updateClipPlane(planeA);
+            await Scene.Api.updateClipPlane(planeB);
+            const canvas = await SnapshotService.getCanvas(snapshotOptions);
+            const filename = `${snapshotOptions.filename}-${Util.padNumber(frame)}.jpg`;
+            console.info("filename=", filename);
+            await SnapshotService.saveCanvasToFile(canvas, filename);
+        }
+        this.updatePlanes();
+    }
+
+    private getPlanesPerFrame(minPlane: IPlane, maxPlane: IPlane) {
+        const planesPerFrame = [];
+        for( let frame = 0; frame < this.props.collageDepth; frame++ ) {
+            this.indexOfFrameToShow = frame;
+            planesPerFrame.push([
+                {
+                    id: minPlane.id,
+                    plane: this.getDefOfMinPlaneX()
+                },
+                {
+                    id: maxPlane.id,
+                    plane: this.getDefOfMaxPlaneX()
+                }
+            ])
+        }
+        this.indexOfFrameToShow = 0;
+        console.info("minPlane, maxPlane, planesPerFrame=", minPlane, maxPlane, planesPerFrame);
+        return planesPerFrame;
     }
 
     render() {
+        console.info("this.props.latitude=", this.props.latitude);
         return (<div className="webBrayns-view-panel-Clip">
             <header className="thm-bgPD thm-ele-nav">
                 <div>
@@ -231,29 +235,51 @@ export default class Model extends React.Component<IClipProps, {}> {
                 <p>Slicing</p>
             </header>
             <div>
+                <Button
+                    wide={true} warning={true}
+                    label="Remove all clipping planes"
+                    icon="delete"
+                    onClick={this.clear}/>
                 <p>
-                    You can slice the scene according to three axis:<br/>
-                    <b>X</b>, <b>Y</b> and <b>Z</b>.<br/><br/>
-                    Slide the colored bars below to set the thickness of the slices.
+                    Slide the colored bar below to set the thickness and position of the main slice.
                 </p>
                 <Range
-                    label="X"
-                    color="#f00"
+                    label="Main slice"
+                    color={Theme.bgS()}
                     min={this.props.minX}
                     max={this.props.maxX}
                     onChange={this.handleXChange}/>
-                <Range
-                    label="Y"
-                    color="#0f0"
-                    min={this.props.minY}
-                    max={this.props.maxY}
-                    onChange={this.handleYChange}/>
-                <Range
-                    label="Z"
-                    color="#00f"
-                    min={this.props.minZ}
-                    max={this.props.maxZ}
-                    onChange={this.handleZChange}/>
+                <p>Orientation can be set by latitude/longitude.</p>
+                <Slider min={-180}
+                        max={180}
+                        onChange={this.handleLatitudeChange}
+                        step={1}
+                        label={`Latitude: ${this.props.latitude}`}
+                        text={`${this.props.latitude}`}
+                        value={this.props.latitude}/>
+                <Slider min={-90}
+                        max={90}
+                        onChange={this.handleLongitudeChange}
+                        step={1}
+                        label={`Longitude: ${this.props.longitude}`}
+                        text={`${this.props.longitude}`}
+                        value={this.props.longitude}/>
+                <br/>
+                <Button wide={true} flat={true}
+                    label="Make camera face the slice"
+                    icon="camera"/>
+                <p>Make snapshots of each adjacent slice.</p>
+                <Slider min={1}
+                        max={20}
+                        onChange={this.handleCollageDepthChange}
+                        step={1}
+                        label={`Frames count: ${this.props.collageDepth}`}
+                        text={`${this.props.collageDepth}`}
+                        value={this.props.collageDepth}/>
+                <Button wide={true}
+                        label="Create Filmstrip"
+                        onClick={this.handleMovieClick}
+                        icon="movie"/>
             </div>
         </div>)
     }
@@ -263,7 +289,7 @@ export default class Model extends React.Component<IClipProps, {}> {
 /**
  * Create a plane and returns its ID.
  */
-async function addPlane(def: [number, number, number, number]): number {
+async function addPlane(def: [number, number, number, number]): Promise<number> {
     const plane = await Scene.Api.addClipPlane(def);
     if (!plane) return 0;
     return plane.id;

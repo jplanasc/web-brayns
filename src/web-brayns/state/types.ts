@@ -9,16 +9,29 @@ export interface ISlicerState {
     activated: boolean,
     minX: number,
     maxX: number,
-    minY: number,
-    maxY: number,
-    minZ: number,
-    maxZ: number
+    latitude: number,
+    longitude: number,
+    collageDepth: number
+}
+
+export interface ISnapshot {
+    filename: string,
+    sizeKey: string,
+    width: number,
+    height: number,
+    samplesKey: string,
+    samples: number
+}
+
+export interface IDialogs {
+    snapshot: ISnapshot
 }
 
 export interface IAppState {
     models: IModel[],
     navigation: INavigationState,
-    slicer: ISlicerState
+    slicer: ISlicerState,
+    dialogs: IDialogs
 }
 
 export interface IAction {

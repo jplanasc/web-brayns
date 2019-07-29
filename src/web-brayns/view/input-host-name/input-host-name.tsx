@@ -6,7 +6,7 @@ import Storage from "../../../tfw/storage"
 
 interface IHostNameInputProps {
     onChange: (hostName: string) => void,
-    onEnter: () => void
+    onEnterPressed: () => void
 }
 
 interface IHostNameInputState {
@@ -21,17 +21,19 @@ export default class HostNameInput extends React.Component<IHostNameInputProps, 
     }
 
     handleChange = (hostName: string) => {
-        const handle = this.props.onChange;
-        if (typeof handle === 'function') {
-            handle(hostName);
+        this.setState({ hostName });
+
+        const { onChange } = this.props;
+        if (typeof onChange === 'function') {
+            onChange(hostName);
             Storage.local.set("brayns-host-name", hostName);
         }
     }
 
-    handleEnter = () => {
-        const handler = this.onEnter;
-        if (typeof handler === 'function') {
-            handler();
+    handleEnterPressed = () => {
+        const { onEnterPressed } = this.props;
+        if (typeof onEnterPressed === 'function') {
+            onEnterPressed();
         }
     }
 
@@ -43,14 +45,16 @@ export default class HostNameInput extends React.Component<IHostNameInputProps, 
         return (<div className="webBrayns-view-inputHostName">
             <Input
                 wide={true}
+                focus={true}
                 label="Brayns host name"
                 value={this.state.hostName}
-                onEnter={this.handleEnter}
+                onEnterPressed={this.handleEnterPressed}
                 onChange={this.handleChange}/>
+            {/*
             <Button
                 wide={true} flat={true}
                 label="How can I find that Brayns host name?"
-                icon="help"/>
+                icon="help"/>*/}
         </div>)
     }
 }
