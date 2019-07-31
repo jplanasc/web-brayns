@@ -25,8 +25,24 @@ ninja install
 
 cd /home/petitjea/Code/github/Brayns/Build
 rm -rf *
-CMAKE_PREFIX_PATH=/home/petitjea/Code/github/embree/Build/install:/home/petitjea/Code/github/OSPRay/Build/install:/home/petitjea/Code/github/libwebsockets/Build/install cmake .. -DCLONE_SUBPROJECTS=ON -DBRAYNS_NETWORKING_ENABLED=ON -DCMAKE_INSTALL_PREFIX=/home/petitjea/Code/github/Brayns/Build/install -G Ninja
+CMAKE_PREFIX_PATH=/home/petitjea/Code/github/embree/Build/install:/home/petitjea/Code/github/OSPRay/Build/install:/home/petitjea/Code/github/libwebsockets/Build/install \
+    cmake .. -DCLONE_SUBPROJECTS=ON \
+             -DBRAYNS_NETWORKING_ENABLED=ON \
+             -DCMAKE_INSTALL_PREFIX=/home/petitjea/Code/github/Brayns/Build/install \
+             -G Ninja
 ninja install
 ```
 
 If you want to switch between __Release__ and __Debug__ mode, you can use `ccmake .` and change the value of __CMAKE_BUILD_TYPE__.
+
+## Brayns-UC-CircuitExplorer
+
+```bash
+cd /home/petitjea/Code/github
+git clone https://petitjea@bbpcode.epfl.ch/code/a/viz/Brayns-UC-CircuitExplorer
+git submodule update --init --recursive
+rm -rf build
+mkdir build
+cd build
+
+```

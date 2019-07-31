@@ -1,16 +1,26 @@
 import SaveAsFile from 'save-as-file'
 
 import Scene from '../scene'
+import { API_snapshot_Param0 } from '../scene/api'
+import State from '../state'
 import { ISnapshot } from '../types'
 
 
 export default {
     async getCanvas(options: ISnapshot): Promise<HTMLCanvasElement> {
-        const snapshot = await Scene.Api.snapshot({
+        const params: API_snapshot_Param0 = {
+            animation_parameters: State.store.getState().animation,
             samples_per_pixel: options.samples,
             size: [options.width, options.height],
-            format: "JPEG"
-        });
+            format: "JPEG",
+            camera: {
+                position: Scene.camera.position,
+                orientation: Scene.camera.orientation,
+                target: Scene.camera.target
+            }
+        }
+        console.info("params=", params);
+        const snapshot = await Scene.Api.snapshot(params);
         const dataURI = `data:;base64,${snapshot.data}`
         return new Promise( (resolve, reject) => {
             const img = new Image();

@@ -7,6 +7,7 @@ import Input from '../../../tfw/view/input'
 import Combo from '../../../tfw/view/combo'
 import Model from '../../scene/model'
 import Matcher from '../../tool/matcher'
+import Debouncer from '../../../tfw/debouncer'
 
 import "./model-list.css"
 
@@ -15,6 +16,9 @@ interface IModelListProps {
 }
 
 interface IModelListState {
+    // In the Input.
+    filterInput: string,
+    // Real filter updated from `filterInput` after a debouncer does it.
     filter: string,
     sort: "name" | "volume"
 }
@@ -22,7 +26,7 @@ interface IModelListState {
 export default class modelList extends React.Component<IModelListProps, IModelListState> {
     constructor( props: IModelListProps ) {
         super( props );
-        this.state = { filter: '', sort: 'name' }
+        this.state = { filterInput: '', filter: '', sort: 'name' }
     }
 
     handleToggleSelection = (model: IModel) => {
@@ -37,10 +41,16 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
         }
     }
 
-    handleFilterChange = (value: string) => {
+    handleFilterInputChange = (value: string) => {
+        const filterInput = value.trim().toLowerCase();
+        this.setState({ filterInput });
+        this.handleFilterChange(filterInput);
+    }
+
+    handleFilterChange = Debouncer((value: string) => {
         const filter = value.trim().toLowerCase();
         this.setState({ filter });
-    }
+    }, 200)
 
     handleSortChange = (sort: string) => {
         this.setState({ sort });
@@ -65,7 +75,8 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
             <header>
                 <Input
                     label={`Filter by name (${filteredModels.length} / ${models.length})`}
-                    onChange={this.handleFilterChange}
+                    value={this.state.filterInput}
+                    onChange={this.handleFilterInputChange}
                     wide={true}/>
                 <Combo
                     label="Sorting"

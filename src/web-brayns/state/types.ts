@@ -27,11 +27,20 @@ export interface IDialogs {
     snapshot: ISnapshot
 }
 
+export interface IAnimation {
+    current?: (number /* Integer */);
+    delta?: (number /* Integer */);
+    dt?: number;
+    frameCount?: (number /* Integer */);
+    playing?: boolean;
+    unit?: string;
+}
 export interface IAppState {
+    animation: IAnimation,
+    dialogs: IDialogs,
     models: IModel[],
     navigation: INavigationState,
-    slicer: ISlicerState,
-    dialogs: IDialogs
+    slicer: ISlicerState
 }
 
 export interface IAction {

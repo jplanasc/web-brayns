@@ -19,6 +19,7 @@ export default class GesturesHandler {
      * When panning starts, we should memorize the current Scene.camera/model rot/sca/loc params.
      */
     handlePanStart = (evt: IPanningEvent) => {
+        console.info("evt=", evt);
         const axis = Scene.camera.axis;
         this.savedTarget = Scene.camera.target;
         this.savedPosition = Scene.camera.position;
