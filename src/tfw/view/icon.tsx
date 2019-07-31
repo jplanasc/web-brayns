@@ -13,6 +13,7 @@ interface IIconProps {
     visible?: boolean;
     content?: string | TIconDefinition;
     size?: string | number;
+    enabled?: boolean;
     animate?: boolean;
     flipH?: boolean;
     flipV?: boolean;
@@ -74,6 +75,7 @@ export default class Icon extends React.Component<IIconProps, {}> {
         const
             p = this.props,
             visible = castBoolean(p.visible, true),
+            enabled = castBoolean(p.enabled, true),
             animate = castBoolean(p.animate, false),
             flipH = castBoolean(p.flipH, false),
             flipV = castBoolean(p.flipV, false),
@@ -85,9 +87,10 @@ export default class Icon extends React.Component<IIconProps, {}> {
         const svgContent = createSvgContent(content, p);
         if (!svgContent) return null;
 
+        if (!enabled) classes.push("disabled");
         if (animate) classes.push("animate");
         if (visible) classes.push("zero");
-        if (typeof onClick === 'function') classes.push("active");
+        if (typeof onClick === 'function' && enabled) classes.push("active");
 
         let transform = "";
         if (rotate !== 0) {
@@ -109,7 +112,7 @@ export default class Icon extends React.Component<IIconProps, {}> {
                 preserveAspectRatio="xMidYMid"
                 width={size}
                 height={size}
-                onClick={onClick}
+                onClick={enabled ? onClick : undefined}
                 style={style}>
                 {svgContent}
                 < g strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" >

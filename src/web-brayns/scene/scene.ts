@@ -47,6 +47,16 @@ async function connect(hostName: string): Promise<BraynsClient> {
     const cameraParams = await request('get-camera-params');
     Scene.camera = new Camera(cameraParams);
     Scene.renderer.init(Scene.brayns);
+    const animation = await Api.getAnimationParameters();
+    console.info("animation=", animation);
+    State.dispatch(State.Animation.update(animation));
+
+    Scene.brayns
+        .observe("set-animation-parameters")
+        .subscribe((params: any) => {
+            console.info("[ANIM] params=", params);
+        });
+
     return Scene.brayns;
 }
 

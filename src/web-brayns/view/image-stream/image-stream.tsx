@@ -6,7 +6,7 @@ import Scene from '../../scene'
 import Gesture from '../../../tfw/gesture'
 import Button from '../../../tfw/view/button'
 import Snapshot from '../../dialog/snapshot'
-
+import AnimationControl from '../animation-control'
 import { IEvent } from '../../../tfw/gesture/types'
 
 import "./image-stream.css"
@@ -45,13 +45,13 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         Gesture(this.canvas).on({
             down: this.handleDown,
             async tap(evt) {
-                console.info("doubletap=", evt);
                 const canvas = that.canvas;
                 if (!canvas) return;
                 const rect = canvas.getBoundingClientRect();
                 const x = evt.x / rect.width;
                 const y = 1 - (evt.y / rect.height);
                 const hitResult = await Scene.request('inspect', [x, y]);
+                console.info("hitResult=", hitResult);
                 if (hitResult.hit === true) {
                     Scene.camera.getCloser(hitResult.position, 0.5);
                 }
@@ -138,6 +138,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                         onClick={this.handleScreenShot}
                         warning={true}/>
                 </div>
+                <AnimationControl />
             </div>
         );
     }

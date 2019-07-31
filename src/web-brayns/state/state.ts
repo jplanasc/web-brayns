@@ -4,13 +4,15 @@
 import { createStore } from 'redux'
 import { IAppState, IAction } from "../types"
 
+import Animation from './animation'
+import Dialogs from './dialogs'
 import Models from "./models"
 import Navigation from './navigation'
 import Slicer from './slicer'
-import Dialogs from './dialogs'
 
 
 const INITIAL_STATE: IAppState = {
+    animation: Animation.INITIAL_STATE,
     dialogs: Dialogs.INITIAL_STATE,
     models: Models.INITIAL_STATE,
     navigation: Navigation.INITIAL_STATE,
@@ -19,6 +21,7 @@ const INITIAL_STATE: IAppState = {
 
 function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction): IAppState {
     return {
+        animation: Animation.reducer(state.animation, action),
         dialogs: Dialogs.reducer(state.dialogs, action),
         models: Models.reducer(state.models, action),
         navigation: Navigation.reducer(state.navigation, action),
@@ -29,6 +32,7 @@ function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction):
 const store = createStore(reducer);
 export default {
     store, dispatch: store.dispatch,
+    Animation,
     Dialogs,
     Models,
     Navigation,
