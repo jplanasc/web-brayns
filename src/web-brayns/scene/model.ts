@@ -7,11 +7,7 @@ import { IModel, IVector } from '../types'
 
 
 export default class Model {
-    private readonly brayns: BraynsClient;
-
-    constructor(private params: IModel) {
-        this.brayns = Scene.brayns || new BraynsClient('');
-    }
+    constructor(private params: IModel) {}
 
     async locate(position: IVector): Promise<boolean> {
         this.params.transformation.translation = position;

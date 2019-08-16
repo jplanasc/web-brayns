@@ -35,11 +35,20 @@ export interface IAnimation {
     playing?: boolean;
     unit?: string;
 }
+
+export interface IPathState {
+    path: string,
+    root: string,
+    files: string[],
+    folders: string[]
+}
+
 export interface IAppState {
     animation: IAnimation,
     dialogs: IDialogs,
     models: IModel[],
     navigation: INavigationState,
+    path: IPathState,
     slicer: ISlicerState
 }
 

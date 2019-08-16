@@ -8,6 +8,7 @@ import Animation from './animation'
 import Dialogs from './dialogs'
 import Models from "./models"
 import Navigation from './navigation'
+import Path from './path'
 import Slicer from './slicer'
 
 
@@ -16,6 +17,7 @@ const INITIAL_STATE: IAppState = {
     dialogs: Dialogs.INITIAL_STATE,
     models: Models.INITIAL_STATE,
     navigation: Navigation.INITIAL_STATE,
+    path: Path.INITIAL_STATE,
     slicer: Slicer.INITIAL_STATE
 };
 
@@ -25,6 +27,7 @@ function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction):
         dialogs: Dialogs.reducer(state.dialogs, action),
         models: Models.reducer(state.models, action),
         navigation: Navigation.reducer(state.navigation, action),
+        path: Path.reducer(state.path, action),
         slicer: Slicer.reducer(state.slicer, action)
     };
 }
@@ -36,6 +39,7 @@ export default {
     Dialogs,
     Models,
     Navigation,
+    Path,
     Slicer
 };
 

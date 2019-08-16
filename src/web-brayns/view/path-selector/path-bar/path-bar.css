@@ -1,0 +1,20 @@
+div.webBrayns-view-PathBar > header {
+    opacity: .5;
+    font-size: 70%;
+    font-family: monospace;
+}
+
+div.webBrayns-view-PathBar > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+div.webBrayns-view-PathBar > div > div {
+    border-radius: 0.25em;
+    padding: 0.125em .25em;
+    margin: 0.125em;
+    flex: 0 0 auto;
+}

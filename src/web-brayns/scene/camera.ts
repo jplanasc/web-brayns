@@ -161,7 +161,8 @@ import State from '../state'
      }
 
      async lookAtWholeScene() {
-         const bounds = Models.getModelsBounds(State.store.getState().models.map(m => (
+         const bounds = Models.getModelsBounds(
+           State.store.getState().models.map(m => (
              {
                  brayns: m
              }
