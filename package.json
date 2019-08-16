@@ -1,8 +1,8 @@
 {
   "name": "web-brayns",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
-  "homepage": "./",
+  "proxy": "http://localhost:3666/",
   "dependencies": {
     "@types/jest": "^24.0.13",
     "@types/node": "^11.13.14",
@@ -23,7 +23,9 @@
     "typescript": "^3.5.1"
   },
   "scripts": {
-    "start": "react-app-rewired start",
+    "start": "concurrently \"npm run start-cgi\" \"npm run start-client\"",
+    "start-client": "react-app-rewired start",
+    "start-cgi": "cd backend && chmod a+x cgi-bin/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
     "build": "react-app-rewired build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
@@ -41,6 +43,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "concurrently": "^4.1.1",
     "gh-pages": "^2.0.1",
     "react-app-rewire-yaml": "^1.1.0",
     "react-app-rewired": "^2.1.3",

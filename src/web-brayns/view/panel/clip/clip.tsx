@@ -62,7 +62,6 @@ export default class Model extends React.Component<IClipProps, {}> {
 
     async componentDidMount() {
         this.clear();
-
         this.updatePlanes();
     }
 
@@ -71,8 +70,8 @@ export default class Model extends React.Component<IClipProps, {}> {
     }
 
     updatePlanes = Throttler(() => {
-        Scene.Api.updateClipPlane({id: this.minPlaneIndex, plane: this.getDefOfMinPlaneX()});
-        Scene.Api.updateClipPlane({id: this.maxPlaneIndex, plane: this.getDefOfMaxPlaneX()});
+        Scene.Api.updateClipPlane({id: this.minPlaneIndex, plane: this.getDefOfMinPlane()});
+        Scene.Api.updateClipPlane({id: this.maxPlaneIndex, plane: this.getDefOfMaxPlane()});
     }, 100)
 
     private computePlaneDirection(): [number, number, number] {
@@ -90,36 +89,32 @@ export default class Model extends React.Component<IClipProps, {}> {
         return sceneRadius * Math.abs(props.maxX - props.minX);
     }
 
-    getDefOfMinPlaneX(): [number, number, number, number] {
+    getDefOfMinPlane(): [number, number, number, number] {
         const { sceneRadius, sceneCenter } = this;
         const thickness = this.computeThickness();
         const distanceFromCenter = sceneRadius * (this.props.minX - .5)
             + thickness * this.indexOfFrameToShow;
-        const [x,y,z] = this.computePlaneDirection();
+        const normal = this.computePlaneDirection();
         const pointOnPlan = Geom.addVectors(
             sceneCenter,
-            Geom.scale([x,y,z], -distanceFromCenter)
+            Geom.scale(normal, -distanceFromCenter)
         );
-        const distanceFromOrigin = Geom.scalarProduct(
-            pointOnPlan, [x,y,z]
-        );
-        return [x, y, z, distanceFromOrigin];
+        console.log("MIN: thickness, distanceFromCenter, normal, pointOnPlan=", thickness, distanceFromCenter, normal, pointOnPlan)
+        return Geom.plane6to4(pointOnPlan, normal);
     }
 
-    getDefOfMaxPlaneX(): [number, number, number, number] {
+    getDefOfMaxPlane(): [number, number, number, number] {
         const { sceneRadius, sceneCenter } = this;
         const thickness = this.computeThickness();
         const distanceFromCenter = sceneRadius * (this.props.maxX - .5)
             + thickness * this.indexOfFrameToShow;
-        const [x,y,z] = Geom.scale(this.computePlaneDirection(), -1);
+        const normal = Geom.scale(this.computePlaneDirection(), -1);
         const pointOnPlan = Geom.addVectors(
             sceneCenter,
-            Geom.scale([x,y,z], distanceFromCenter)
+            Geom.scale(normal, distanceFromCenter)
         );
-        const distanceFromOrigin = Geom.scalarProduct(
-            pointOnPlan, [x,y,z]
-        );
-        return [x, y, z, distanceFromOrigin];
+        console.log("MAX: thickness, distanceFromCenter, normal, pointOnPlan=", thickness, distanceFromCenter, normal, pointOnPlan)
+        return Geom.plane6to4(pointOnPlan, normal);
     }
 
     componentWillUnmount() {
@@ -174,8 +169,8 @@ export default class Model extends React.Component<IClipProps, {}> {
         const planes = await Scene.Api.getClipPlanes();
         await Scene.Api.removeClipPlanes(planes.map(p => p.id));
 
-        this.minPlaneIndex = await addPlane(this.getDefOfMinPlaneX());
-        this.maxPlaneIndex = await addPlane(this.getDefOfMaxPlaneX());
+        this.minPlaneIndex = await addPlane(this.getDefOfMinPlane());
+        this.maxPlaneIndex = await addPlane(this.getDefOfMaxPlane());
 
         State.dispatch(State.Slicer.update({
             maxX: 1, minX: 0
@@ -212,11 +207,11 @@ export default class Model extends React.Component<IClipProps, {}> {
             planesPerFrame.push([
                 {
                     id: minPlane.id,
-                    plane: this.getDefOfMinPlaneX()
+                    plane: this.getDefOfMinPlane()
                 },
                 {
                     id: maxPlane.id,
-                    plane: this.getDefOfMaxPlaneX()
+                    plane: this.getDefOfMaxPlane()
                 }
             ])
         }

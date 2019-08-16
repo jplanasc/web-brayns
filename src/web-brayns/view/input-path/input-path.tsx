@@ -1,6 +1,9 @@
 import React from "react"
+import { Provider } from 'react-redux'
 
 import Input from '../../../tfw/view/input'
+import PathSelector from '../path-selector'
+import State from '../../state'
 import LocalStorage from '../../service/local-storage'
 
 
@@ -33,11 +36,16 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
     }
 
     render() {
-        return <Input
-            label="Please type a model path"
-            size={100}
-            value={this.state.path}
-            onChange={this.handleChange}
-            wide={true}/>
+        return <div>
+            <Input
+                label="Please type a model path"
+                size={100}
+                value={this.state.path}
+                onChange={this.handleChange}
+                wide={true}/>
+            <Provider store={State.store}>
+                <PathSelector onFileClick={this.handleChange}/>
+            </Provider>
+        </div>
     }
 }

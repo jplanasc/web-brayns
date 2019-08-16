@@ -5,6 +5,7 @@ export default {
     makeQuaternionAsAxisRotation,
     multiplyQuaternions,
     normalize,
+    plane6to4,
     rotateWithQuaternion,
     scalarProduct,
     scale,
@@ -48,6 +49,18 @@ function normalize(vector: IVector): IVector {
     if (len2 < 0.000000001) return [0,0,0];
     const f = 1 / Math.sqrt(len2);
     return [x*f, y*f, z*f];
+}
+
+
+/**
+ * A plan can be defined by a point and a normal.
+ * This representation takes 6 floats.
+ * You can also use a normal and a signed distance from the center,
+ * which takes only 4 floats. This is how Brayns represent clipping planes.
+ */
+function plane6to4(point: IVector, normal: IVector): [number, number, number, number] {
+  const d = scalarProduct(point, normal);
+  return [...normal, d];
 }
 
 

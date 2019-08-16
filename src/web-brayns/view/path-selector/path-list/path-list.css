@@ -1,0 +1,14 @@
+div.webBrayns-view-PathList {
+    overflow: auto;
+}
+
+div.webBrayns-view-PathList > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+div.webBrayns-view-PathList > div > button {
+    font-weight: bold;
+}

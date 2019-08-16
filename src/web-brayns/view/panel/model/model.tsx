@@ -24,7 +24,7 @@ export default class Model extends React.Component<{}, {}> {
         console.info("model=", model);
     }
 
-    toggleConsoleVisibility = () => {
+    toggleConsoleVisibility = async () => {
         State.dispatch(State.Navigation.toggleConsoleVisibility())
     }
 
