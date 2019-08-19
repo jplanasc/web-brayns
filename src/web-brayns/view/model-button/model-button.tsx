@@ -2,8 +2,11 @@ import React from "react"
 
 import { IModel } from '../../types'
 import Button from '../../../tfw/view/button'
+import Scene from '../../scene'
 import Model from '../../scene/model'
 import Touchable from '../../../tfw/view/touchable'
+import MaterialDialog from '../../dialog/material'
+import Python from '../../service/python'
 
 import "./model-button.css"
 
@@ -38,6 +41,17 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
         await model.hide();
     }
 
+    handleMaterial = async () => {
+        const material = await MaterialDialog.show();
+        if (!material) return;
+        try {
+            await Scene.setMaterial(this.props.model.id, 0, material)
+        }
+        catch (ex) {
+            console.error(ex);
+        }
+    }
+
     render() {
         const { model } = this.props;
         const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
@@ -56,7 +70,11 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
                 <div className="icons">
                     <div>
                         <Button small={true} icon="gps" onClick={this.handleFocus}/>
-                        <Button enabled={false} small={true} icon="more"/>
+                        <Button
+                            onClick={this.handleMaterial}
+                            enabled={true}
+                            small={true}
+                            icon="more"/>
                     </div>
                     {
                         model.visible ?

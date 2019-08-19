@@ -116,7 +116,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
     }
 
     private handleScreenShot = async () => {
-        console.log("handleScreenShot");
         const options = await Snapshot.show();
         if (!options) return;  // Action cancelled.
         const canvas = await SnapshotService.getCanvas(options);

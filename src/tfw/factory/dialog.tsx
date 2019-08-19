@@ -144,7 +144,7 @@ function alert(content: string | React.ReactElement<any>,
 function confirm( caption: string,
                   content: string | React.ReactElement<any>): Promise<boolean> {
     return new Promise( resolve => {
-        const dialog = new Dialog({ title: caption, content, maxWidth: 420 });
+        const dialog = new Dialog({ title: caption, content });
         const close = (confirmed: boolean) => {
             dialog.hide();
             resolve( confirmed );

@@ -43,6 +43,7 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
                 value={this.state.path}
                 onChange={this.handleChange}
                 wide={true}/>
+            <hr/>
             <Provider store={State.store}>
                 <PathSelector onFileClick={this.handleChange}/>
             </Provider>

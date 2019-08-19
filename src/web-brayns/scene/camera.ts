@@ -81,6 +81,7 @@ import State from '../state'
      }
 
      async setTarget(target: IVector) {
+         console.info("this.params=", this.params);
          const direction = this.direction;
          const distance = Geom.scalarProduct(
              Geom.vectorFromPoints(this.params.position, target),
