@@ -13,6 +13,9 @@ import { IVector } from './web-brayns/types'
 
 import "./app.css"
 
+import Python from './web-brayns/service/python'
+import SnapshotService from './web-brayns/service/snapshot'
+import SnapshotDialog from './web-brayns/dialog/snapshot'
 
 interface IAppProps {
     panel: string,
@@ -26,6 +29,44 @@ export default class App extends React.Component<IAppProps, {}> {
 
     async componentDidMount() {
         try {
+            await Scene.clear();
+            const model1 = await loadAstrocyte(Math.floor(Math.random() * 50) + 2);
+            const model2 = await loadAstrocyte(Math.floor(Math.random() * 50) + 2);
+            await Scene.camera.setTarget([
+                0.22907014191150665,
+                1.54878032207489,
+                12.159969091415403
+            ]);
+            await Scene.camera.setPositionAndOrientation([
+                0.22907014191150665,
+                1.54878032207489,
+                22.19826742261648
+            ], [0,0,0,1]);
+            /*
+            const materialTemplate = {
+                opacity: 1,
+                glossiness: 1,
+                diffuseColor: [1,0,0],
+                shadingMode: 'cartoon'
+            }
+
+            const materials = [
+                //{ ...materialTemplate, shadingMode: "diffuse", glossiness: 0 },
+                //{ ...materialTemplate, shadingMode: "diffuse", glossiness: 0.7 },
+                //{ ...materialTemplate, shadingMode: "diffuse" },
+                //{ ...materialTemplate, shadingMode: "electron" },
+                { ...materialTemplate, shadingMode: "cartoon" }
+            ]
+            for( const material of materials ) {
+                const output = await Scene.setMaterial(model.params.id, 0, material);
+                continue;
+                const options = await SnapshotDialog.show();
+                if (!options) return;  // Action cancelled.
+                const canvas = await SnapshotService.getCanvas(options);
+                await SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`);
+            }
+*/
+
             /*
             //Scene.clear();
             let modelNumber = 1;
@@ -51,7 +92,7 @@ export default class App extends React.Component<IAppProps, {}> {
                 await model.locate(positions[index]);
             })*/
 
-            Scene.camera.lookAtWholeScene();
+            //Scene.camera.lookAtWholeScene();
         }
         catch( ex ) {
             console.error(ex);

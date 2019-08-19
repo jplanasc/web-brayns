@@ -25,7 +25,7 @@
   "scripts": {
     "start": "concurrently \"npm run start-cgi\" \"npm run start-client\"",
     "start-client": "react-app-rewired start",
-    "start-cgi": "cd backend && chmod a+x cgi-bin/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
+    "start-cgi": "cd backend && chmod a+x cgi-bin/*.py cgi-bin/phaneron/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
     "build": "react-app-rewired build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",

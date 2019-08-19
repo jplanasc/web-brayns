@@ -37,3 +37,10 @@ export interface IPanningEvent extends IScreenPoint {
     // 4: middle
     button: number
 }
+
+export interface IMaterial {
+    diffuseColor: [number,number,number],
+    shadingMode: string,
+    glossiness: number,
+    opacity: number
+}

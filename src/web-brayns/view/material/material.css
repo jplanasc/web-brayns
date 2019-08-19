@@ -1,0 +1,48 @@
+div.webBrayns-view-Material {
+    min-width: 50vw;
+}
+
+div.webBrayns-view-Material > div.shading-mode {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    min-width: 50vw;
+}
+
+div.webBrayns-view-Material > div.shading-mode > div.shading-mode-button {
+    display: relative;
+    margin: 0;
+    padding: 0;
+    border-radius: 1rem;
+    width: 256px;
+    height: 256px;
+    overflow: hidden;
+    transform: scale(0.8);
+    box-shadow: 0 .5rem 1rem var(--thm-black-7);
+    transition: all .2s;
+}
+
+div.webBrayns-view-Material > div.shading-mode > div.shading-mode-button.selected {
+    transform: scale(1);
+    box-shadow: none;
+}
+
+div.webBrayns-view-Material > div.shading-mode > div.shading-mode-button > div {
+    border-radius: 1rem;
+    display: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    width: 256px;
+    height: 256px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 256px 256px;
+}
+
+div.webBrayns-view-Material > div.shading-mode > div.shading-mode-button.selected > div {
+    box-shadow: 0 0 0 .5rem var(--thm-white-7) inset;
+}

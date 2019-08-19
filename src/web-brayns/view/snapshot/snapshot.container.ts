@@ -34,7 +34,7 @@ function mapDispatchToProps(dispatch) {
             dispatch(State.Dialogs.updateSnapshot({ width }))
         },
 
-        onheightChange(height: number) {
+        onHeightChange(height: number) {
             dispatch(State.Dialogs.updateSnapshot({ height }))
         },
 

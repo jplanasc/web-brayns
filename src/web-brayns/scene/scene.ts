@@ -4,7 +4,8 @@
 import { Client as BraynsClient } from "brayns"
 
 import Api from "./api"
-import { IModel } from '../types'
+import { IModel, IMaterial } from '../types'
+import Python from '../service/python'
 import State from '../state'
 import ServiceHost from '../service/host'
 import Model from './model'
@@ -16,36 +17,44 @@ import GesturesHandler from './gestures-handler'
 const Scene: {
     brayns: (BraynsClient | null),
     camera: (Camera | null),
+    host: string,
     renderer: Renderer,
     gestures: GesturesHandler
 } = {
     brayns: null,
     camera: null,
+    host: '',
     renderer: new Renderer(),
     gestures: new GesturesHandler()
 }
 
-export default {
+const defaultObjectToExport = {
     Api,
     clear,
     connect,
     loadMeshFromPath,
     request,
+    setMaterial,
     setViewPort,
-    get brayns() { return Scene.brayns; },
-    get camera(): Camera { return Scene.camera || new Camera({}); },
+    get brayns() { return Scene.brayns },
+    get camera(): Camera { return Scene.camera || new Camera({}) },
+    get host() { return Scene.host },
     get renderer(): Renderer { return Scene.renderer },
     get gestures(): GesturesHandler { return Scene.gestures }
  }
+
+ export default defaultObjectToExport;
 
 /**
  * Try to connect to a Brayns service and fails if it takes too long.
  */
 async function connect(hostName: string): Promise<BraynsClient> {
+    Scene.host = hostName;
     Scene.brayns = await ServiceHost.connect(hostName);
     console.info("Scene.brayns=", Scene.brayns);
+    const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
-    Scene.camera = new Camera(cameraParams);
+    Scene.camera = new Camera({ ...cameraParams, ...camera });
     Scene.renderer.init(Scene.brayns);
     const animation = await Api.getAnimationParameters();
     console.info("animation=", animation);
@@ -87,6 +96,7 @@ async function clear(): Promise<boolean> {
     if (!models) return false;
     const ids = models.map( (model: any) => model.id );
     await request("remove-model", ids);
+    State.dispatch(State.Models.reset([]))
 
     const rendererParams: any = await request("get-renderer-params", {});
     if (rendererParams) {
@@ -99,16 +109,12 @@ async function clear(): Promise<boolean> {
 
     await request('set-renderer', {
         accumulation: true,
-        backgroundColor: [.2,.1,0],
+        backgroundColor: [0,0,0],
         current: "advanced_simulation",
         headLight: true,
-        maxAccumFrames: 1000,
+        maxAccumFrames: 2000,
         samplesPerPixel: 1,
         subsampling: 1
-    });
-
-    await request("set-environment-map", {
-        filename: "/gpfs/bbp.cscs.ch/project/proj3/resources/envmap/space.jpg"
     });
 
     return true;
@@ -126,4 +132,13 @@ async function loadMeshFromPath(path: string): Promise<Model> {
     const model: IModel = result as IModel;
     State.dispatch(State.Models.add(model));
     return new Model(model);
+}
+
+async function setMaterial(modelId: number, materialId: number, material: IMaterial) {
+    return await Python.exec("phaneron/set-material", {
+        ...material,
+        modelId,
+        materialId,
+        host: Scene.host
+    });
 }

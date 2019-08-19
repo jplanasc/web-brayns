@@ -1,14 +1,39 @@
 div.webBrayns-view-PathList {
     overflow: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
 }
 
 div.webBrayns-view-PathList > div {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-    flex-wrap: wrap;
+    width: 100%;
 }
 
-div.webBrayns-view-PathList > div > button {
+div.webBrayns-view-PathList div.folder-button {
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+div.webBrayns-view-PathList div.folder-button > div.tfw-view-touchable {
+    margin: 2px;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.label {
+    margin: 0 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: bold;
 }

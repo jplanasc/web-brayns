@@ -10,7 +10,9 @@ export default {
         if (response.ok) {
             const text = await response.text();
             try {
-                return JSON.parse(text);
+                const output = JSON.parse(text);
+                console.info("[Python]", serviceName, " => ", output);
+                return output;
             }
             catch( ex ) {
                 throw Error(text);
