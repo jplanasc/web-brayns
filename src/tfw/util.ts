@@ -11,5 +11,30 @@ export default {
         if (value < min) return min;
         if (value > max) return max;
         return value;
+    },
+
+    loadTextFromURL(url: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            fetch(url)
+                .then((response: Response) => {
+                    if (!response.ok) {
+                        reject(`Error ${response.status}: ${response.statusText}!`);
+                    }
+                    return response.text();
+                })
+                .then(resolve)
+                .catch(reject);
+        });
+    },
+
+    loadJsonFromURL(url: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fetch(url)
+                .then((response: Response) => {
+                    return response.json();
+                })
+                .then(resolve)
+                .catch(reject);
+        });
     }
 }

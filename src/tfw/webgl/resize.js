@@ -1,15 +1,13 @@
 /*
 Functions to resize the canvas and the viewport.
 */
-"use strict";
 
 /**
- * @function
- * @param {object} gl - WebGL context.
- * @param {number} _resolution - Resolution in CSS pixels. If omitted, the real resolution
+ * {object} gl - WebGL context.
+ * {number} _resolution - Resolution in CSS pixels. If omitted, the real resolution
  * of the device is taken. On smartphones, for instance, the resolution is often greater than 1.
  *
- * @return {boolean} `true` if the size has changed.
+ * return {boolean} `true` if the size has changed.
  */
 module.exports = function ( gl, _resolution ) {
     const

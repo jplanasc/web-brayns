@@ -1,6 +1,4 @@
-"use strict";
-
-var BPE = (new Float32Array()).BYTES_PER_ELEMENT;
+const BPE = (new Float32Array()).BYTES_PER_ELEMENT;
 
 /**
  * Creating  a  WebGL  program  for shaders  is  painful.  This  class
@@ -66,11 +64,11 @@ Program.prototype.bindAttribs = function(buffer) {
     names.forEach(function(name) {
         var attrib = this.attribs[name];
         if (!attrib) {
-            throw "Cannot find attribute \"" + name + "\"!\n" +
+            throw Error("Cannot find attribute \"" + name + "\"!\n" +
                 "It may be not active because unused in the shader.\n" +
                 "Available attributes are: " + Object.keys(this.attribs).map(function(name) {
                     return '"' + name + '"';
-                }).join(", ");
+                }).join(", "));
         }
         totalSize += (attrib.size * attrib.length) * BPE;
     }, this);
@@ -110,34 +108,6 @@ function createAttributes(that, gl, shaderProgram) {
     Object.freeze(that.attribs);
 }
 
-function createAttributeSetter(gl, item, shaderProgram) {
-    console.info("item=", item);
-    var name = item.name;
-    return function(v) {
-        if (typeof v !== 'boolean') {
-            throw "[webgl.program::$" + name +
-                "] Value must be a boolean: true if you want to enable this attribute, and false to disable it.";
-        }
-        if (v) {
-            console.log("enableVertexAttribArray(", gl.getAttribLocation(shaderProgram, name), ")");
-            gl.enableVertexAttribArray(
-                gl.getAttribLocation(shaderProgram, name)
-            );
-        } else {
-            gl.disableVertexAttribArray(
-                gl.getAttribLocation(shaderProgram, name)
-            );
-        }
-    };
-}
-
-function createAttributeGetter(gl, item, shaderProgram) {
-    var loc = gl.getAttribLocation(shaderProgram, item.name);
-    return function() {
-        return loc;
-    };
-}
-
 function createUniforms(that, gl, shaderProgram) {
     var index, item;
     var uniforms = {};
@@ -167,7 +137,7 @@ function parseIncludes(codes, includes) {
     for (id in codes) {
         code = codes[id];
         result[id] = code.split('\n').map(function(line) {
-            if (line.trim().substr(0, 8) != '#include') return line;
+            if (line.trim().substr(0, 8) !== '#include') return line;
             var pos = line.indexOf('#include') + 8;
             var includeName = line.substr(pos).trim();
             // We accept all this systaxes:
@@ -201,7 +171,7 @@ function createUniformSetter(gl, item, nameGL, lookup) {
         case gl.INT:
         case gl.UNSIGNED_INT:
         case gl.SAMPLER_2D: // For textures, we specify the texture unit.
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniform1i(nameGL, v);
                     this[nameJS] = v;
@@ -212,9 +182,8 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     this[nameJS] = v;
                 };
             }
-            break;
         case gl.FLOAT:
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniform1f(nameGL, v);
                     this[nameJS] = v;
@@ -225,9 +194,8 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     this[nameJS] = v;
                 };
             }
-            break;
         case gl.FLOAT_VEC2:
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniform2fv(nameGL, v);
                     this[nameJS] = v;
@@ -238,9 +206,8 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     item.name + "'!'"
                 );
             }
-            break;
         case gl.FLOAT_VEC3:
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniform3fv(nameGL, v);
                     this[nameJS] = v;
@@ -251,9 +218,8 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     item.name + "'!'"
                 );
             }
-            break;
         case gl.FLOAT_VEC4:
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniform4fv(nameGL, v);
                     this[nameJS] = v;
@@ -264,9 +230,8 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     item.name + "'!'"
                 );
             }
-            break;
         case gl.FLOAT_MAT3:
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniformMatrix3fv(nameGL, false, v);
                     this[nameJS] = v;
@@ -277,9 +242,8 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     item.name + "'!'"
                 );
             }
-            break;
         case gl.FLOAT_MAT4:
-            if (item.size == 1) {
+            if (item.size === 1) {
                 return function(v) {
                     gl.uniformMatrix4fv(nameGL, false, v);
                     this[nameJS] = v;
@@ -290,7 +254,6 @@ function createUniformSetter(gl, item, nameGL, lookup) {
                     item.name + "'!'"
                 );
             }
-            break;
         default:
             throw Error(
                 "[webgl.program.createWriter] Don't know how to deal with uniform `" +
@@ -351,7 +314,7 @@ function getSize(gl, item) {
         case gl.FLOAT:
             return 1;
         default:
-            throw "[webgl.program:getSize] I don't know the size of the attribute '" + item.name +
-                "' because I don't know the type " + this.getTypeName(item.type) + "!";
+            throw Error("[webgl.program:getSize] I don't know the size of the attribute '" + item.name +
+                "' because I don't know the type " + this.getTypeName(item.type) + "!");
     }
 }
