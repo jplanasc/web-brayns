@@ -4,11 +4,13 @@ import Debouncer from "../../debouncer";
 import castUnit from "../../converter/unit"
 import castBoolean from "../../converter/boolean"
 import castInteger from "../../converter/integer"
+import castString from "../../converter/string"
 import Gesture from "../../gesture"
 
 interface IListProps {
     // Array of all the items to hold.
     items: any[];
+    className?: string;
     // Function which takes an item and return a component.
     mapper: (item: any) => React.ReactElement;
     itemHeight?: number;
@@ -153,11 +155,12 @@ export default class List extends React.Component<IListProps, IListState> {
         const width = castUnit(this.props.width, "auto");
         const height = castUnit(this.props.height, "auto");
         const animateRefresh = castBoolean(this.props.animateRefresh, false);
-        const classes = ["tfw-view-list", "thm-bg2"];
+        const classes = ["tfw-view-list"];
         if (animateRefresh) classes.push("animate-refresh", "refreshing");
+        const className = `${classes.join(' ')} ${castString(this.props.className, '')}`
 
         return (
-            <div className={classes.join(" ")}
+            <div className={className}
                 style={{ width, height }}
                 onScroll={this.onScroll}
                 ref={this.refMain}>

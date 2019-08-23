@@ -1,19 +1,3 @@
-export default {
-    /**
-     * @param {string|React.ReactElement<any>} message
-     * @param {()=>void|null} onClose
-     */
-    alert,
-    /**
-     * @param {string} caption - Title and button caption.
-     * @param {any} content - Content to display.
-     * @return Promise<boolean> Confirmed or not?
-     */
-    confirm,
-    show,
-    wait
-};
-
 import * as React from "react"
 import ReactDOM from 'react-dom'
 import Icon from "../view/icon"
@@ -27,6 +11,22 @@ import Button from "../view/button"
 
 import Intl from "../intl";
 const _ = Intl.make(require("./dialog.yaml"));
+
+export default {
+    /**
+    * @param {string|React.ReactElement<any>} message
+    * @param {()=>void|null} onClose
+    */
+    alert,
+    /**
+    * @param {string} caption - Title and button caption.
+    * @param {any} content - Content to display.
+    * @return Promise<boolean> Confirmed or not?
+    */
+    confirm,
+    show,
+    wait
+};
 
 interface IOptions {
     onClose?: () => void;

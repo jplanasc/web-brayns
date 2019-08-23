@@ -1,5 +1,3 @@
-"use strict";
-
 const RX_CSS_UNIT = /^(-?[.0-9]+)[ \n\r]*([a-z%]*)/;
 
 export default function castUnit(v: any, defaultValue: string = "100%") {

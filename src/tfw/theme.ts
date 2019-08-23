@@ -1,3 +1,6 @@
+import "./theme.css"
+import Color from "./color"
+
 /**
  * Manage CSS styles.
  */
@@ -66,9 +69,6 @@ interface ITheme {
 
 //################################################################################
 
-import "./theme.css"
-import Color from "./color"
-
 interface IThemes {
     css: { [name: string]: HTMLStyleElement };
     vars: { [name: string]: IStyle }
@@ -108,7 +108,7 @@ function registerTheme(themeName: string, _style: IStyle) {
 function codeText(themeName: string, style: IStyle) {
     let codeCSS = '';
     for (let depth = 1; depth <= 10; depth++) {
-        THEME_COLOR_NAMES.forEach(function(colorName) {
+        for (const colorName of THEME_COLOR_NAMES) {
             const fgColorName = `fg${colorName}`;
             const bgColorName = `bg${colorName}`;
             const styleFgColorName: string = style[fgColorName] as string;
@@ -146,7 +146,7 @@ function codeText(themeName: string, style: IStyle) {
                     + " .thm-svg-stroke0"
                     + " { stroke: " + styleFgColorName + " }\n";
             }
-        });
+        }
     }
     return codeCSS;
 }

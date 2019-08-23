@@ -6,5 +6,6 @@ export interface IBasicEvent {
     index: number;
     buttons: number;
     pointer: "mouse" | "touch" | "pen";
+    target: HTMLOrSVGElement,
     clear: ()=>void;
 }

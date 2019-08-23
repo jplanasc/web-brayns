@@ -73,6 +73,7 @@ class Gesture {
             this.handleMove.bind(this)
         );
         this.pointers = new Array(3);
+        elem.addEventListener("contextmenu", (evt) => { evt.preventDefault() }, false);
     }
 
     get identifier() { return this.id; }

@@ -5,7 +5,7 @@ export default function castBoolean(v: any, defaultValue = false): boolean {
         case "boolean":
             return v;
         case "number":
-            return v != 0;
+            return v !== 0;
         case "string":
             const text = v.trim().toLowerCase();
             if (text === 'true' || text === 'yes') return true;

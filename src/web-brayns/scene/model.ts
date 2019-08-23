@@ -21,6 +21,9 @@ export default class Model {
         return await Scene.request("remove-model", [this.params.id]);
     }
 
+    get id(): number {
+        return this.params.brayns.id;
+    }
     /**
      * When a model is selected, we show its boundingBox.
      */

@@ -1,6 +1,5 @@
 import * as React from "react"
 import castArray from "../converter/array"
-import castFunction from "../converter/function"
 import castBoolean from "../converter/boolean"
 import TouchableBehavior from "../behavior/touchable"
 import "./touchable.css"

@@ -6,9 +6,6 @@ import castString from "../../converter/string"
 import castUnit from "../../converter/unit"
 import Label from "../label"
 
-import Intl from "../../intl"
-const _ = Intl.make(require("./input.yaml"));
-
 interface IStringSlot {
     (value: string): void;
 }
@@ -122,6 +119,3 @@ let globalId = 0;
 function nextId() {
     return `tfw-view-input-${globalId++}`;
 }
-
-
-const NUMBER_VALIDATOR = (value: string) => isNaN(parseFloat(value)) ? _('nan') : true;
