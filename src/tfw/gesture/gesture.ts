@@ -178,7 +178,8 @@ class Gesture {
         this.recognizePanUp(evt, ptr);
         if (this.handlers.pan) {
             const { x, y, startX, startY } = ptr.moves;
-            this.handlers.pan(Object.assign(evt, { x, y, startX, startY, target: this.element }));
+            this.handlers.pan(
+                { ...evt, x, y, startX, startY, target: this.element });
         }
     }
 
@@ -196,10 +197,12 @@ class Gesture {
         if (dy < dx) return;
 
         if (this.handlers.pandown) {
-            this.handlers.pandown(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.pandown(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
         if (this.handlers.panvertical) {
-            this.handlers.panvertical(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.panvertical(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
     }
 
@@ -217,10 +220,12 @@ class Gesture {
         if (dy < dx) return;
 
         if (this.handlers.panup) {
-            this.handlers.panup(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.panup(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
         if (this.handlers.panvertical) {
-            this.handlers.panvertical(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.panvertical(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
     }
 
@@ -250,10 +255,12 @@ class Gesture {
         const speed = dy / moves.elapsedTime;
         if (speed < 0.1) return;
         if (this.handlers.swipedown) {
-            this.handlers.swipedown(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.swipedown(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
         if (this.handlers.swipevertical) {
-            this.handlers.swipevertical(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.swipevertical(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
     }
 
@@ -296,10 +303,12 @@ class Gesture {
         const speed = dx / moves.elapsedTime;
         if (speed < 0.1) return;
         if (this.handlers.swipeleft) {
-            this.handlers.swipeleft(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.swipeleft(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
         if (this.handlers.swipehorizontal) {
-            this.handlers.swipehorizontal(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.swipehorizontal(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
     }
 }
