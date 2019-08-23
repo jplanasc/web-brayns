@@ -11,9 +11,15 @@ def exec(input):
       modelId: number,
       materialId: number,
       diffuseColor: [number,number,number],
-      shadingMode: "none"|  "diffuse" | "cartoon" | "electron",
+      specularColor: [number,number,number],
+      specularEnponent: number,
+      shadingMode: "none" | "diffuse" | "diffuse-alpha" | "cartoon" | "electron" | "electron-alpha",
       glossiness?: number,
-      opacity?: number
+      opacity?: number,
+      reflectionIndex: number,
+      refreactionIndex: number,
+      intensity: number,
+      emission: number
     }
     """
     for att_name in ("host", "modelId", "materialId", "diffuseColor", "shadingMode"):
@@ -28,27 +34,39 @@ def exec(input):
     shading_mode = input["shadingMode"]
     if shading_mode == "diffuse":
         shading_mode = CircuitExplorer.SHADING_MODE_DIFFUSE
+    elif shading_mode == "diffuse-alpha":
+        shading_mode = CircuitExplorer.SHADING_MODE_DIFFUSE_TRANSPARENCY
     elif shading_mode == "cartoon":
         shading_mode = CircuitExplorer.SHADING_MODE_CARTOON
     elif shading_mode == "electron":
         shading_mode = CircuitExplorer.SHADING_MODE_ELECTRON
+    elif shading_mode == "electron-alpha":
+        shading_mode = CircuitExplorer.SHADING_MODE_ELECTRON_TRANSPARENCY
     else:
         shading_mode = CircuitExplorer.SHADING_MODE_NONE
 
-    if "glossiness" not in input:
-        input["glossiness"] = 0
-    if "opacity" not in input:
-        input["opacity"] = 1
 
     circuit_explorer.set_material(
-        glossiness=input["glossiness"],
-        opacity=input["opacity"],
+        glossiness=get(input, "glossiness", 1.0),
+        opacity=get(input, "opacity", 1.0),
         model_id=input["modelId"],
         material_id=input["materialId"],
-        diffuse_color=input["diffuseColor"],
-        shading_mode=shading_mode)
+        diffuse_color=get(input, "diffuseColor", [1.0, 1.0, 1.0]),
+        specular_color=get(input, "specularColor", [1.0, 1.0, 1.0]),
+        specular_exponent=get(input, "specularEnponent", 20),
+        reflection_index=get(input, "reflectionIndex", 0.0),
+        refraction_index=get(input, "refractionIndex", 1.0),
+        intensity=get(input, "intensity", 1.0),
+        emission=get(input, "emission", 0.0),
+        shading_mode=shading_mode),
 
     return True
+
+
+def get(input, name, default):
+    if name not in input:
+        return default
+    return input[name]
 
 
 class Error(Exception):

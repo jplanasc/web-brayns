@@ -1,6 +1,7 @@
 import React from "react"
 import { Client as BraynsClient } from "brayns"
 
+import Script from './web-brayns/script'
 import Scene from './web-brayns/scene'
 import Model from './web-brayns/scene/model'
 import ImageStream from './web-brayns/view/image-stream'
@@ -29,19 +30,7 @@ export default class App extends React.Component<IAppProps, {}> {
 
     async componentDidMount() {
         try {
-            await Scene.clear();
-            const model1 = await loadAstrocyte(Math.floor(Math.random() * 50) + 2);
-            const model2 = await loadAstrocyte(Math.floor(Math.random() * 50) + 2);
-            await Scene.camera.setTarget([
-                0.22907014191150665,
-                1.54878032207489,
-                12.159969091415403
-            ]);
-            await Scene.camera.setPositionAndOrientation([
-                0.22907014191150665,
-                1.54878032207489,
-                22.19826742261648
-            ], [0,0,0,1]);
+            Script.test();
             /*
             const materialTemplate = {
                 opacity: 1,
@@ -121,13 +110,4 @@ export default class App extends React.Component<IAppProps, {}> {
 async function loadAstrocyte(id: number): Promise<Model> {
     const path = `/gpfs/bbp.cscs.ch/project/proj3/resources/meshes/astrocytes/GLIA_${pad(id)}.h5_decimated.off`;
     return await Scene.loadMeshFromPath(path);
-}
-
-
-function pad(value: number): string {
-    let out = `${value}`;
-    while (out.length < 6 ) {
-        out = `0${out}`;
-    }
-    return out;
 }

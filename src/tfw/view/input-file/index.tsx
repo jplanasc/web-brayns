@@ -27,6 +27,20 @@ export default class InputFile extends React.Component<IInputFileProps, {}> {
         this.handleFileChange = this.handleFileChange.bind( this );
     }
 
+    static readFileAsText(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader: FileReader = new FileReader();
+            reader.onload = (data) => {
+                const content = data.target.result;
+                resolve(content);
+            };
+            reader.onerror = (err) => {
+                reject(err);
+            };
+            reader.readAsText(file);
+        })
+    }
+
     handleFileChange(evt: React.ChangeEvent<HTMLInputElement>) {
         if( !evt.target ) return;
 

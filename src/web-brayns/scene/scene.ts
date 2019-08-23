@@ -134,7 +134,7 @@ async function loadMeshFromPath(path: string): Promise<Model> {
     return new Model(model);
 }
 
-async function setMaterial(modelId: number, materialId: number, material: IMaterial) {
+async function setMaterial(modelId: number, materialId: number, material: Partial<IMaterial>) {
     return await Python.exec("phaneron/set-material", {
         ...material,
         modelId,

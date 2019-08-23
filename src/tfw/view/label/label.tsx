@@ -8,10 +8,6 @@ interface ILabelProps {
 }
 
 export default class Label extends React.Component<ILabelProps, {}> {
-    constructor( props: ILabelProps ) {
-        super( props );
-    }
-
     render() {
         const label = this.props.label;
         if( typeof label !== 'string' || label.trim().length === 0 ) return null;

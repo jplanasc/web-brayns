@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * @module
  * This module provides a list of SVG icons definitions.

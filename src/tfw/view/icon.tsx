@@ -1,5 +1,3 @@
-"use strict";
-
 import * as React from "react";
 import castBoolean from "../converter/boolean";
 import castInteger from "../converter/integer";
