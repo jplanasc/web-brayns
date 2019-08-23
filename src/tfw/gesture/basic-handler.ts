@@ -60,13 +60,12 @@ window.addEventListener("mousemove", (event: MouseEvent) => {
 
 window.addEventListener("mouseup", (event: MouseEvent) => {
     for (const movingElem of movingElements) {
-        const { target, handleUp, x, y, index } = movingElem;
-        console.log("UP!", target, handleUp);
+        const { target, handleUp, index } = movingElem;
         if (typeof handleUp !== 'function') continue;
         try {
             handleUp({
-                x: event.clientX - x,
-                y: event.clientY - y,
+                x: event.clientX,
+                y: event.clientY,
                 index,
                 pointer: "mouse",
                 buttons: translateButtons(event),
@@ -194,7 +193,6 @@ function attachDownEventMouse(this: BasicHandler,
     const { element, deviceHandlers } = this;
     const handler = (evt: MouseEvent) => {
         if (!this.checkPointerType("mouse")) return;
-        console.log("DOWN!", element);
         this.pressed = true;
         if (typeof handleDown === 'function') {
             handleDown({
