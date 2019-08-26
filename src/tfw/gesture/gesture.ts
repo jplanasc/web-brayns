@@ -1,5 +1,6 @@
 /**
  * Here is the list of all parameters used if all the handlers.
+ * * x, y: coord relative to the upper-left corner of the element.
  *
  * tap({ x: number, y: number, index: number })
  *
@@ -113,15 +114,14 @@ class Gesture {
     }
 
     private handleDown(event: IBasicEvent) {
-        // We want not deal with more than 3 simultaneous touches.
+        // We don't want to deal with more than 3 simultaneous touches.
         if (event.index > 2) return;
 
+        const { x, y } = event;
         const { element } = this;
+        console.info("DOWN=", event);
         const ptr = this.getPointer(event.index);
         ptr.isDown = true;
-        ptr.rect = element.getBoundingClientRect();
-        const x = event.x - ptr.rect.left;
-        const y = event.y - ptr.rect.top;
         ptr.moves.init(x, y);
 
         if (this.handlers.down) {
@@ -133,10 +133,10 @@ class Gesture {
         // We want not deal with more than 3 simultaneous touches.
         if (event.index > 2) return;
 
+        const { x, y } = event;
+        console.info("UP=", event);
         const ptr = this.getPointer(event.index);
         ptr.isDown = false;
-        const x = event.x - ptr.rect.left;
-        const y = event.y - ptr.rect.top;
         ptr.moves.add(x, y);
 
         if (this.handlers.up) {
@@ -151,8 +151,7 @@ class Gesture {
         if (event.index > 2) return;
 
         const ptr = this.getPointer(event.index);
-        const x = event.x - ptr.rect.left;
-        const y = event.y - ptr.rect.top;
+        const { x, y } = event;
         ptr.moves.add(x, y);
         this.recognizePan(event, ptr);
     }
@@ -169,7 +168,7 @@ class Gesture {
         if (dy > 16) return;
 
         evt.clear();
-        this.handlers.tap(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+        this.handlers.tap({ ...evt, x: moves.x, y: moves.y, target: this.element });
     }
 
     private recognizePan(evt: IBasicEvent, ptr: IPointer) {
@@ -235,7 +234,7 @@ class Gesture {
         this.recognizeSwipeLeft(evt, ptr);
         if (this.handlers.swipe) {
             const { x, y, startX, startY } = ptr.moves;
-            this.handlers.swipe(Object.assign(evt, { x, y, startX, startY, target: this.element }));
+            this.handlers.swipe({ ...evt, x, y, startX, startY, target: this.element });
         }
     }
 
@@ -280,10 +279,11 @@ class Gesture {
         const speed = dy / moves.elapsedTime;
         if (speed < 0.1) return;
         if (this.handlers.swipeup) {
-            this.handlers.swipeup(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.swipeup({ ...evt, x: moves.x, y: moves.y, target: this.element });
         }
         if (this.handlers.swipevertical) {
-            this.handlers.swipevertical(Object.assign(evt, { x: moves.x, y: moves.y, target: this.element }));
+            this.handlers.swipevertical(
+                { ...evt, x: moves.x, y: moves.y, target: this.element });
         }
     }
 

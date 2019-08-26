@@ -7,10 +7,10 @@ import { IModel, IVector } from '../types'
 
 
 export default class Model {
-    constructor(private params: IModel) {}
+    constructor(private model: IModel) {}
 
     async locate(position: IVector): Promise<boolean> {
-        this.params.transformation.translation = position;
+        this.model.brayns.transformation.translation = position;
         return await this.applyTransfo();
     }
 
@@ -22,44 +22,35 @@ export default class Model {
     }
 
     get id(): number {
-        return this.params.brayns.id;
+        return this.model.brayns.id;
     }
     /**
      * When a model is selected, we show its boundingBox.
      */
     get seleted(): boolean {
-        return this.params.$selected;
+        return this.model.selected;
     }
 
     async setSelected(selected: boolean) {
-        this.params.$selected = selected;
-        this.params.boundingBox = selected;
-        await Scene.request('update-model', {
-            id: this.params.id,
-            boundingBox: selected
+        this.model.selected = selected;
+        this.model.brayns.bounding_box = selected;
+        await Scene.Api.updateModel({
+            id: this.model.brayns.id,
+            bounding_box: selected
         });
         this.updateState();
     }
 
     get visible(): boolean {
-        return this.params.visible;
+        return this.model.brayns.visible === true;
     }
 
-    async show() {
-        await Scene.request('update-model', {
-            id: this.params.id,
-            visible: true
+    async setVisible(visible: boolean) {
+        await Scene.Api.updateModel({
+            id: this.model.brayns.id,
+            visible
         });
-        this.params.visible = true;
-        this.updateState();
-    }
-
-    async hide() {
-        await Scene.request('update-model', {
-            id: this.params.id,
-            visible: false
-        });
-        this.params.visible = false;
+        this.model.brayns.visible = true;
         this.updateState();
     }
 
@@ -67,10 +58,7 @@ export default class Model {
      * Make to camera to look at this model.
      */
     async focus(): Promise<boolean> {
-        const scene = await Scene.request('get-scene');
-        const model = scene.models.find( (m: any) => m.id === this.params.id );
-        if (!model) return false;
-        await Scene.camera.lookAtBounds(model.bounds);
+        await Scene.camera.lookAtBounds(this.model.brayns.bounds);
         return true;
     }
 
@@ -78,14 +66,14 @@ export default class Model {
         return new Promise<boolean>((resolve, reject) => {
             const requester = Scene.request(
                 "update-model", {
-                    id: this.params.id,
-                    transformation: this.params.transformation
+                    id: this.model.brayns.id,
+                    transformation: this.model.brayns.transformation
                 });
             requester.then(resolve, reject);
         })
     }
 
     private updateState() {
-        State.dispatch(State.Models.update(this.params));
+        State.dispatch(State.Models.update(this.model));
     }
 }

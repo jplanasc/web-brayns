@@ -33,19 +33,19 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
 
     handleShow = async () => {
         const model = new Model(this.props.model);
-        await model.show();
+        await model.setVisible(true);
     }
 
     handleHide = async () => {
         const model = new Model(this.props.model);
-        await model.hide();
+        await model.setVisible(false);
     }
 
     handleMaterial = async () => {
         const material = await MaterialDialog.show();
         if (!material) return;
         try {
-            await Scene.setMaterial(this.props.model.id, 0, material)
+            await Scene.setMaterial(this.props.model.brayns.id, 0, material)
         }
         catch (ex) {
             console.error(ex);
@@ -55,17 +55,17 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
     render() {
         const { model } = this.props;
         const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
-        if (model.visible) {
-            classNames.push(model.$selected ? "thm-bgSL" : "thm-bg2");
+        if (model.brayns.visible) {
+            classNames.push(model.selected ? "thm-bgSL" : "thm-bg2");
         } else {
-            classNames.push(model.$selected ? "thm-bgSD" : "thm-bg0");
+            classNames.push(model.selected ? "thm-bgSD" : "thm-bg0");
         }
-        return (<Touchable classNames={classNames.join((" "))}
+        return (<Touchable classNames={classNames}
                            onClick={this.handleToggleSelection}
-                           title={model.path}>
+                           title={model.brayns.path}>
                 <div className="name">
-                    <div className={model.visible ? "visible" : "invisible"}>{model.name}</div>
-                    <div className='id'>{`#${model.id}`}</div>
+                    <div className={model.brayns.visible ? "visible" : "invisible"}>{model.brayns.name}</div>
+                    <div className='id'>{`#${model.brayns.id}`}</div>
                 </div>
                 <div className="icons">
                     <div>
@@ -77,7 +77,7 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
                             icon="more"/>
                     </div>
                     {
-                        model.visible ?
+                        model.brayns.visible ?
                         <Button small={true} icon="hide" onClick={this.handleHide}/> :
                         <Button small={true} icon="show" onClick={this.handleShow}/>
                     }

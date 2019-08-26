@@ -30,7 +30,8 @@ async function test() {
  */
 async function loadAstrocyte(id: number, decimated: boolean=true): Promise<Model> {
     const path = `/gpfs/bbp.cscs.ch/project/proj3/resources/meshes/astrocytes/GLIA_${padNumber(id)}.h5${decimated ? '_decimated' : ''}.off`;
-    return await Scene.loadMeshFromPath(path);
+    const model = await Scene.loadMeshFromPath(path);
+    return model;
 }
 
 

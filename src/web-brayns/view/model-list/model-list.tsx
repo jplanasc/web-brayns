@@ -1,6 +1,6 @@
 import React from "react"
 
-import { IModel } from '../../types'
+import { IModel, IBounds } from '../../types'
 import ModelButton from '../model-button'
 import List from '../../../tfw/view/list'
 import Input from '../../../tfw/view/input'
@@ -20,7 +20,7 @@ interface IModelListState {
     filterInput: string,
     // Real filter updated from `filterInput` after a debouncer does it.
     filter: string,
-    sort: "name" | "volume"
+    sort: string   // "name" | "volume"
 }
 
 export default class modelList extends React.Component<IModelListProps, IModelListState> {
@@ -30,7 +30,7 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
     }
 
     handleToggleSelection = (model: IModel) => {
-        const currentlySelectedModel = this.props.models.find((m: IModel) => m.$selected);
+        const currentlySelectedModel = this.props.models.find((m: IModel) => m.selected);
         if (currentlySelectedModel) {
             const modelObject1 = new Model(currentlySelectedModel);
             modelObject1.setSelected(false);
@@ -60,16 +60,19 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
         const { filter } = this.state;
         const { models } = this.props;
         const matcher = new Matcher(filter);
-        return models.filter((model: IModel) => matcher.matches(model.name))
+        console.info("models=", models);
+        return models.filter((model: IModel) => matcher.matches(model.brayns.name))
             .sort(this.state.sort === 'name' ? sortByName : sortByVolume);
     }
 
     render() {
         const models = this.props.models;
         const filteredModels = this.filter();
-        const mapper = (model: IModel) => <ModelButton key={model.id}
-                                                       onToggleSelection={this.handleToggleSelection}
-                                                       model={model}/>;
+        const mapper = (model: IModel) =>
+            <ModelButton
+                key={model.brayns.id}
+                onToggleSelection={this.handleToggleSelection}
+                model={model}/>;
 
         return (<div className="webBrayns-view-ModelList">
             <header>
@@ -96,8 +99,8 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
 
 
 function sortByName(model1: IModel, model2: IModel) {
-    const name1 = model1.name.toLowerCase();
-    const name2 = model2.name.toLowerCase();
+    const name1 = model1.brayns.name.toLowerCase();
+    const name2 = model2.brayns.name.toLowerCase();
     if (name1 < name2 ) return -1;
     if (name1 > name2 ) return +1;
     return 0;
@@ -105,11 +108,11 @@ function sortByName(model1: IModel, model2: IModel) {
 
 
 function sortByVolume(model1: IModel, model2: IModel) {
-    return computeVolume(model2.bounds) - computeVolume(model1.bounds);
+    return computeVolume(model2.brayns.bounds) - computeVolume(model1.brayns.bounds);
 }
 
 
-function computeVolume(bounds) {
+function computeVolume(bounds: IBounds) {
     const { max, min } = bounds;
     return (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2])
 }

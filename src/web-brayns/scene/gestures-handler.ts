@@ -19,7 +19,6 @@ export default class GesturesHandler {
      * When panning starts, we should memorize the current Scene.camera/model rot/sca/loc params.
      */
     handlePanStart = (evt: IPanningEvent) => {
-        console.info("evt=", evt);
         const axis = Scene.camera.axis;
         this.savedTarget = Scene.camera.target;
         this.savedPosition = Scene.camera.position;
@@ -34,7 +33,7 @@ export default class GesturesHandler {
     }
 
     handlePan = Debouncer((evt: IPanningEvent) => {
-        if (evt.button === 4) this.translateCamera(evt);
+        if (evt.button === 2) this.translateCamera(evt);
         else if (evt.button === 1) this.orbitCamera(evt);
         else this.rotateCamera(evt);
     }, 10)
@@ -48,8 +47,8 @@ export default class GesturesHandler {
         const newTranslation = Geometry.addVectors(
             oldTranslation,
             Geometry.addVectors(
-                Geometry.scale(axis.x, factor * x * evt.aspect),
-                Geometry.scale(axis.y, factor * y),
+                Geometry.scale(axis.x, -factor * x * evt.aspect),
+                Geometry.scale(axis.y, -factor * y),
             )
         );
         Scene.camera.setPosition(newTranslation);
@@ -60,8 +59,8 @@ export default class GesturesHandler {
         const x = evt.screenX - this.savedScreenPoint.screenX;
         const y = evt.screenY - this.savedScreenPoint.screenY;
         const oldOrientation = this.savedOrientation.slice() as IQuaternion;
-        const angleX = -Math.PI * y;
-        const angleY = 2 * Math.PI * x;
+        const angleX = Math.PI * y;
+        const angleY = -2 * Math.PI * x;
         const quaternionX = Geometry.makeQuaternionAsAxisRotation(angleX, axis.x);
         const quaternionY = Geometry.makeQuaternionAsAxisRotation(angleY, axis.y);
         const quaternionXY = Geometry.multiplyQuaternions(quaternionX, quaternionY);
