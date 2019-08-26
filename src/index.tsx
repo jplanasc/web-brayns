@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
 
+import { IBraynsModel } from './web-brayns/types'
 import PathService from "./web-brayns/service/path"
 import ServiceHost from "./web-brayns/service/host"
 import Scene from "./web-brayns/scene"
@@ -33,7 +34,15 @@ async function start() {
         const planeIds = planes.map( p => p.id );
         Scene.Api.removeClipPlanes(planeIds);
 
-        State.dispatch(State.Models.reset(scene.models));
+        State.dispatch(State.Models.reset(
+            scene.models.map((params: IBraynsModel) => ({
+                brayns: params,
+                parent: -1,
+                deleted: false,
+                selected: false,
+                technical: false
+            }))
+        ));
 
         // Entry point for our app
         const root = document.getElementById('root') as HTMLElement;

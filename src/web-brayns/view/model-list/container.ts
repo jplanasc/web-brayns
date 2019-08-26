@@ -5,6 +5,7 @@ import ModelList from './model-list'
 
 
 function mapStateToProps(state: IAppState) {
+    console.info("state=", state);
     return {
         models: state.models
     };

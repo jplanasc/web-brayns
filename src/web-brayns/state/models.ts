@@ -57,7 +57,7 @@ function reset(state: IModel[], action: IAction): IModel[] {
 
 function update(state: IModel[], action: IAction): IModel[] {
     const { model } = action;
-    const models = state.filter((m: IModel) => m.id !== model.id);
+    const models = state.filter((m: IModel) => m.brayns.id !== model.brayns.id);
     models.push(model);
     return models;
 }

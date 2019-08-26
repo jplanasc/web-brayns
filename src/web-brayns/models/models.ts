@@ -1,8 +1,11 @@
 import { IBounds, IModel, IBraynsModel } from './types'
+import State from '../state'
 
 export default {
     createModelFromBraynsData,
-    getModelsBounds
+    getAllModels,
+    getModelsBounds,
+    getVisibleModels
 }
 
 
@@ -12,10 +15,11 @@ export default {
  */
 function createModelFromBraynsData(model: IBraynsModel): IModel {
     return {
-        brayns: Object.assign({}, model),
+        brayns: { ...model },
         parent: 0,
         deleted: false,
-        selected: false
+        selected: false,
+        technical: false
     }
 }
 
@@ -40,4 +44,18 @@ function getModelsBounds(models: IModel[]): IBounds {
         bounds.max[2] = Math.max(bounds.max[0], b.max[2]);
     }
     return bounds;
+}
+
+
+function getVisibleModels(): IModel[] {
+    return getAllModels().filter((model: IModel) => (
+        model.deleted === false &&
+        model.technical === false &&
+        model.brayns.visible === true
+    ));
+}
+
+
+function getAllModels(): IModel[] {
+    return State.store.getState().models;
 }

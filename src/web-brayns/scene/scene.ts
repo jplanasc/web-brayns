@@ -4,7 +4,7 @@
 import { Client as BraynsClient } from "brayns"
 
 import Api from "./api"
-import { IModel, IMaterial } from '../types'
+import { IBraynsModel, IModel, IModelOptions, IMaterial } from '../types'
 import Python from '../service/python'
 import State from '../state'
 import ServiceHost from '../service/host'
@@ -73,16 +73,30 @@ async function request(method: string, params: {} = {}) {
     console.info("request(", method, params, ")");
 
     return new Promise((resolve, reject) => {
-        if (!Scene.brayns) {
-            console.error("No BraynsService!");
-            reject();
-            return;
+        try {
+            if (!Scene.brayns) {
+                console.error("No BraynsService!");
+                reject();
+                return;
+            }
+            const loader = Scene.brayns.request(method, params);
+            loader.then((output: any) => {
+                console.info("request(", method, ") => ", output);
+                resolve(output)
+            },
+            (error: any) => {
+                console.error("Brayns request error!", error);
+                console.error("   >>> method =", method);
+                console.error("   >>> params =", params);
+                reject(error)
+            });
         }
-        const loader = Scene.brayns.request(method, params);
-        loader.then((output: any) => {
-            console.info("request(", method, ") => ", output);
-            resolve(output)
-        }, reject);
+        catch( error ) {
+            console.error("Brayns request exception!", error);
+            console.error("   >>> method =", method);
+            console.error("   >>> params =", params);
+            reject(error)
+        }
     })
 }
 
@@ -127,10 +141,40 @@ async function setViewPort(width: number, height: number) {
     });
 }
 
-async function loadMeshFromPath(path: string): Promise<Model> {
-    const result = await request("add-model", { path });
-    const model: IModel = result as IModel;
+async function loadMeshFromPath(path: string, options: IModelOptions = {}): Promise<Model> {
+    console.info("path, options=", path, options);
+    const result: IBraynsModel = (await Api.addModel({
+        ...options.brayns,
+        path
+    })) as IBraynsModel;
+
+    console.info(">>> result (before fix)=", { ...result });
+    fixBoundsIfNeeded(result);
+
+    console.info(">>> result (after fix)=", { ...result });
+    const model: IModel = {
+        brayns: {
+            name: path,
+            bounds: {
+                min: [-10, -10, -10],
+                max: [+10, +10, +10]
+            },
+            transformation: {
+                rotation: [0,0,0,1],
+                scale: [1,1,1],
+                translation: [0,0,0]
+            },
+            ...result
+        },
+        deleted: false,
+        selected: false,
+        technical: false,
+        parent: -1,
+        ...options
+    };
+    console.info(">>> model.brayns=", { ...model.brayns });
     State.dispatch(State.Models.add(model));
+    console.info("State.store.getState().models=", State.store.getState().models);
     return new Model(model);
 }
 
@@ -141,4 +185,26 @@ async function setMaterial(modelId: number, materialId: number, material: Partia
         materialId,
         host: Scene.host
     });
+}
+
+
+/**
+ * There is a bug in addModel(). The returns doen't compute the bounds.
+ * It will be fixed soon, but in the meantime, we will ask for the bounds to the scene.
+ */
+async function fixBoundsIfNeeded(braynsModel: IBraynsModel) {
+    const { min, max } = braynsModel.bounds;
+    if (min[0] < max[0]) return;
+
+    const scene = await Api.getScene();
+    if (!scene) return;
+    const models = scene.models;
+    if (!models) return;
+    const modelWithSearchedId = models
+        .find((m: any) => m && m.id === braynsModel.id);
+    if (!modelWithSearchedId) return;
+    braynsModel.bounds = {
+        ...braynsModel.bounds,
+        ...modelWithSearchedId.bounds
+    };
 }

@@ -25,10 +25,11 @@ import Finger from "./finger"
 import { IBasicEvent } from "./basic-handler.types"
 
 interface IMovingElement {
+    // Coords relative to the element.
     x: number,
     y: number,
     index: number,
-    target: HTMLOrSVGElement,
+    target: HTMLElement,
     handleUp: (event: IBasicEvent) => void,
     handleMove: (event: IBasicEvent) => void
 }
@@ -37,6 +38,7 @@ const movingElements: IMovingElement[] = [];
 
 window.addEventListener("mousemove", (event: MouseEvent) => {
     for (const movingElem of movingElements) {
+        if (event.cancelBubble) continue;
         const { target, handleMove, x, y, index } = movingElem;
         if (typeof handleMove !== 'function') continue;
         try {
@@ -44,6 +46,7 @@ window.addEventListener("mousemove", (event: MouseEvent) => {
                 x: event.clientX - x,
                 y: event.clientY - y,
                 index,
+                event,
                 pointer: "mouse",
                 buttons: translateButtons(event),
                 target,
@@ -60,13 +63,15 @@ window.addEventListener("mousemove", (event: MouseEvent) => {
 
 window.addEventListener("mouseup", (event: MouseEvent) => {
     for (const movingElem of movingElements) {
-        const { target, handleUp, index } = movingElem;
+        if (event.cancelBubble) continue;
+        const { target, handleUp, x, y, index } = movingElem;
         if (typeof handleUp !== 'function') continue;
         try {
             handleUp({
-                x: event.clientX,
-                y: event.clientY,
+                x: event.clientX - x,
+                y: event.clientY - y,
                 index,
+                event,
                 pointer: "mouse",
                 buttons: translateButtons(event),
                 target,
@@ -87,7 +92,7 @@ window.addEventListener("mouseup", (event: MouseEvent) => {
 
 type TTouchEventHandler = (evt: TouchEvent) => void;
 
-type TPointerEventHandler = (evt: PointerEvent) => void;
+type TMouseEventHandler = (evt: MouseEvent) => void;
 
 type TBasicHandler = (evt: IBasicEvent) => void | undefined;
 
@@ -95,21 +100,21 @@ interface IDeviceHandlers {
     touchstart?: TTouchEventHandler;
     touchend?: TTouchEventHandler;
     touchmove?: TTouchEventHandler;
-    mousedown?: TPointerEventHandler;
-    mouseup?: TPointerEventHandler;
-    mousemove?: TPointerEventHandler;
-    mouseout?: TPointerEventHandler;
+    mousedown?: TMouseEventHandler;
+    mouseup?: TMouseEventHandler;
+    mousemove?: TMouseEventHandler;
+    mouseout?: TMouseEventHandler;
 }
 
 export default class BasicHandler {
-    readonly element: HTMLOrSVGElement;
+    readonly element: HTMLElement;
     mouseType: string = "";
     mouseTypeTime: number = 0;
     deviceHandlers: IDeviceHandlers = {};
     fingers: Finger = new Finger();
     pressed: boolean = false;
 
-    constructor(element: HTMLOrSVGElement,
+    constructor(element: HTMLElement,
                 handleDown: TBasicHandler,
                 handleUp: TBasicHandler,
                 handleMove: TBasicHandler) {
@@ -124,7 +129,7 @@ export default class BasicHandler {
      * @param   mouseType
      * @returns If `false`, we must ignore this event.
      */
-    checkPointerType(mouseType: string): boolean {
+    checkMouseType(mouseType: string): boolean {
         const now = Date.now();
         const delay = now - this.mouseTypeTime;
         this.mouseTypeTime = now;
@@ -160,24 +165,28 @@ function attachDownEventTouch(this: BasicHandler,
                               handleUp: TBasicHandler,
                               handleMove: TBasicHandler) {
     const { element, deviceHandlers } = this;
-    const handler = (evt: TouchEvent) => {
-        if (!this.checkPointerType("touch")) return;
-        for (const touch of evt.changedTouches) {
+    const handler = (event: TouchEvent) => {
+        if (!this.checkMouseType("touch")) return;
+        const rect = element.getBoundingClientRect();
+        for (const touch of event.changedTouches) {
             const index = this.fingers.getIndex(touch.identifier)
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
             handleDown({
-                x: touch.clientX,
-                y: touch.clientY,
+                x,
+                y,
                 index,
+                event,
                 buttons: 1,
                 pointer: "touch",
                 target: element,
-                clear: createClear(evt)
+                clear: createClear(event)
             });
             movingElements.push({
                 handleUp, handleMove, index,
                 target: element,
-                x: touch.clientX,
-                y: touch.clientY
+                x,
+                y
             })
         }
     };
@@ -191,26 +200,30 @@ function attachDownEventMouse(this: BasicHandler,
                               handleUp: TBasicHandler,
                               handleMove: TBasicHandler) {
     const { element, deviceHandlers } = this;
-    const handler = (evt: MouseEvent) => {
-        if (!this.checkPointerType("mouse")) return;
+    const handler = (event: MouseEvent) => {
+        if (!this.checkMouseType("mouse")) return;
+        const rect = element.getBoundingClientRect();
         this.pressed = true;
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
         if (typeof handleDown === 'function') {
             handleDown({
-                x: evt.clientX,
-                y: evt.clientY,
+                x,
+                y,
                 index: 0,
-                buttons: translateButtons(evt),
+                buttons: translateButtons(event),
                 pointer: "mouse",
+                event,
                 target: element,
-                clear: createClear(evt)
+                clear: createClear(event)
             });
         }
         movingElements.push({
             handleUp, handleMove,
             index: 0,
             target: element,
-            x: evt.clientX,
-            y: evt.clientY
+            x: rect.left,
+            y: rect.top
         })
     };
     deviceHandlers.mousedown = handler;
@@ -218,13 +231,7 @@ function attachDownEventMouse(this: BasicHandler,
 }
 
 
-function attachUpEvent(this: BasicHandler, handleUp: TBasicHandler) {
-    attachUpEventTouch.call(this, handleUp);
-    attachUpEventPointer.call(this, handleUp);
-}
-
-
-function createClear(evt: PointerEvent | TouchEvent) {
+function createClear(evt: MouseEvent | TouchEvent) {
     return () => {
         evt.preventDefault();
         evt.stopPropagation();
@@ -237,13 +244,6 @@ function createClear(evt: PointerEvent | TouchEvent) {
  */
 function translateButtons(event: MouseEvent): number {
     const { buttons, metaKey, ctrlKey } = event;
-    if (buttons === 2) {
-        // Remove popup menu on right mouse button.
-        console.log("STOP");
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
     if (buttons !== 1) return buttons;
     if (metaKey && !ctrlKey) return 2;
     if (!metaKey && ctrlKey) return 4;
