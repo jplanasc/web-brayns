@@ -126,10 +126,10 @@ function createSvgContent(def: TIconDefinition, props: IIconProps, key: string =
         elementName = def[0],
         { attributes, children } = parseDef(def);
 
-    if (typeof elementName === 'undefined') return <g></g>;
+    if (typeof elementName === 'undefined') return <g key={key}></g>;
 
     const attribs: React.Attributes = manageColors({ ...attributes }, props);
-    if (key.length > 0) attributes.key = key;
+    if (key.length > 0) attribs.key = key;
 
     return React.createElement(
         elementName,
