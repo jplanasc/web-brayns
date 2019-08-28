@@ -119,7 +119,6 @@ class Gesture {
 
         const { x, y } = event;
         const { element } = this;
-        console.info("DOWN=", event);
         const ptr = this.getPointer(event.index);
         ptr.isDown = true;
         ptr.moves.init(x, y);
@@ -134,7 +133,6 @@ class Gesture {
         if (event.index > 2) return;
 
         const { x, y } = event;
-        console.info("UP=", event);
         const ptr = this.getPointer(event.index);
         ptr.isDown = false;
         ptr.moves.add(x, y);
