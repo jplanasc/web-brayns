@@ -7,7 +7,8 @@ import Model from './web-brayns/scene/model'
 import ImageStream from './web-brayns/view/image-stream'
 import Stack from './tfw/layout/stack'
 import WebsocketConsole from './web-brayns/view/websocket-console'
-import PanelModel from './web-brayns/view/panel/model'
+import PanelModels from './web-brayns/view/panel/models'
+import PanelModel from './web-brayns/view/panel/model/container'
 import PanelClip from './web-brayns/view/panel/clip/container'
 
 import { IVector } from './web-brayns/types'
@@ -92,6 +93,7 @@ export default class App extends React.Component<IAppProps, {}> {
         return (<div className="App">
             <div className="panel">
                 <Stack value={this.props.panel}>
+                    <PanelModels key="models"/>
                     <PanelModel key="model"/>
                     <PanelClip key="clip"/>
                 </Stack>

@@ -20,6 +20,7 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "rockets-client": "^0.3.0",
+    "save-as-file": "^0.2.0",
     "typescript": "^3.5.1"
   },
   "scripts": {

@@ -11,6 +11,8 @@ import State from '../state'
 
 
 export default class Camera {
+    private states: ICamera[] = [];
+
     constructor(private params: ICamera) { }
 
     private async applyCamera(): Promise<boolean> {
@@ -19,6 +21,20 @@ export default class Camera {
             orientation, position, target
         });
         return true;
+    }
+
+    saveState() {
+        this.states.push(this.params);
+    }
+
+    async restoreState() {
+        const { states } = this;
+        if (states.length === 0) {
+            console.error(Error("[web-brayns/scene/camera/restoreState()] Trying to restore a state which has not been saved!"))
+            return;
+        }
+        this.params = states.pop() as ICamera;
+        await this.applyCamera()
     }
 
     get position(): IVector {
@@ -80,7 +96,13 @@ export default class Camera {
         return this.params.target.slice() as IVector;
     }
 
-    async setTarget(target: IVector) {
+    /**
+     * Target is used for space navigation, but also for focus point.
+     * If you don't need to change the focus point, there is no need
+     * in setting this target in Brayns service. Then you can set
+     * `applyToBrayns` to `false`.
+     */
+    async setTarget(target: IVector, applyToBrayns: boolean = true ) {
         console.info("this.params=", this.params);
         const direction = this.direction;
         const distance = Geom.scalarProduct(
@@ -92,7 +114,9 @@ export default class Camera {
             Geom.scale(direction, -distance)
         );
         this.params.target = target;
-        return await this.applyCamera();
+        if (applyToBrayns) {
+            return await this.applyCamera();
+        }
     }
 
     async getCloser(target: IVector, distanceFactor: number) {
@@ -125,8 +149,10 @@ export default class Camera {
      * Normalized vector giving the direction of sight.
      */
     get direction(): IVector {
-        const { position, target } = this.params;
-        return Geom.normalize(Geom.vectorFromPoints(position, target));
+        const { orientation } = this.params
+        const z: IVector = [0,0,1];
+        const direction = Geom.rotateWithQuaternion(z, orientation)
+        return direction;
     }
 
     async moveForward(dist: number) {
@@ -162,10 +188,10 @@ export default class Camera {
     }
 
     async lookAtWholeScene() {
-        console.info("State.store.getState().models=", State.store.getState().models);
         const models = Models.getVisibleModels();
         const bounds = Models.getModelsBounds(models);
-        console.info("models, bounds=", models, bounds);
+        console.info("[lookAtWholeScene] models, bounds=", models, bounds);
+        alert(JSON.stringify(bounds, null, '  '));
         await this.lookAtBounds(bounds);
     }
 

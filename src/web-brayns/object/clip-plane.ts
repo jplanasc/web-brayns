@@ -30,14 +30,18 @@ export default class ClipPlane {
 
     async attach(): Promise<boolean> {
         const { state } = this;
-        const result = await Scene.Api.addModel({
-            path: PATH,
-            transformation: {
-                rotation: state.orientation,
-                scale: [ state.width, state.height, state.depth ],
-                translation: state.center
-            }
-        });
+        const result = await Scene.loadMeshFromPath(
+            PATH, {
+                technical: true,
+                brayns: {
+                    path: PATH,
+                    transformation: {
+                        rotation: state.orientation,
+                        scale: [ state.width, state.height, state.depth ],
+                        translation: state.center
+                    }
+                }
+            });
         if (!result) return false;
 
         this.model = new Model({
@@ -56,6 +60,16 @@ export default class ClipPlane {
             opacity: .6,
             glossiness: 2.5,
             emission: .1
+        })
+        Scene.setMaterial(this.model.id, 1, {
+            diffuseColor: [1.0, 0.5, 0.5],
+            specularColor: [1.0, 1.0, 1.0],
+            shadingMode: "diffuse",
+            reflectionIndex: 0,
+            refreactionIndex: 1,
+            opacity: 1,
+            glossiness: 1.5,
+            emission: 1
         })
         return true;
     }

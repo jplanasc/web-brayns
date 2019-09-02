@@ -45,6 +45,7 @@ export interface IPathState {
 
 export interface IAppState {
     animation: IAnimation,
+    currentModel: IModel,
     dialogs: IDialogs,
     models: IModel[],
     navigation: INavigationState,

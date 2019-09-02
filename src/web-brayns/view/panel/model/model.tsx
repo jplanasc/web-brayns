@@ -1,45 +1,72 @@
 import React from "react"
-
+import { IModel, IVector, IBounds } from "../../../types"
+import Icon from '../../../../tfw/view/icon'
+import Button from '../../../../tfw/view/button'
 import State from '../../../state'
 import Scene from '../../../scene'
-import Dialog from '../../../../tfw/factory/dialog'
-import Icon from '../../../../tfw/view/icon'
-import InputPath from '../../../view/input-path'
-import ModelList from '../../../view/model-list/container'
+import MaterialDialog from '../../../dialog/material'
+import Python from '../../../service/python'
 
-import "./model.css"
+import "../panel.css"
 
-export default class Model extends React.Component<{}, {}> {
-    handleClip = () => {
-        State.dispatch(State.Navigation.setPanel("clip"));
+interface IModelProps {
+    model: IModel
+}
+
+export default class Model extends React.Component<IModelProps, {}> {
+    constructor( props: IModelProps ) {
+        super( props );
     }
 
-    handleLoadMesh = async () => {
-        let path = '';
-        const confirmed = await Dialog.confirm(
-            "Load Mesh",
-            <InputPath onChange={(p: string) => path = p}/>);
-        if (!confirmed) return;
-        const model = await Scene.loadMeshFromPath(path);
-        console.info("model=", model);
+    handleBack = () => {
+        State.dispatch(State.Navigation.setPanel("models"));
+        Scene.camera.restoreState();
     }
 
-    toggleConsoleVisibility = async () => {
-        State.dispatch(State.Navigation.toggleConsoleVisibility())
+    handleMaterial = async (materialId: number) => {
+        const material = await MaterialDialog.show();
+        if (!material) return;
+        try {
+            await Scene.setMaterial(this.props.model.brayns.id, materialId, material)
+        }
+        catch (ex) {
+            console.error(ex);
+        }
     }
 
     render() {
-        return (<div className="webBrayns-view-panel-Model">
+        const { model } = this.props;
+        const { materialIds } = model;
+        const { name, id, path, bounds, transformation } = model.brayns;
+
+        console.info("model=", model);
+
+        return (<div className="webBrayns-view-Panel">
             <header className="thm-bgPD thm-ele-nav">
-                <p>Web-Brayns</p>
-                <div>
-                    <Icon content='cut' onClick={this.handleClip}/>
-                    <Icon content='import' onClick={this.handleLoadMesh}/>
-                    <Icon content='gps' onClick={() => Scene.camera.lookAtWholeScene()}/>
-                    <Icon content='bug' onClick={this.toggleConsoleVisibility}/>
-                </div>
+                <Icon content='back' onClick={this.handleBack}/>
+                <p>{name} <em>{`#${id}`}</em></p>
             </header>
-            <ModelList />
+            <div>
+                <p><em>Path: </em>{path}</p>
+                <p>
+                    <em>Location: </em>
+                    <code>{JSON.stringify(transformation.translation, null, '  ')}</code>
+                </p>
+                <p>
+                    <em>Bounds: </em>
+                    <pre>{JSON.stringify(bounds, null, '  ')}</pre>
+                </p>
+                <hr/>
+                <div>{
+                    materialIds.map((id: number) => (
+                        <Button
+                            key={`${id}`}
+                            wide={true}
+                            onClick={() => this.handleMaterial(id)}
+                            label={`Set material #${id}`} />
+                    ))
+                }</div>
+            </div>
         </div>)
     }
 }

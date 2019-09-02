@@ -3,10 +3,9 @@ import React from "react"
 import { IModel } from '../../types'
 import Button from '../../../tfw/view/button'
 import Scene from '../../scene'
+import State from '../../state'
 import Model from '../../scene/model'
 import Touchable from '../../../tfw/view/touchable'
-import MaterialDialog from '../../dialog/material'
-import Python from '../../service/python'
 
 import "./model-button.css"
 
@@ -41,15 +40,12 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
         await model.setVisible(false);
     }
 
-    handleMaterial = async () => {
-        const material = await MaterialDialog.show();
-        if (!material) return;
-        try {
-            await Scene.setMaterial(this.props.model.brayns.id, 0, material)
-        }
-        catch (ex) {
-            console.error(ex);
-        }
+    handleMore = async () => {
+        const { model } = this.props;
+        State.dispatch(State.CurrentModel.reset(model));
+        State.dispatch(State.Navigation.setPanel("model"));
+        Scene.camera.saveState();
+        await Scene.camera.lookAtBounds(model.brayns.bounds);
     }
 
     render() {
@@ -71,7 +67,7 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
                     <div>
                         <Button small={true} icon="gps" onClick={this.handleFocus}/>
                         <Button
-                            onClick={this.handleMaterial}
+                            onClick={this.handleMore}
                             enabled={true}
                             small={true}
                             icon="more"/>

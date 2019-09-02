@@ -1,14 +1,16 @@
-import { IVector, IQuaternion } from '../types'
+import { IVector, IQuaternion, IBounds } from '../types'
 
 export default {
     addVectors,
     makeQuaternionAsAxisRotation,
+    makeVector,
     multiplyQuaternions,
     normalize,
     plane6to4,
     rotateWithQuaternion,
     scalarProduct,
     scale,
+    translateBounds,
     vectorFromPoints
 }
 
@@ -30,6 +32,17 @@ function makeQuaternionAsAxisRotation(angle: number, axis: IVector): IQuaternion
     return [ x * s, y * s, z * s, c ] as IQuaternion;
 }
 
+
+/**
+ * Make a vector from two points.
+ */
+function makeVector(startPoint: IVector, endPoint: IVector): IVector {
+    return [
+        endPoint[0] - startPoint[0],
+        endPoint[1] - startPoint[1],
+        endPoint[2] - startPoint[2]
+    ]
+}
 
 function multiplyQuaternions(q: IQuaternion, r: IQuaternion): IQuaternion {
     const [q1, q2, q3, q0] = q;
@@ -92,6 +105,13 @@ function scale(vector: IVector, factor: number): IVector {
     return vector.map((n: number) => n * factor) as IVector;
 }
 
+
+function translateBounds(bounds: IBounds, translation: IVector): IBounds {
+    return {
+        min: addVectors(bounds.min, translation),
+        max: addVectors(bounds.max, translation)
+    }
+}
 
 function vectorFromPoints(a: IVector, b: IVector): IVector {
     return [

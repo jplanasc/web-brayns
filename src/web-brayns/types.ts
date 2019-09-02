@@ -19,6 +19,7 @@ export interface ICamera {
 }
 
 export interface IScreenPoint {
+    // screenX and screenY are between 0 and 1.
     screenX: number,
     screenY: number,
     // Aspect ratio: width / height

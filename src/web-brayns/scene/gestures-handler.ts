@@ -1,4 +1,5 @@
 import Scene from './scene'
+import Models from '../models'
 import Geometry from '../geometry'
 import Debouncer from '../../tfw/debouncer'
 
@@ -16,9 +17,11 @@ export default class GesturesHandler {
     private savedTargetDistance: number = 0;
 
     /**
-     * When panning starts, we should memorize the current Scene.camera/model rot/sca/loc params.
+     * When panning starts, we should memorize the current
+     * Scene.camera/model rot/sca/loc params, and compute the target.
      */
-    handlePanStart = (evt: IPanningEvent) => {
+    handlePanStart = async (evt: IPanningEvent) => {
+        await this.computeCurrentTarget(evt.screenX, evt.screenY)
         const axis = Scene.camera.axis;
         this.savedTarget = Scene.camera.target;
         this.savedPosition = Scene.camera.position;
@@ -38,6 +41,22 @@ export default class GesturesHandler {
         else this.rotateCamera(evt);
     }, 10)
 
+    /**
+     * screenX and screenY are between 0 and 1.
+     */
+    private async computeCurrentTarget(screenX: number, screenY: number) {
+        const hitPoint = await Scene.Api.inspect([screenX, screenY]);
+        if (hitPoint.hit) {
+            Scene.camera.setTarget(hitPoint.position, false);
+        } else {
+            const bounds = Models.getModelsBounds(Models.getVisibleModels());
+            const centerX = (bounds.min[0] + bounds.max[0]) / 2;
+            const centerY = (bounds.min[1] + bounds.max[1]) / 2;
+            const centerZ = (bounds.min[2] + bounds.max[2]) / 2;
+            Scene.camera.setTarget([centerX, centerY, centerZ], false)
+        }
+    }
+
     private translateCamera(evt: IPanningEvent) {
         const axis = this.savedAxis;
         const x = evt.screenX - this.savedScreenPoint.screenX;
@@ -55,6 +74,7 @@ export default class GesturesHandler {
     }
 
     private orbitCamera(evt: IPanningEvent) {
+        console.info("Scene.camera.target=", Scene.camera.target);
         const axis = this.savedAxis;
         const x = evt.screenX - this.savedScreenPoint.screenX;
         const y = evt.screenY - this.savedScreenPoint.screenY;

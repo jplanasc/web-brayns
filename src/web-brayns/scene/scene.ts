@@ -142,16 +142,13 @@ async function setViewPort(width: number, height: number) {
 }
 
 async function loadMeshFromPath(path: string, options: IModelOptions = {}): Promise<Model> {
-    console.info("path, options=", path, options);
     const result: IBraynsModel = (await Api.addModel({
         ...options.brayns,
         path
     })) as IBraynsModel;
 
-    console.info(">>> result (before fix)=", { ...result });
-    fixBoundsIfNeeded(result);
+    const fixedOptions = await fixBoundsIfNeeded(result);
 
-    console.info(">>> result (after fix)=", { ...result });
     const model: IModel = {
         brayns: {
             name: path,
@@ -170,9 +167,12 @@ async function loadMeshFromPath(path: string, options: IModelOptions = {}): Prom
         selected: false,
         technical: false,
         parent: -1,
-        ...options
+        ...fixedOptions
     };
     console.info(">>> model.brayns=", { ...model.brayns });
+    const modelInstance = new Model(model);
+    const materialIds = await modelInstance.getMaterialIds();
+    model.materialIds = materialIds;
     State.dispatch(State.Models.add(model));
     console.info("State.store.getState().models=", State.store.getState().models);
     return new Model(model);
@@ -192,19 +192,21 @@ async function setMaterial(modelId: number, materialId: number, material: Partia
  * There is a bug in addModel(). The returns doen't compute the bounds.
  * It will be fixed soon, but in the meantime, we will ask for the bounds to the scene.
  */
-async function fixBoundsIfNeeded(braynsModel: IBraynsModel) {
-    const { min, max } = braynsModel.bounds;
-    if (min[0] < max[0]) return;
+async function fixBoundsIfNeeded(braynsModel: IBraynsModel): Promise<IBraynsModel> {
+    const { min, max } = braynsModel.bounds
+    if (min[0] < max[0]) return braynsModel
 
-    const scene = await Api.getScene();
-    if (!scene) return;
-    const models = scene.models;
-    if (!models) return;
+    const scene = await Api.getScene()
+    if (!scene) return braynsModel
+    const models = scene.models
+    if (!models) return braynsModel
+    console.info("{ ...models } =", { ...models } );
     const modelWithSearchedId = models
-        .find((m: any) => m && m.id === braynsModel.id);
-    if (!modelWithSearchedId) return;
+        .find((m: any) => m && m.id === braynsModel.id)
+    if (!modelWithSearchedId) return braynsModel
     braynsModel.bounds = {
         ...braynsModel.bounds,
         ...modelWithSearchedId.bounds
-    };
+    }
+    return braynsModel;
 }
