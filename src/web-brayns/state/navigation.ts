@@ -4,7 +4,7 @@ const PREFIX = "navigation:"
 
 export default {
     INITIAL_STATE: {
-        panel: "model",
+        panel: "models",
         showConsole: false
     },
 

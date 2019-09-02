@@ -99,7 +99,6 @@ export default class Model extends React.Component<IClipProps, {}> {
             sceneCenter,
             Geom.scale(normal, -distanceFromCenter)
         );
-        console.log("MIN: thickness, distanceFromCenter, normal, pointOnPlan=", thickness, distanceFromCenter, normal, pointOnPlan)
         return Geom.plane6to4(pointOnPlan, normal);
     }
 
@@ -113,7 +112,6 @@ export default class Model extends React.Component<IClipProps, {}> {
             sceneCenter,
             Geom.scale(normal, distanceFromCenter)
         );
-        console.log("MAX: thickness, distanceFromCenter, normal, pointOnPlan=", thickness, distanceFromCenter, normal, pointOnPlan)
         return Geom.plane6to4(pointOnPlan, normal);
     }
 
@@ -122,7 +120,7 @@ export default class Model extends React.Component<IClipProps, {}> {
     }
 
     handleBack = () => {
-        State.dispatch(State.Navigation.setPanel("model"));
+        State.dispatch(State.Navigation.setPanel("models"));
     }
 
     handleActivatedChange = (activated: boolean) => {

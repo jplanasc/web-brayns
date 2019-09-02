@@ -44,19 +44,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
 
         Gesture(this.canvas).on({
             down: this.handleDown,
-            async tap(evt) {
-                const canvas = that.canvas;
-                if (!canvas) return;
-                const rect = canvas.getBoundingClientRect();
-                const x = evt.x / rect.width;
-                const y = 1 - (evt.y / rect.height);
-                const hitResult = await Scene.Api.inspect([x, y]);
-                console.info("hitResult=", hitResult);
-                if (!hitResult) return;
-                if (hitResult.hit === true) {
-                    Scene.camera.getCloser(hitResult.position, 1);
-                }
-            },
             wheel(evt) {
                 if (!Scene.camera) return;
                 if (evt.deltaY < 0) {

@@ -62,5 +62,6 @@ export interface IModel {
     deleted: boolean,
     selected: boolean,
     // Some models are technical. They must not appear on any snapshot.
-    technical: boolean
+    technical: boolean,
+    materialIds: number[]
 }

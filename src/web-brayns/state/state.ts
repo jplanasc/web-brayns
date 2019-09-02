@@ -5,6 +5,7 @@ import { createStore } from 'redux'
 import { IAppState, IAction } from "../types"
 
 import Animation from './animation'
+import CurrentModel from './current-model'
 import Dialogs from './dialogs'
 import Models from "./models"
 import Navigation from './navigation'
@@ -14,6 +15,7 @@ import Slicer from './slicer'
 
 const INITIAL_STATE: IAppState = {
     animation: Animation.INITIAL_STATE,
+    currentModel: CurrentModel.INITIAL_STATE,
     dialogs: Dialogs.INITIAL_STATE,
     models: Models.INITIAL_STATE,
     navigation: Navigation.INITIAL_STATE,
@@ -24,6 +26,7 @@ const INITIAL_STATE: IAppState = {
 function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction): IAppState {
     return {
         animation: Animation.reducer(state.animation, action),
+        currentModel: CurrentModel.reducer(state.currentModel, action),
         dialogs: Dialogs.reducer(state.dialogs, action),
         models: Models.reducer(state.models, action),
         navigation: Navigation.reducer(state.navigation, action),
@@ -36,12 +39,10 @@ const store = createStore(reducer);
 export default {
     store, dispatch: store.dispatch,
     Animation,
+    CurrentModel,
     Dialogs,
     Models,
     Navigation,
     Path,
     Slicer
 };
-
-
-console.info("INITIAL_STATE.dialogs=", INITIAL_STATE.dialogs);

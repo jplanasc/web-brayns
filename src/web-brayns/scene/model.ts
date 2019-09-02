@@ -1,6 +1,7 @@
 import { Client as BraynsClient } from "brayns"
 
 import Scene from './scene'
+import Geom from '../geometry'
 import State from '../state'
 
 import { IModel, IVector } from '../types'
@@ -9,16 +10,35 @@ import { IModel, IVector } from '../types'
 export default class Model {
     constructor(private model: IModel) {}
 
-    async locate(position: IVector): Promise<boolean> {
-        this.model.brayns.transformation.translation = position;
-        return await this.applyTransfo();
+    async locate(nextPosition: IVector): Promise<boolean> {
+        const currentBounds = this.model.brayns.bounds
+        const currentPosition = this.model.brayns.transformation.translation
+        const relativeMoving = Geom.makeVector(currentPosition, nextPosition)
+        const nextBounds = Geom.translateBounds(currentBounds, relativeMoving)
+        this.model.brayns.transformation.translation = nextPosition
+        this.model.brayns.bounds = nextBounds
+        return await this.applyTransfo()
+    }
+
+    async getMaterialIds(): Promise<number[]> {
+        const id = this.model.brayns.id;
+        const currentMaterialIds = this.model.materialIds;
+        if (Array.isArray(currentMaterialIds) && currentMaterialIds.length > 0) {
+            return currentMaterialIds;
+        }
+        const result: { ids: number[] } = await Scene.request("getMaterialIds", { id }) as { ids: number[] }
+        // This strage filter is because Javascript only support 53 bits integers,
+        // but Brayns can send up to 64 bits integers.
+        this.model.materialIds = result.ids.filter((id: number) => id < 18000000000000000000)
+        return this.model.materialIds
     }
 
     /**
      * Remove this model from the Scene.
      */
     async remove() {
-        return await Scene.request("remove-model", [this.params.id]);
+        const id = this.model.brayns.id;
+        return await Scene.Api.removeModel([id]);
     }
 
     get id(): number {
