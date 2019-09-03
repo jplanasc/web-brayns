@@ -115,7 +115,7 @@ async function clear(): Promise<boolean> {
     const rendererParams: any = await request("get-renderer-params", {});
     if (rendererParams) {
         // A bit brighter.
-        rendererParams.pixelAlpha = 1.7;
+        rendererParams.pixelAlpha = 1;
         rendererParams.shadows = 1;
         rendererParams.softShadows = 0.9;
         await request("set-renderer-params", rendererParams);
@@ -123,10 +123,10 @@ async function clear(): Promise<boolean> {
 
     await request('set-renderer', {
         accumulation: true,
-        backgroundColor: [0,0,0],
+        backgroundColor: [0.3,0.4,0.5],
         current: "advanced_simulation",
         headLight: true,
-        maxAccumFrames: 2000,
+        maxAccumFrames: 16,
         samplesPerPixel: 1,
         subsampling: 1
     });
@@ -171,6 +171,9 @@ async function loadMeshFromPath(path: string, options: IModelOptions = {}): Prom
     };
     console.info(">>> model.brayns=", { ...model.brayns });
     const modelInstance = new Model(model);
+    // We have to applyTransfo because the scale can change the location.
+    modelInstance.locate(model.brayns.transformation.translation)
+    modelInstance.applyTransfo()
     const materialIds = await modelInstance.getMaterialIds();
     model.materialIds = materialIds;
     State.dispatch(State.Models.add(model));
@@ -178,7 +181,8 @@ async function loadMeshFromPath(path: string, options: IModelOptions = {}): Prom
     return new Model(model);
 }
 
-async function setMaterial(modelId: number, materialId: number, material: Partial<IMaterial>) {
+async function setMaterial(modelId: number, materialId: number,
+                           material: Partial<IMaterial>) {
     return await Python.exec("phaneron/set-material", {
         ...material,
         modelId,

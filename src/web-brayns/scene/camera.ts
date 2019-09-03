@@ -16,15 +16,20 @@ export default class Camera {
     constructor(private params: ICamera) { }
 
     private async applyCamera(): Promise<boolean> {
-        const { orientation, position, target } = this.params;
-        await Scene.request('set-camera', {
-            orientation, position, target
+        const { orientation, position, target, current, height } = this.params;
+        await Scene.Api.setCamera({
+            orientation, position, target,
+            current: current || "perspective"
         });
+        if (current === 'orthographic') {
+            await Scene.Api.setCameraParams({ height });
+        }
         return true;
     }
 
     saveState() {
         this.states.push(this.params);
+        console.info("this.states=", this.states);
     }
 
     async restoreState() {
@@ -59,6 +64,17 @@ export default class Camera {
         this.params.position = position;
         this.params.orientation = orientation;
         this.applyCamera();
+    }
+
+    async setOrthographic(width: number, height: number,
+                    position: IVector,
+                    orientation: IQuaternion) {
+        const { params } = this
+        params.current = "orthographic"
+        params.position = position
+        params.orientation = orientation
+        params.height = Math.max(width, height)
+        await this.applyCamera();
     }
 
     get axis(): IAxis {
@@ -190,8 +206,6 @@ export default class Camera {
     async lookAtWholeScene() {
         const models = Models.getVisibleModels();
         const bounds = Models.getModelsBounds(models);
-        console.info("[lookAtWholeScene] models, bounds=", models, bounds);
-        alert(JSON.stringify(bounds, null, '  '));
         await this.lookAtBounds(bounds);
     }
 

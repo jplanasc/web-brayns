@@ -15,7 +15,9 @@ export interface ICamera {
     types: string[],
     orientation: IQuaternion,
     position: IVector,
-    target: IVector
+    target: IVector,
+    // Used for orthographic camera.
+    height: number
 }
 
 export interface IScreenPoint {
@@ -55,7 +57,7 @@ export interface IMaterial {
     glossiness: number,
     opacity: number,
     reflectionIndex: number,
-    refreactionIndex: number,
+    refractionIndex: number,
     intensity: number,
     emission: number
 }
