@@ -38,7 +38,7 @@ export default class GesturesHandler {
     handlePan = Debouncer((evt: IPanningEvent) => {
         if (evt.button === 2) this.translateCamera(evt);
         else if (evt.button === 1) this.orbitCamera(evt);
-        else this.rotateCamera(evt);
+        //else this.rotateCamera(evt);
     }, 10)
 
     /**
