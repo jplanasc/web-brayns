@@ -39,8 +39,6 @@ export default class Model extends React.Component<IModelProps, {}> {
         const { materialIds } = model;
         const { name, id, path, bounds, transformation } = model.brayns;
 
-        console.info("model=", model);
-
         return (<div className="webBrayns-view-Panel">
             <header className="thm-bgPD thm-ele-nav">
                 <Icon content='back' onClick={this.handleBack}/>

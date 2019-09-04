@@ -29,7 +29,6 @@ export default class Camera {
 
     saveState() {
         this.states.push(this.params);
-        console.info("this.states=", this.states);
     }
 
     async restoreState() {
@@ -73,7 +72,7 @@ export default class Camera {
         params.current = "orthographic"
         params.position = position
         params.orientation = orientation
-        params.height = Math.max(width, height)
+        params.height = height  //Math.max(width, height)
         await this.applyCamera();
     }
 
@@ -119,7 +118,6 @@ export default class Camera {
      * `applyToBrayns` to `false`.
      */
     async setTarget(target: IVector, applyToBrayns: boolean = true ) {
-        console.info("this.params=", this.params);
         const direction = this.direction;
         const distance = Geom.scalarProduct(
             Geom.vectorFromPoints(this.params.position, target),

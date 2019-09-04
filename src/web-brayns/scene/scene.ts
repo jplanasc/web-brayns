@@ -12,6 +12,7 @@ import Model from './model'
 import Camera from './camera'
 import Renderer from './renderer'
 import GesturesHandler from './gestures-handler'
+import BraynsService from '../service/brayns'
 
 // Brayns' client.
 const Scene: {
@@ -49,15 +50,22 @@ const defaultObjectToExport = {
  * Try to connect to a Brayns service and fails if it takes too long.
  */
 async function connect(hostName: string): Promise<BraynsClient> {
+    const bs = new BraynsService(hostName);
+    const isConnected = await bs.connect()
+    console.info("isConnected=", isConnected);
+    const a = await bs.exec("get-scene")
+    console.log("a = ", a)
+    const b = await bs.exec("get-camera")
+    console.log("b = ", b)
+
     Scene.host = hostName;
     Scene.brayns = await ServiceHost.connect(hostName);
-    console.info("Scene.brayns=", Scene.brayns);
+
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
     Scene.camera = new Camera({ ...cameraParams, ...camera });
     Scene.renderer.init(Scene.brayns);
     const animation = await Api.getAnimationParameters();
-    console.info("animation=", animation);
     State.dispatch(State.Animation.update(animation));
 
     Scene.brayns
@@ -70,7 +78,7 @@ async function connect(hostName: string): Promise<BraynsClient> {
 }
 
 async function request(method: string, params: {} = {}) {
-    console.info("request(", method, params, ")");
+    //console.info("request(", method, params, ")");
 
     return new Promise((resolve, reject) => {
         try {
@@ -81,7 +89,7 @@ async function request(method: string, params: {} = {}) {
             }
             const loader = Scene.brayns.request(method, params);
             loader.then((output: any) => {
-                console.info("request(", method, ") => ", output);
+                //console.info("request(", method, ") => ", output);
                 resolve(output)
             },
             (error: any) => {
@@ -169,7 +177,6 @@ async function loadMeshFromPath(path: string, options: IModelOptions = {}): Prom
         parent: -1,
         ...fixedOptions
     };
-    console.info(">>> model.brayns=", { ...model.brayns });
     const modelInstance = new Model(model);
     // We have to applyTransfo because the scale can change the location.
     modelInstance.locate(model.brayns.transformation.translation)
@@ -177,7 +184,6 @@ async function loadMeshFromPath(path: string, options: IModelOptions = {}): Prom
     const materialIds = await modelInstance.getMaterialIds();
     model.materialIds = materialIds;
     State.dispatch(State.Models.add(model));
-    console.info("State.store.getState().models=", State.store.getState().models);
     return new Model(model);
 }
 
@@ -204,7 +210,6 @@ async function fixBoundsIfNeeded(braynsModel: IBraynsModel): Promise<IBraynsMode
     if (!scene) return braynsModel
     const models = scene.models
     if (!models) return braynsModel
-    console.info("{ ...models } =", { ...models } );
     const modelWithSearchedId = models
         .find((m: any) => m && m.id === braynsModel.id)
     if (!modelWithSearchedId) return braynsModel

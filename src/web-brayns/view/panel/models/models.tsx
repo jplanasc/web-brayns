@@ -20,8 +20,7 @@ export default class Model extends React.Component<{}, {}> {
             "Load Mesh",
             <InputPath onChange={(p: string) => path = p}/>);
         if (!confirmed) return;
-        const model = await Scene.loadMeshFromPath(path);
-        console.info("model=", model);
+        await Scene.loadMeshFromPath(path);
     }
 
     toggleConsoleVisibility = async () => {

@@ -64,7 +64,6 @@ async function connect(hostName: string): Promise<BraynsClient> {
         const client = new BraynsClient(hostName);
         client.ready.subscribe(
             isReady => {
-                console.info("isReady=", isReady);
                 if (isReady) {
                     window.clearTimeout(timeout);
                     resolve(client);

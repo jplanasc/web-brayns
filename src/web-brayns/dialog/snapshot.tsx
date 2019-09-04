@@ -8,7 +8,6 @@ import Snapshot from '../view/snapshot/snapshot.container'
 
 export default {
     async show(): Promise<ISnapshot | null> {
-        console.log('SHOW');
         const answer = await Dialog.confirm(
             "Take snapshot",
             <Provider store={State.store}><Snapshot/></Provider>);

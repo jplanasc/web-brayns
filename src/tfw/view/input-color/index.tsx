@@ -67,7 +67,6 @@ export default class InputColor extends React.Component<IInputColorProps, IInput
         const label = p.label;
         const color = new Color(this.state.value);
         const value = color.stringify();
-        console.info("value, this.state.value=", value, this.state.value);
         const fg = color.luminanceStep() ? "#000" : "#FFF";
 
         return (<div className="tfw-view-InputColor">

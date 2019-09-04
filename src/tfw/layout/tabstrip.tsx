@@ -22,7 +22,6 @@ export default class Tabstrip extends React.Component<ITabstripProps, {}> {
     handleChange(value: number) {
         const handler = this.props.onChange;
         if (typeof handler !== 'function') return;
-        console.info("value=", value);
         handler(value);
     }
 

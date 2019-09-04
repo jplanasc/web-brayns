@@ -60,7 +60,6 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
         const { filter } = this.state;
         const { models } = this.props;
         const matcher = new Matcher(filter);
-        console.info("models=", models);
         return models.filter((model: IModel) => matcher.matches(model.brayns.name))
             .sort(this.state.sort === 'name' ? sortByName : sortByVolume);
     }

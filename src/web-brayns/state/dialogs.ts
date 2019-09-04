@@ -42,8 +42,5 @@ function updateSnapshot(state: IDialogs, action: IAction): IDialogs {
         snapshot: Object.assign( state.snapshot, action.snapshot )
     });
     Storage.local.set('state/dialogs/snapshot', newState.snapshot)
-    console.info("state=", state);
-    console.info("action.snapshot=", action.snapshot);
-    console.info("newState=", newState);
     return newState;
 }

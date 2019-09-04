@@ -61,18 +61,19 @@ async function testAstrocytes() {
         await model.applyTransfo();
     }
 
+/*
     const clipPlane = new ClipPlane({
         width: 32, height: 12,
         center: [X, Y, Z],
         orientation: Geom.makeQuaternionAsAxisRotation(
-            0.25 * Math.PI,
+            0 * Math.PI,
             //Math.random() * Math.PI * 2,
             [0,0,1]
         )
     })
     await clipPlane.attach()
     await clipPlane.setActivated(true)
-
+*/
     Scene.Api.setCamera({
         "current": "perspective",
         "orientation": [
@@ -88,7 +89,7 @@ async function testAstrocytes() {
         ]
     })
 
-    await clipPlane.setCameraForSnapshot()
+    //await clipPlane.setCameraForSnapshot()
 }
 
 /**

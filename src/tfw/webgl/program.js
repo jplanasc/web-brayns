@@ -100,7 +100,6 @@ function createAttributes(that, gl, shaderProgram) {
         item.typeName = that.getTypeName(item.type);
         item.length = getSize.call(that, gl, item);
         item.location = gl.getAttribLocation(shaderProgram, item.name);
-        console.info("item=", item);
         attribs[item.name] = item;
     }
 

@@ -19,7 +19,6 @@ export default {
                 target: Scene.camera.target
             }
         }
-        console.info("params=", params);
         const snapshot = await Scene.Api.snapshot(params);
         const dataURI = `data:;base64,${snapshot.data}`
         return new Promise( (resolve, reject) => {
@@ -47,7 +46,6 @@ export default {
         canvas.toBlob(async (blob) => {
             if (!blob) return;
             const result = await SaveAsFile(blob, filename);
-            console.info("result=", result);
         }, mimetype, 100);
     }
 }

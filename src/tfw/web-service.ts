@@ -106,7 +106,6 @@ class WebService {
     }
 
     private async callService(name: string, args: {}): Promise<ICallResponse> {
-        console.log("callServiceName", name, args);
         const data = new FormData();
         data.append("s", name);
         data.append("i", JSON.stringify(args));

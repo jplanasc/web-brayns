@@ -12,8 +12,7 @@ function mapStateToProps(state: IAppState) {
 function mapDispatchToProps(dispatch) {
     return {
         async onFolderClick(path: string) {
-            const browse = await PathService.browse(path);
-            console.info("path, browse=", path, browse);
+            await PathService.browse(path);
         }
     };
 }

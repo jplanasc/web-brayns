@@ -72,7 +72,7 @@ function normalize(vector: IVector): IVector {
  * which takes only 4 floats. This is how Brayns represent clipping planes.
  */
 function plane6to4(point: IVector, normal: IVector): [number, number, number, number] {
-  const d = scalarProduct(point, normal);
+  const d = scalarProduct(point, normalize(normal));
   return [...normal, d];
 }
 

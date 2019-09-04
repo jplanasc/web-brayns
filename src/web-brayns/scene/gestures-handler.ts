@@ -74,7 +74,6 @@ export default class GesturesHandler {
     }
 
     private orbitCamera(evt: IPanningEvent) {
-        console.info("Scene.camera.target=", Scene.camera.target);
         const axis = this.savedAxis;
         const x = evt.screenX - this.savedScreenPoint.screenX;
         const y = evt.screenY - this.savedScreenPoint.screenY;
