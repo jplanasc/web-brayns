@@ -35,7 +35,6 @@ export default class Slider extends React.Component<ISliderProps, {}> {
         const value = this.constrainValue(
             min + (max - min) * percent, min, max, step
         );
-        console.info("evt, rect, value, percent=", evt, rect, value, percent);
         p.onChange(value);
     }
 

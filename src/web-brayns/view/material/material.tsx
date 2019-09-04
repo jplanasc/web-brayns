@@ -60,7 +60,6 @@ export default class Material extends React.Component<IMaterialProps, IMaterialS
             return;
         }
 
-        console.info("material=", material);
         const color = new Color();
         color.H = this.state.hue / 360;
         color.S = 1;

@@ -38,7 +38,6 @@ export default class Combo extends React.Component<IComboProps, {}> {
     }
 
     handleClick(event: React.MouseEvent) {
-        console.info("tap combo =>", event);
         this.expand();
     }
 
@@ -135,7 +134,6 @@ export default class Combo extends React.Component<IComboProps, {}> {
                 event.stopPropagation();
                 return;
         }
-        console.log(">>", event.key);
     }
 
     expand() {
@@ -160,12 +158,10 @@ export default class Combo extends React.Component<IComboProps, {}> {
             document.removeEventListener("keydown", handleKeyboard, true);
         });
         Gesture(screen).on({ tap: () => {
-            console.log("EscapeHandler");
             EscapeHandler.fire()
         }});
         Gesture(bigList).on({
             tap: evt => {
-                console.info("tap bigList =>", evt);
                 if (!evt || typeof evt.y === 'undefined') return;
                 const scroll = bigList.scrollTop;
                 const index = Math.floor((evt.y + scroll) / 32);

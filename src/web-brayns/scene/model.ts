@@ -20,19 +20,7 @@ export default class Model {
         const currentPosition = this.model.brayns.transformation.translation
         const relativeMoving = Geom.makeVector(currentPosition, nextPosition)
         const nextBounds = Geom.translateBounds(currentBounds, relativeMoving)
-        // WARNING!
-        // The order of transformations in Brayns is unusual:
-        // Rotation -> Translation -> Scaling
-        // But here, we need th location to be the final coords
-        // of the model's center, that's why we need to divide
-        // by the scale.
-        const scale = this.model.brayns.transformation.scale;
-        this.model.brayns.transformation.translation =
-            [
-                nextPosition[0] / scale[0],
-                nextPosition[1] / scale[1],
-                nextPosition[2] / scale[2],
-            ]
+        this.model.brayns.transformation.translation = nextPosition
         this.model.brayns.bounds = nextBounds
     }
 

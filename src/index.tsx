@@ -13,19 +13,11 @@ import State from './web-brayns/state'
 
 import "./tfw/font/josefin.css"
 
-import Python from './web-brayns/service/python'
-
 Theme.apply("default");
 
 async function start() {
-    const output = await Python.exec("test", {text: "Hello world!"})
-    console.info("output=", output);
-
     const hostName = await ServiceHost.getHostName(false);
-    console.info("hostName=", hostName);
-
     const browse = await PathService.browse();
-    console.info("browse=", browse);
 
     try {
         const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false);

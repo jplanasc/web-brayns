@@ -1,6 +1,6 @@
 export default {
     async exec(serviceName: string, params: any = ""): Promise<any> {
-        console.info("[Python]", serviceName, params);
+        //console.info("[Python]", serviceName, params);
         const data = new FormData();
         data.append("i", JSON.stringify(params));
         const
@@ -11,7 +11,7 @@ export default {
             const text = await response.text();
             try {
                 const output = JSON.parse(text);
-                console.info("[Python]", serviceName, " => ", output);
+                //console.info("[Python]", serviceName, " => ", output);
                 return output;
             }
             catch( ex ) {

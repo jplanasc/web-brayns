@@ -1,7 +1,7 @@
 import Geom from '../geometry'
 import Scene from '../scene'
 import Model from '../scene/model'
-import { IQuaternion, IModel } from '../types'
+import { IQuaternion, IVector } from '../types'
 
 export interface IClipPlaneState {
     width: number,
@@ -12,7 +12,14 @@ export interface IClipPlaneState {
     color: [number, number, number]
 }
 
-const PATH = '/gpfs/bbp.cscs.ch/project/proj3/.tolokoban/clipping-plane.blend'
+interface ITransformation {
+    location?: IVector,
+    scale?: IVector,
+    rotation?: IQuaternion
+}
+
+const EPSILON = 0.001
+const PATH = '/gpfs/bbp.cscs.ch/project/proj3/.tolokoban/clipping-plane.ply'
 
 export default class ClipPlane {
     private readonly state: IClipPlaneState;
@@ -44,7 +51,7 @@ export default class ClipPlane {
         const remoteness = Geom.scale(normal, depth * 3)
         const cameraCenter = Geom.addVectors(center, remoteness)
         await Scene.camera.setOrthographic(
-            width, height, cameraCenter, orientation
+            width*3, height*3, cameraCenter, orientation
         )
     }
 
@@ -62,24 +69,67 @@ export default class ClipPlane {
             return;
         }
 
-        const { depth, center, orientation } = this.state
-        const normal = Geom.rotateWithQuaternion([0,0,1], orientation)
+        const { frontPlane, backPlane } = this.computeClippingPlanes()
 
-        const frontPlane = Geom.plane6to4(
-            Geom.addVectors(center, Geom.scale(normal, depth * 0.5)),
-            normal
-        )
         const frontPlaneDescriptor = await Scene.Api.addClipPlane(frontPlane)
         this.frontPlaneId = frontPlaneDescriptor.id
-
-        const backPlane = Geom.plane6to4(
-            Geom.addVectors(center, Geom.scale(normal, -depth * 0.5)),
-            Geom.scale(normal, -1)
-        )
         const backPlaneDescriptor = await Scene.Api.addClipPlane(backPlane)
         this.backPlaneId = backPlaneDescriptor.id
 
         this.isActivated = true;
+    }
+
+    async setTransformation(transformation) {
+        const { model } = this
+        const { location, scale, rotation } = transformation
+        if (model) {
+            if (location) model.locate(location)
+            //if (scale) model.scale(scale)
+            //if (rotation) model.rotate(rotation)
+            await model.applyTransfo()
+        }
+
+
+    }
+
+    async setLocation(location: IVector) {
+        const { model } = this;
+        if (model) {
+            model.locate(location)
+            await model.applyTransfo()
+        }
+
+        this.state.center = location
+        const { frontPlane, backPlane } = this.computeClippingPlanes()
+
+        if (this.isActivated) {
+            await Scene.Api.updateClipPlane({
+                id: this.frontPlaneId, plane: frontPlane
+            })
+            await Scene.Api.updateClipPlane({
+                id: this.backPlaneId, plane: backPlane
+            })
+        }
+    }
+    /**
+     * Clipping planes depend on the location and orientation
+     * of the object.
+     */
+    private computeClippingPlanes() {
+        const { depth, center, orientation } = this.state
+        const normal = Geom.rotateWithQuaternion([0,0,1], orientation)
+
+        const frontPlane = Geom.plane6to4(
+            Geom.addVectors(center, Geom.scale(normal, depth * 0.5 + EPSILON)),
+            normal
+        )
+
+        const backPlane = Geom.plane6to4(
+            Geom.addVectors(center, Geom.scale(normal, -depth * 0.5 - EPSILON)),
+            Geom.scale(normal, -1)
+        )
+
+        return { frontPlane, backPlane }
     }
 
     async attach(): Promise<boolean> {
@@ -110,17 +160,22 @@ export default class ClipPlane {
         Scene.setMaterial(modelId, 0, {
             diffuseColor: state.color,
             specularColor: [1, 1, 1],
-            shadingMode: "diffuse",
-            intensity: 2,
-            emission: 0
+            shadingMode: "diffuse"
+            //intensity: 2,
+            //emission: 0
         })
-        /*
-        Scene.setMaterial(modelId, 1, {
+        /*Scene.setMaterial(modelId, 1, {
             diffuseColor: [0.5, 0.5, 1.0],
             specularColor: [0.75, 0.75, 1.0],
-            shadingMode: "electron-alpha",
+            shadingMode: "diffuse-alpha",
             opacity: 0.2
         })*/
         return true;
+    }
+
+    async detach() {
+        const { model } = this
+        if (!model) return
+        await Scene.Api.removeModel([model.id])
     }
 }

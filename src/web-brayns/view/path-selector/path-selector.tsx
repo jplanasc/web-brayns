@@ -30,14 +30,12 @@ export default class PathSelector extends React.Component<IPathSelectorProps, {}
             path, root, files, folders,
             onFileClick, onFolderClick
         } = this.props;
-        console.info("path, root, files, folders=", path, root, files, folders);
         return (<div className="webBrayns-view-PathSelector">
             <PathBar path={path} root={root} onClick={onFolderClick}/>
             <PathList files={files}
                       folders={folders}
                       onFileClick={(name: string) => onFileClick(concatPath(path, name))}
                       onFolderClick={(name: string) => {
-                          console.log("CLICK", concatPath(path, name))
                           onFolderClick(concatPath(path, name))
                       }}/>
         </div>)

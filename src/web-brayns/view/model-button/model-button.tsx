@@ -22,7 +22,6 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
     handleToggleSelection = () => {
         const handle = this.props.onToggleSelection;
         if (typeof handle === 'function') handle(this.props.model);
-        console.info("this.props.model=", this.props.model);
     }
 
     handleFocus = async () => {
