@@ -2,12 +2,16 @@ import { IVector, IQuaternion, IBounds } from '../types'
 
 export default {
     addVectors,
+    deg2rad,
     makeQuaternionAsAxisRotation,
+    makeQuaternionFromLatLngTilt,
     makeVector,
     multiplyQuaternions,
     normalize,
     plane6to4,
+    rotateBounds,
     rotateWithQuaternion,
+    scaleBounds,
     scalarProduct,
     scale,
     translateBounds,
@@ -30,6 +34,19 @@ function makeQuaternionAsAxisRotation(angle: number, axis: IVector): IQuaternion
     const s = Math.sin(halfAngle);
     const [x, y, z] = axis;
     return [ x * s, y * s, z * s, c ] as IQuaternion;
+}
+
+
+function makeQuaternionFromLatLngTilt(lat: number, lng: number, tilt: number): IQuaternion {
+    const X: IVector = [1,0,0]
+    const Y: IVector = [0,1,0]
+    const Z: IVector = [0,0,1]
+    const qA = makeQuaternionAsAxisRotation(deg2rad(-lat), X)
+    const qB = makeQuaternionAsAxisRotation(deg2rad(lng), Y)
+    const qC = multiplyQuaternions(qB, qA)
+    const direction = rotateWithQuaternion(Z, qC)
+    const qD = makeQuaternionAsAxisRotation(deg2rad(-tilt), direction)
+    return multiplyQuaternions(qD, qC)
 }
 
 
@@ -106,6 +123,40 @@ function scale(vector: IVector, factor: number): IVector {
 }
 
 
+function rotateBounds(bounds: IBounds, rotation: IQuaternion): IBounds {
+    const { min, max } = bounds;
+    const A = rotateWithQuaternion(min, rotation)
+    const B = rotateWithQuaternion(max, rotation)
+    return {
+        min: [
+            Math.min(A[0], B[0]),
+            Math.min(A[1], B[1]),
+            Math.min(A[2], B[2])
+        ],
+        max: [
+            Math.max(A[0], B[0]),
+            Math.max(A[1], B[1]),
+            Math.max(A[2], B[2])
+        ]
+    }
+}
+
+
+function scaleBounds(bounds: IBounds, scale: IVector): IBounds {
+    return {
+        min: [
+            bounds.min[0] * scale[0],
+            bounds.min[1] * scale[1],
+            bounds.min[2] * scale[2]
+        ],
+        max: [
+            bounds.max[0] * scale[0],
+            bounds.max[1] * scale[1],
+            bounds.max[2] * scale[2]
+        ]
+    }
+}
+
 function translateBounds(bounds: IBounds, translation: IVector): IBounds {
     return {
         min: addVectors(bounds.min, translation),
@@ -119,4 +170,9 @@ function vectorFromPoints(a: IVector, b: IVector): IVector {
         b[1] - a[1],
         b[2] - a[2]
     ];
+}
+
+
+function deg2rad(deg: number): number {
+    return deg * Math.PI / 180
 }

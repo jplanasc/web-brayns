@@ -79,27 +79,31 @@ export default class ClipPlane {
         this.isActivated = true;
     }
 
-    async setTransformation(transformation) {
+    async setTransformation(transformation: ITransformation) {
         const { model } = this
         const { location, scale, rotation } = transformation
         if (model) {
-            if (location) model.locate(location)
-            //if (scale) model.scale(scale)
-            //if (rotation) model.rotate(rotation)
+            const state = this.state
+            if (location) {
+                model.locate(location)
+                state.center = location
+            }
+            if (scale) {
+                model.scale(scale)
+                state.width = scale[0]
+                state.height = scale[1]
+                state.depth = scale[2]
+            }
+            if (rotation) {
+                model.rotate(rotation)
+                state.orientation = rotation
+            }
+            this.updateClippingPlanes()
             await model.applyTransfo()
         }
-
-
     }
 
-    async setLocation(location: IVector) {
-        const { model } = this;
-        if (model) {
-            model.locate(location)
-            await model.applyTransfo()
-        }
-
-        this.state.center = location
+    updateClippingPlanes = async () => {
         const { frontPlane, backPlane } = this.computeClippingPlanes()
 
         if (this.isActivated) {
@@ -110,6 +114,10 @@ export default class ClipPlane {
                 id: this.backPlaneId, plane: backPlane
             })
         }
+    }
+
+    async setLocation(location: IVector) {
+        return await this.setTransformation({ location })
     }
     /**
      * Clipping planes depend on the location and orientation
@@ -129,12 +137,14 @@ export default class ClipPlane {
             Geom.scale(normal, -1)
         )
 
+        console.info("{ frontPlane, backPlane }=", { frontPlane, backPlane });
+
         return { frontPlane, backPlane }
     }
 
     async attach(): Promise<boolean> {
         const { state } = this;
-        const result = await Scene.loadMeshFromPath(
+        const model = await Scene.loadMeshFromPath(
             PATH, {
                 technical: true,
                 brayns: {
@@ -146,14 +156,8 @@ export default class ClipPlane {
                     }
                 }
             });
-        if (!result) return false;
+        if (!model) return false;
 
-        const model = new Model({
-            brayns: result,
-            parent: -1,
-            deleted: false,
-            selected: false
-        });
         this.model = model;
         const modelId: number = model.id;
 

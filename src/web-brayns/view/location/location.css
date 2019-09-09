@@ -1,0 +1,11 @@
+div.webBrayns-view-Location {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+div.webBrayns-view-Location > * {
+    flex: 1 1 auto;
+}

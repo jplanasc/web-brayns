@@ -1,9 +1,10 @@
-import { Client as BraynsClient } from "brayns"
+//import { Client as BraynsClient } from "brayns"
 import React from 'react';
 import UrlArgs from "../../tfw/url-args"
 import Dialog from "../../tfw/factory/dialog"
 import Button from "../../tfw/view/button"
 import InputHostName from "../view/input-host-name"
+import BraynsService from "../service/brayns"
 
 // Timeout connection to Brayns service.
 const CONNECTION_TIMEOUT = 5000;
@@ -58,18 +59,19 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
 /**
  * Try to connect to a Brayns service and fails if it take too long.
  */
-async function connect(hostName: string): Promise<BraynsClient> {
-    return new Promise((resolve, reject) => {
-        const timeout = window.setTimeout(reject, CONNECTION_TIMEOUT);
-        const client = new BraynsClient(hostName);
-        client.ready.subscribe(
-            isReady => {
-                if (isReady) {
-                    window.clearTimeout(timeout);
-                    resolve(client);
-                }
-            },
-            err => { console.error("err=", err); }
+async function connect(hostName: string): Promise<BraynsService> {
+    return new Promise(async (resolve, reject) => {
+        const timeout = window.setTimeout(
+            () => reject("Connection timeout!"),
+            CONNECTION_TIMEOUT
         );
-    });
+        const client = new BraynsService(hostName);
+        try {
+            const isReady = await client.connect()
+            if (isReady) resolve(client)
+        }
+        catch( ex ) {
+            reject( ex )
+        }
+    })
 }

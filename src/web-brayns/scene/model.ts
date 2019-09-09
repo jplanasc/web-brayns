@@ -1,10 +1,10 @@
-import { Client as BraynsClient } from "brayns"
+//import { Client as BraynsClient } from "brayns"
 
 import Scene from './scene'
 import Geom from '../geometry'
 import State from '../state'
 
-import { IModel, IVector } from '../types'
+import { IModel, IVector, IQuaternion } from '../types'
 
 
 export default class Model {
@@ -21,6 +21,54 @@ export default class Model {
         const relativeMoving = Geom.makeVector(currentPosition, nextPosition)
         const nextBounds = Geom.translateBounds(currentBounds, relativeMoving)
         this.model.brayns.transformation.translation = nextPosition
+        this.model.brayns.bounds = nextBounds
+    }
+
+    /**
+     * Scale the object.
+     * Do not forget to call this.applyTransfo() when you want
+     * the transformations to be applied.
+     */
+    scale(nextScale: IVector) {
+        const currentBounds = this.model.brayns.bounds
+        const currentPosition = this.model.brayns.transformation.translation
+        const currentScale = this.model.brayns.transformation.scale
+        const relativeMoving = Geom.makeVector(currentPosition, [0,0,0])
+        const boundsAtCenter = Geom.translateBounds(currentBounds, relativeMoving)
+        const scaledBounds = Geom.scaleBounds(
+            boundsAtCenter,
+            [
+                nextScale[0] / currentScale[0],
+                nextScale[1] / currentScale[1],
+                nextScale[2] / currentScale[2]
+            ]
+        )
+        const nextBounds = Geom.translateBounds(
+            scaledBounds,
+            Geom.scale(relativeMoving, -1)
+        )
+        this.model.brayns.transformation.scale = nextScale
+        this.model.brayns.bounds = nextBounds
+    }
+
+    /**
+     * Rotate the object.
+     * Do not forget to call this.applyTransfo() when you want
+     * the transformations to be applied.
+     */
+    rotate(nextRotation: IQuaternion) {
+        const currentBounds = this.model.brayns.bounds
+        const currentPosition = this.model.brayns.transformation.translation
+        const relativeMoving = Geom.makeVector(currentPosition, [0,0,0])
+        const boundsAtCenter = Geom.translateBounds(currentBounds, relativeMoving)
+        const rotatedBounds = Geom.rotateBounds(
+            boundsAtCenter, nextRotation
+        )
+        const nextBounds = Geom.translateBounds(
+            rotatedBounds,
+            Geom.scale(relativeMoving, -1)
+        )
+        this.model.brayns.transformation.rotation = nextRotation
         this.model.brayns.bounds = nextBounds
     }
 
