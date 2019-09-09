@@ -1,4 +1,5 @@
-import { Client as BraynsClient, IMAGE_JPEG } from "brayns"
+import { /*Client as BraynsClient,*/ IMAGE_JPEG } from "brayns"
+import BraynsService from '../service/brayns'
 
 export default class Renderer {
     private _canvas: HTMLCanvasElement | null = null;
@@ -7,13 +8,18 @@ export default class Renderer {
     private blobIndex: number = 0;
     private lastRederedBlobIndex: number = 0;
 
-    init(brayns: BraynsClient) {
-        brayns
+    init(brayns: BraynsService) {
+        /*brayns
             .observe("image-jpeg")
             .subscribe((blob: Blob) => {
                 this.blob = blob;
                 this.blobIndex++;
-            });
+            });*/
+        brayns.binaryListeners.add((blob: Blob) => {
+            console.log("New bin...", blob)
+            this.blob = blob
+            this.blobIndex++
+        })
         requestAnimationFrame(this.paint);
     }
 

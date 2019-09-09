@@ -10,6 +10,7 @@ import Dialog from "./tfw/factory/dialog"
 import Theme from "./tfw/theme"
 import App from './app.container';
 import State from './web-brayns/state'
+import UrlArgs from "./tfw/url-args"
 
 import "./tfw/font/josefin.css"
 
@@ -17,7 +18,7 @@ Theme.apply("default");
 
 async function start() {
     const hostName = await ServiceHost.getHostName(false);
-    const browse = await PathService.browse();
+    const browser = await PathService.browse()
 
     try {
         const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false);
@@ -37,8 +38,12 @@ async function start() {
         ));
 
         // Entry point for our app
+        const args = UrlArgs.parse()
+        const stream = args.stream || "image"
         const root = document.getElementById('root') as HTMLElement;
-        ReactDOM.render(<Provider store={State.store}><App brayns={client}/></Provider>, root);
+        ReactDOM.render(<Provider store={State.store}>
+                <App brayns={client} stream={stream}/>
+            </Provider>, root);
 
         const splash = document.getElementById('splash-screen');
         if (splash) {
@@ -47,6 +52,7 @@ async function start() {
         }
     }
     catch(ex) {
+        console.error("Unable to connect Brayns: ", ex)
         await Dialog.alert(`Seems like Brayns is not reachable on ${hostName}!`);
         location.reload();
     }

@@ -1,7 +1,7 @@
 /**
  * There is only one scene in Brayns.
  */
-import { Client as BraynsClient } from "brayns"
+//import { Client as BraynsClient } from "brayns"
 
 import Api from "./api"
 import { IBraynsModel, IModel, IModelOptions, IMaterial } from '../types'
@@ -16,7 +16,7 @@ import BraynsService from '../service/brayns'
 
 // Brayns' client.
 const Scene: {
-    brayns: (BraynsClient | null),
+    brayns: (BraynsService | null),
     camera: (Camera | null),
     host: string,
     renderer: Renderer,
@@ -49,14 +49,9 @@ const defaultObjectToExport = {
 /**
  * Try to connect to a Brayns service and fails if it takes too long.
  */
-async function connect(hostName: string): Promise<BraynsClient> {
-    const bs = new BraynsService(hostName);
-    const isConnected = await bs.connect()
-    console.info("isConnected=", isConnected);
-    const a = await bs.exec("get-scene")
-    console.log("a = ", a)
-    const b = await bs.exec("get-camera")
-    console.log("b = ", b)
+async function connect(hostName: string): Promise<BraynsService> {
+    /*const bs = new BraynsService(hostName);
+    const isConnected = await bs.connect()*/
 
     Scene.host = hostName;
     Scene.brayns = await ServiceHost.connect(hostName);
@@ -68,18 +63,14 @@ async function connect(hostName: string): Promise<BraynsClient> {
     const animation = await Api.getAnimationParameters();
     State.dispatch(State.Animation.update(animation));
 
-    Scene.brayns
-        .observe("set-animation-parameters")
-        .subscribe((params: any) => {
-            console.info("[ANIM] params=", params);
-        });
+    Scene.brayns.updateListeners.add((method: string, params: {}) => {
+        console.log("[ADMIN]", method, params)
+    })
 
     return Scene.brayns;
 }
 
 async function request(method: string, params: {} = {}) {
-    //console.info("request(", method, params, ")");
-
     return new Promise((resolve, reject) => {
         try {
             if (!Scene.brayns) {
@@ -87,9 +78,8 @@ async function request(method: string, params: {} = {}) {
                 reject();
                 return;
             }
-            const loader = Scene.brayns.request(method, params);
+            const loader = Scene.brayns.exec(method, params);
             loader.then((output: any) => {
-                //console.info("request(", method, ") => ", output);
                 resolve(output)
             },
             (error: any) => {
@@ -123,19 +113,19 @@ async function clear(): Promise<boolean> {
     const rendererParams: any = await request("get-renderer-params", {});
     if (rendererParams) {
         // A bit brighter.
-        rendererParams.pixelAlpha = 1;
+        rendererParams.pixel_alpha = 1.2;
         rendererParams.shadows = 1;
-        rendererParams.softShadows = 0.9;
+        rendererParams.soft_shadows = 0.9;
         await request("set-renderer-params", rendererParams);
     }
 
-    await request('set-renderer', {
+    await Api.setRenderer({
         accumulation: true,
-        backgroundColor: [0.3,0.4,0.5],
+        background_color: [0.3,0.4,0.5],
         current: "advanced_simulation",
-        headLight: true,
-        maxAccumFrames: 16,
-        samplesPerPixel: 1,
+        head_light: true,
+        max_accum_frames: 16,
+        samples_per_pixel: 1,
         subsampling: 1
     });
 
@@ -143,13 +133,14 @@ async function clear(): Promise<boolean> {
 }
 
 async function setViewPort(width: number, height: number) {
-    //Scene.brayns.set_application_parameters(viewport=[800,600])
     return await request("set-application-parameters", {
         viewport: [width, height]
     });
 }
 
-async function loadMeshFromPath(path: string, options: IModelOptions = {}): Promise<Model> {
+async function loadMeshFromPath(
+            path: string,
+            options: IModelOptions = {}): Promise<Model> {
     const result: IBraynsModel = (await Api.addModel({
         ...options.brayns,
         path
@@ -171,6 +162,7 @@ async function loadMeshFromPath(path: string, options: IModelOptions = {}): Prom
             },
             ...result
         },
+        materialIds: [],
         deleted: false,
         selected: false,
         technical: false,

@@ -1,6 +1,6 @@
-type IListener = (...args: any) => void;
+//type IListener = (...args: any) => void;
 
-export default class Listeners {
+export default class Listeners<IListener> {
     private listeners: IListener[] = [];
 
     constructor(private name: string = "Listener") {}

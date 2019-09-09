@@ -15,6 +15,8 @@ import Range from '../../range'
 import Throttler from '../../../../tfw/throttler'
 import Debouncer from '../../../../tfw/debouncer'
 import Theme from '../../../../tfw/theme'
+import OrientationView from '../../orientation'
+import LocationView from '../../location'
 import SnapshotView from '../../snapshot/snapshot.container'
 import ClipPlaneObject from '../../../object/clip-plane'
 
@@ -41,9 +43,19 @@ interface IClipProps {
 }
 
 interface IClipState {
+    // Location
+    x: number,
+    y: number,
+    z: number,
+    // Scale
     planeWidth: number,
     planeHeight: number,
     planeDepth: number,
+    // Orientation
+    latitude: number,
+    longitude: number,
+    tilt: number,
+
     activated: boolean
 }
 
@@ -62,7 +74,13 @@ export default class Model extends React.Component<IClipProps, IClipState> {
             planeWidth: 32,
             planeHeight: 24,
             planeDepth: 4,
-            activated: false
+            activated: false,
+            latitude: 0,
+            longitude: 0,
+            tilt: 0,
+            x: 0,
+            y: 0,
+            z: 0
         }
     }
 
@@ -77,11 +95,35 @@ export default class Model extends React.Component<IClipProps, IClipState> {
     }
 
     updatePlanes = Throttler(async () => {
-        //await this.clipPlaneObject.setActivated(this.state.activated)
-    }, 100)
+        const {
+            x, y, z,
+            planeWidth, planeHeight, planeDepth,
+            latitude, longitude, tilt
+        } = this.state
+        const plane = this.clipPlaneObject
+        plane.setTransformation({
+            location: [ x, y, z ],
+            scale: [ planeWidth, planeHeight, planeDepth],
+            rotation: Geom.makeQuaternionFromLatLngTilt(
+                latitude, longitude, tilt
+            )
+        })
+    }, 50)
 
     componentWillUnmount() {
         //this.removeAllClipPlanes();
+    }
+
+    handlePlaneOrientationChange = (latitude: number,
+                                    longitude: number,
+                                    tilt: number) => {
+        this.setState({
+            latitude, longitude, tilt
+        }, this.updatePlanes)
+    }
+
+    handlePlaneLocationChange = (x: number, y: number, z: number) => {
+        this.setState({ x, y, z })
     }
 
     handleBack = async () => {
@@ -97,6 +139,8 @@ export default class Model extends React.Component<IClipProps, IClipState> {
     }
 
     render() {
+        const { latitude, longitude, tilt, x, y, z } = this.state
+
         return (<div className="webBrayns-view-panel-Clip">
             <header className="thm-bgPD thm-ele-nav">
                 <div>
@@ -109,6 +153,17 @@ export default class Model extends React.Component<IClipProps, IClipState> {
                     label="Activate slicing"
                     onChange={this.handleActivatedChange}
                     value={this.state.activated}/>
+                <hr/>
+                <h1>Plane center</h1>
+                <LocationView x={x} y={y} z={z}
+                    onChange={this.handlePlaneLocationChange}/>
+                <hr/>
+                <h1>Plane orientation</h1>
+                <OrientationView
+                    latitude={latitude}
+                    longitude={longitude}
+                    tilt={tilt}
+                    onChange={this.handlePlaneOrientationChange}/>
                 <hr/>
                 <h1>Snapshot configuration</h1>
                 <SnapshotView />
