@@ -32,7 +32,7 @@ export default class Input extends React.Component<IInputProps, {}> {
     private readonly input: React.RefObject<HTMLInputElement> = React.createRef();
 
     handleKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
-        if (evt.key === "enter") {
+        if (evt.key === "Enter") {
             evt.preventDefault();
             evt.stopPropagation();
             const { onEnterPressed, value } = this.props;
