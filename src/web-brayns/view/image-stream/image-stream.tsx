@@ -32,13 +32,13 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
     }
 
     componentDidMount() {
-        // If there's no container el we can bind the camera to,
+        // If there's no container we can bind the camera to,
         // there's no point in continuing
-        if (!this.canvas) {
-            return;
-        }
+        if (!this.canvas) return
+        const brayns = Scene.brayns
+        if (!brayns) return
 
-        Scene.renderer.canvas = this.canvas;
+        brayns.binaryListeners.add(this.handleImage)
 
         const that = this;
 
@@ -57,6 +57,16 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         });
         this.updateViewPort();
         window.onfocus = this.updateViewPort;
+    }
+
+    private handleImage = async (data: Blob) => {
+        const canvas = this.canvas;
+        if (!canvas) return
+        const ctx = canvas.getContext("2d")
+        if (!ctx) return
+
+        const img = await blobToImg(data)
+        ctx.drawImage(img, 0, 0, canvas.clientWidth, canvas.clientHeight)
     }
 
     private handleDown = (evt: IEvent) => {
@@ -129,4 +139,21 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
             </div>
         );
     }
+}
+
+
+function blobToImg(blob: Blob) {
+    const url = URL.createObjectURL(blob);
+    const img: any = new Image();
+    return new Promise<HTMLImageElement>(resolve => {
+        img.src = url;
+        // https://medium.com/dailyjs/image-loading-with-image-decode-b03652e7d2d2
+        if (img.decode) {
+            img.decode()
+                // TODO: Figure out why decode() throws DOMException
+                .then(() => resolve(img));
+        } else {
+            img.onload = () => resolve(img);
+        }
+    });
 }
