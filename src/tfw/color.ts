@@ -25,6 +25,14 @@ export default class Color {
         this.parse(codeCSS);
     }
 
+    toArrayRGB(): [number, number, number] {
+        return [this.R, this.G, this.B]
+    }
+
+    toArrayRGBA(): [number, number, number, number] {
+        return [this.R, this.G, this.B, this.A]
+    }
+
     static isValid(codeCSS: string) {
         if( typeof codeCSS !== 'string' ) return false;
         if( codeCSS.charAt(0) !== '#' ) return false;
@@ -57,7 +65,23 @@ export default class Color {
         return color.luminanceStep();
     }
 
-    static mix(color1: Color, color2: Color, alpha: number=.5) {
+    static fromArrayRGB(rgb: [number, number, number]): Color {
+        const [R, G, B] = rgb
+        return this.newRGB(R, G, B)
+    }
+
+    static fromArrayRGBA(rgba: [number, number, number, number]): Color {
+        const [R, G, B, A] = rgba
+        return this.newRGBA(R, G, B, A)
+    }
+
+    /**
+     * Mix two colors. alpha should be between 0 and 1,
+     * but there is no check on this.
+     * If alpha is 0, the resulting color is `color1`,
+     * if alpha is 1, the resulting color is `color2`.
+     */
+    static mix(color1: Color, color2: Color, alpha: number=.5): Color {
         const beta = 1 - alpha;
         return Color.newRGBA(
             alpha * color2.R + beta * color1.R,
@@ -65,6 +89,25 @@ export default class Color {
             alpha * color2.B + beta * color1.B,
             alpha * color2.A + beta * color1.A
         );
+    }
+
+    /**
+     * If `colors` has only two elements, this method is the same as `mix()`.
+     * Otherwise, it will perform a linear blending through the colors.
+     * If alpha is 0, the resulting color is `colors[0]`,
+     * If alpha is 1, the resulting color is `colors[colors.length - 1]`,
+     */
+    static ramp(colors: Color[], alpha: number=.5): Color {
+        if (colors.length === 0) return Color.newBlack()
+        if (colors.length === 1) return colors[0]
+
+        const spacesCount = colors.length - 1
+        const firstColorIndex = Math.floor(alpha * spacesCount)
+        const color1 = colors[firstColorIndex]
+        if (firstColorIndex === spacesCount) return color1
+        const color2 = colors[firstColorIndex + 1]
+        const translatedAlpha = firstColorIndex + alpha / spacesCount
+        return Color.mix(color1, color2, translatedAlpha)
     }
 
     static newBlack() {

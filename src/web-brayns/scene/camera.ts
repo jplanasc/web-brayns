@@ -120,7 +120,7 @@ export default class Camera {
     async setTarget(target: IVector, applyToBrayns: boolean = true ) {
         const direction = this.direction;
         const distance = Geom.scalarProduct(
-            Geom.vectorFromPoints(this.params.position, target),
+            Geom.makeVector(this.params.position, target),
             direction
         );
         this.params.position = Geom.addVectors(
@@ -136,7 +136,7 @@ export default class Camera {
     async getCloser(target: IVector, distanceFactor: number) {
         const direction = this.direction;
         const distance = Geom.scalarProduct(
-            Geom.vectorFromPoints(this.params.position, target),
+            Geom.makeVector(this.params.position, target),
             direction
         ) * distanceFactor;
         this.params.position = Geom.addVectors(
@@ -152,7 +152,7 @@ export default class Camera {
         // Warning! the camera's Z axis is turning its back to the target.
         return Geom.scalarProduct(
             vectorZ,
-            Geom.vectorFromPoints(
+            Geom.makeVector(
                 this.params.target,
                 this.params.position
             )

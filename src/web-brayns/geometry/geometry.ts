@@ -14,8 +14,7 @@ export default {
     scaleBounds,
     scalarProduct,
     scale,
-    translateBounds,
-    vectorFromPoints
+    translateBounds
 }
 
 
@@ -163,15 +162,6 @@ function translateBounds(bounds: IBounds, translation: IVector): IBounds {
         max: addVectors(bounds.max, translation)
     }
 }
-
-function vectorFromPoints(a: IVector, b: IVector): IVector {
-    return [
-        b[0] - a[0],
-        b[1] - a[1],
-        b[2] - a[2]
-    ];
-}
-
 
 function deg2rad(deg: number): number {
     return deg * Math.PI / 180

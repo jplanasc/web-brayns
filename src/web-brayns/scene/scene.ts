@@ -56,16 +56,16 @@ async function connect(hostName: string): Promise<BraynsService> {
     Scene.host = hostName;
     Scene.brayns = await ServiceHost.connect(hostName);
 
+    await request("set-videostream", {
+        enabled: false
+    })
+
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
     Scene.camera = new Camera({ ...cameraParams, ...camera });
     Scene.renderer.init(Scene.brayns);
     const animation = await Api.getAnimationParameters();
     State.dispatch(State.Animation.update(animation));
-
-    Scene.brayns.updateListeners.add((method: string, params: {}) => {
-        console.log("[ADMIN]", method, params)
-    })
 
     return Scene.brayns;
 }
@@ -113,9 +113,9 @@ async function clear(): Promise<boolean> {
     const rendererParams: any = await request("get-renderer-params", {});
     if (rendererParams) {
         // A bit brighter.
-        rendererParams.pixel_alpha = 1.2;
+        rendererParams.pixel_alpha = 1;
         rendererParams.shadows = 1;
-        rendererParams.soft_shadows = 0.9;
+        rendererParams.soft_shadows = 0.5;
         await request("set-renderer-params", rendererParams);
     }
 
