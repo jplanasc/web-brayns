@@ -14,7 +14,7 @@ interface IQueries {
 
 type TReadyListener = (ready: boolean) => void
 type TUpdateListener = (method: string, params: {}) => void
-type TBinaryListener = (data: any) => void
+type TBinaryListener = (data: Blob) => void
 
 export default class BraynsService {
     debug: boolean = false
@@ -44,7 +44,7 @@ export default class BraynsService {
 
             // The protocol ("rocjets") is mandatory otherwise Brayns will ignore you.
             const ws = new WebSocket(host, ["rockets"])
-            ws.binaryType = 'arraybuffer'
+            ws.binaryType = 'blob'
             ws.addEventListener('open', this.handleOpen)
             ws.addEventListener('open', handleResolve)
             ws.addEventListener('message', this.handleMessage)

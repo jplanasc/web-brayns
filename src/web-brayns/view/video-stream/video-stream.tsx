@@ -150,12 +150,12 @@ export default class VideoStream
     /**
      * Decode and display video.
      */
-    private handleWebSocketMessage = async (data: any) => {
+    private handleWebSocketMessage = async (data: Blob) => {
         const video = this.refVideo.current
         if (!video) return
 
-        //const arrayBuffer = await new Response(data).arrayBuffer();
-        const bs = new Uint8Array( data )
+        const arrayBuffer = await new Response(data).arrayBuffer();
+        const bs = new Uint8Array( arrayBuffer )
         this.bufArray.push(bs)
         this.arraySize += bs.length
 
