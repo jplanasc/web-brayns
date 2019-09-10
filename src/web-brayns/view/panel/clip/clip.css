@@ -41,4 +41,5 @@ div.webBrayns-view-panel-Clip > div {
     bottom: 0;
     width: 100%;
     padding: .5rem;
+    overflow-y: auto;
 }

@@ -23,6 +23,7 @@ div.tfw-view-input div.error {
 }
 
 div.tfw-view-input input {
+    width: 100%;
     font-size: inherit;
     font-family: inherit;
     border: none;

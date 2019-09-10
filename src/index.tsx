@@ -42,7 +42,7 @@ async function start() {
         const stream = args.stream || "image"
         const root = document.getElementById('root') as HTMLElement;
         ReactDOM.render(<Provider store={State.store}>
-                <App brayns={client} stream={stream}/>
+                <App brayns={client} stream={stream === 'video' ? 'video' : 'image'}/>
             </Provider>, root);
 
         const splash = document.getElementById('splash-screen');

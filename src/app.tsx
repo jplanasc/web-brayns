@@ -96,10 +96,6 @@ export default class App extends React.Component<IAppProps, {}> {
         }
     }
 
-    private handleResize = (width: number, height: number) => {
-        // @TODO
-    }
-
     render() {
         return (<div className="App">
             <div className="panel">
@@ -113,23 +109,19 @@ export default class App extends React.Component<IAppProps, {}> {
                 {
                     this.props.stream === 'image' &&
                     <ImageStream
+                        key="image-stream"
                         onPan={Scene.gestures.handlePan}
                         onPanStart={Scene.gestures.handlePanStart}/>
                 }
                 {
                     this.props.stream === 'video' &&
                     <VideoStream
-                        url={Scene.host}
-                        onResize={this.handleResize}/>
+                        key="video-stream"
+                        onPan={Scene.gestures.handlePan}
+                        onPanStart={Scene.gestures.handlePanStart}/>
                 }
                 <WebsocketConsole visible={this.props.showConsole}/>
             </div>
         </div>)
     }
-}
-
-
-async function loadAstrocyte(id: number): Promise<Model> {
-    const path = `/gpfs/bbp.cscs.ch/project/proj3/resources/meshes/astrocytes/GLIA_${pad(id)}.h5_decimated.off`;
-    return await Scene.loadMeshFromPath(path);
 }

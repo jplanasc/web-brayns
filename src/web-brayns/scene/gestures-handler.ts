@@ -1,7 +1,7 @@
 import Scene from './scene'
 import Models from '../models'
-import Geometry from '../geometry'
-import Debouncer from '../../tfw/debouncer'
+import Geom from '../geometry'
+import Throttler from '../../tfw/throttler'
 
 import { IVector, IQuaternion, IAxis, IScreenPoint, IPanningEvent } from '../types'
 
@@ -35,11 +35,11 @@ export default class GesturesHandler {
         this.savedTargetDistance = Scene.camera.getTargetDistance();
     }
 
-    handlePan = Debouncer((evt: IPanningEvent) => {
+    handlePan = Throttler((evt: IPanningEvent) => {
         if (evt.button === 2) this.translateCamera(evt);
         else if (evt.button === 1) this.orbitCamera(evt);
         //else this.rotateCamera(evt);
-    }, 10)
+    }, 20)
 
     /**
      * screenX and screenY are between 0 and 1.
@@ -63,11 +63,11 @@ export default class GesturesHandler {
         const y = evt.screenY - this.savedScreenPoint.screenY;
         const oldTranslation = this.savedPosition.slice() as IVector;
         const factor = Scene.camera.getTargetDistance() * 1.0;
-        const newTranslation = Geometry.addVectors(
+        const newTranslation = Geom.addVectors(
             oldTranslation,
-            Geometry.addVectors(
-                Geometry.scale(axis.x, -factor * x * evt.aspect),
-                Geometry.scale(axis.y, -factor * y),
+            Geom.addVectors(
+                Geom.scale(axis.x, -factor * x * evt.aspect),
+                Geom.scale(axis.y, -factor * y),
             )
         );
         Scene.camera.setPosition(newTranslation);
@@ -80,36 +80,21 @@ export default class GesturesHandler {
         const oldOrientation = this.savedOrientation.slice() as IQuaternion;
         const angleX = Math.PI * y;
         const angleY = -2 * Math.PI * x;
-        const quaternionX = Geometry.makeQuaternionAsAxisRotation(angleX, axis.x);
-        const quaternionY = Geometry.makeQuaternionAsAxisRotation(angleY, axis.y);
-        const quaternionXY = Geometry.multiplyQuaternions(quaternionX, quaternionY);
-        const newOrientation = Geometry.multiplyQuaternions(quaternionXY, oldOrientation);
+        const quaternionX = Geom.makeQuaternionAsAxisRotation(angleX, axis.x);
+        const quaternionY = Geom.makeQuaternionAsAxisRotation(angleY, axis.y);
+        const quaternionYX = Geom.multiplyQuaternions(quaternionY, quaternionX);
+        const newOrientation = Geom.multiplyQuaternions(quaternionYX, oldOrientation);
 
-        const positionVector = Geometry.vectorFromPoints(
+        const positionVector = Geom.makeVector(
             this.savedTarget,
             this.savedPosition
         );
-        const rotatedPositionVector = Geometry.rotateWithQuaternion(
+        const rotatedPositionVector = Geom.rotateWithQuaternion(
             positionVector,
-            quaternionXY
+            quaternionYX
         );
-        const newPosition = Geometry.addVectors(this.savedTarget, rotatedPositionVector);
+        const newPosition = Geom.addVectors(this.savedTarget, rotatedPositionVector);
 
         Scene.camera.setPositionAndOrientation(newPosition, newOrientation);
-        //Scene.camera.setPosition(newPosition);
-    }
-
-    private rotateCamera(evt: IPanningEvent) {
-        const axis = this.savedAxis;
-        const x = evt.screenX - this.savedScreenPoint.screenX;
-        const y = evt.screenY - this.savedScreenPoint.screenY;
-        const oldOrientation = this.savedOrientation.slice() as IQuaternion;
-        const angleX = 2 * Math.PI * y;
-        const angleY = -2 * Math.PI * x;
-        const quaternionX = Geometry.makeQuaternionAsAxisRotation(angleX, axis.x);
-        const quaternionY = Geometry.makeQuaternionAsAxisRotation(angleY, axis.y);
-        const quaternionXY = Geometry.multiplyQuaternions(quaternionX, quaternionY);
-        const newOrientation = Geometry.multiplyQuaternions(quaternionXY, oldOrientation);
-        Scene.camera.setOrientation(newOrientation);
     }
 }

@@ -73,6 +73,9 @@ export default class Model {
     }
 
     async getMaterialIds(): Promise<number[]> {
+        // TODO: use the circuitExplorer again.
+        return []
+
         const id = this.model.brayns.id;
         const currentMaterialIds = this.model.materialIds;
         if (Array.isArray(currentMaterialIds) && currentMaterialIds.length > 0) {

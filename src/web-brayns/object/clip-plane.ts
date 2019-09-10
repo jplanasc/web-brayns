@@ -1,6 +1,8 @@
 import Geom from '../geometry'
 import Scene from '../scene'
 import Model from '../scene/model'
+import Color from '../../tfw/color'
+
 import { IQuaternion, IVector } from '../types'
 
 export interface IClipPlaneState {
@@ -159,11 +161,23 @@ export default class ClipPlane {
         if (!model) return false;
 
         this.model = model;
-        const modelId: number = model.id;
+        await this.setColor(Color.fromArrayRGB(this.state.color))
 
-        Scene.setMaterial(modelId, 0, {
-            diffuseColor: state.color,
-            specularColor: [1, 1, 1],
+        return true;
+    }
+
+    async setColor(color: Color) {
+        const diffuseColor = color.toArrayRGB()
+        const specularColor = Color.mix(color, Color.newWhite(), 0.8).toArrayRGB()
+        this.state.color = diffuseColor
+
+        if (!this.model) return
+
+        const modelId: number = this.model.id;
+
+        await Scene.setMaterial(modelId, 0, {
+            diffuseColor: diffuseColor,
+            specularColor: specularColor,
             shadingMode: "diffuse"
             //intensity: 2,
             //emission: 0
@@ -174,7 +188,6 @@ export default class ClipPlane {
             shadingMode: "diffuse-alpha",
             opacity: 0.2
         })*/
-        return true;
     }
 
     async detach() {
