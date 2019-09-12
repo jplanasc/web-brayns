@@ -24,8 +24,7 @@ interface ITarget {
     rect: DOMRectReadOnly
 }
 
-const ResizeObserver = window.ResizeObserver ||
-class {
+const ResizeObserver = class {
     private intervalId = 0
     private targets: ITarget[] = []
 
