@@ -55,7 +55,6 @@ export default class VideoStream
 
         this.resizeWatcher = new ResizeWatcher(video, 500)
         const rect = video.getBoundingClientRect()
-        console.info("rect=", rect);
         this.handleResize(rect)
     }
 
@@ -85,8 +84,11 @@ export default class VideoStream
      * between 0 and 1.
      */
     private getScreenPoint(x: number, y: number): IScreenPoint {
-        const w = this.lastWidth
-        const h = this.lastHeight;
+        const video = this.refVideo.current
+        if (!video) return { screenX: x, screenY: y, aspect: 1 }
+        const rect = video.getBoundingClientRect()
+        const w = rect.width
+        const h = rect.height;
         return {
             screenX: x / w,
             screenY: 1 - (y / h),
@@ -168,9 +170,7 @@ export default class VideoStream
         await this.disableVideoStream()
         video.width = width
         video.height = height
-        if (width > 8 && height > 8) {
-            await Scene.setViewPort(width, height)
-        }
+        await Scene.setViewPort(width, height)
         this.createMediaSource()
         console.log("<<< handleResize(", width, ", ", height, ")")
     }
@@ -190,8 +190,6 @@ export default class VideoStream
 
         if (video.error) {
             console.error("VIDEO ERROR: ", video.error)
-            //await this.disableVideoStream()
-            //requestAnimationFrame(this.createMediaSource)
             return
         }
 
@@ -223,8 +221,7 @@ export default class VideoStream
 
         console.error("Video ERROR: ", video.error, evt)
         await this.disableVideoStream()
-        //requestAnimationFrame(this.createMediaSource)
-
+        requestAnimationFrame(this.createMediaSource)
     }
 
     render() {

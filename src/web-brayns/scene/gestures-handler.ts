@@ -46,6 +46,8 @@ export default class GesturesHandler {
      */
     private async computeCurrentTarget(screenX: number, screenY: number) {
         const hitPoint = await Scene.Api.inspect([screenX, screenY]);
+        console.info("screenX, screenY=", screenX, screenY);
+        console.info("hitPoint=", hitPoint);
         if (hitPoint.hit) {
             Scene.camera.setTarget(hitPoint.position, false);
         } else {
