@@ -133,6 +133,9 @@ async function clear(): Promise<boolean> {
 }
 
 async function setViewPort(width: number, height: number) {
+    // NEgative or null sizes make Brayns crash!
+    if (width < 8 || height < 8) return
+    
     return await request("set-application-parameters", {
         viewport: [width, height]
     });

@@ -1,27 +1,37 @@
-//type IListener = (...args: any) => void;
 
-export default class Listeners<IListener> {
-    private listeners: IListener[] = [];
+/**
+ * Listeners are function with only one argument of type TArgument.
+ * @param name [description]
+ */
+export default class Listeners<TArgument> {
+    private listeners: ((arg: TArgument) => void)[] = [];
 
     constructor(private name: string = "Listener") {}
 
-    add(listener: IListener) {
+    /**
+     * How many listeners are currently registred.
+     */
+    get length() {
+        return Listeners.length
+    }
+
+    add(listener: ((arg: TArgument) => void)) {
         this.remove( listener);
         this.listeners.push(listener);
     }
 
-    remove(listener: IListener) {
+    remove(listener: ((arg: TArgument) => void)) {
         this.listeners = this.listeners.filter( x => x !== listener);
     }
 
-    fire(...args: any) {
-        this.listeners.forEach((listener: IListener) => {
+    fire(argument: TArgument) {
+        this.listeners.forEach((listener: ((arg: TArgument) => void)) => {
             try {
-                listener(...args);
+                listener(argument);
             } catch(ex) {
                 console.error(`[${this.name}] Error in a listener!`);
-                console.error(">  ex: ", ex);
-                console.error(">  args: ", [...args]);
+                console.error(">  ex.: ", ex);
+                console.error(">  arg.: ", argument);
             }
         });
     }

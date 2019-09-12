@@ -7,6 +7,7 @@ import Gesture from '../../../tfw/gesture'
 import Button from '../../../tfw/view/button'
 import Snapshot from '../../dialog/snapshot'
 import AnimationControl from '../animation-control'
+import ImageFactory from '../../../tfw/factory/image'
 import { IEvent } from '../../../tfw/gesture/types'
 
 import "./image-stream.css"
@@ -59,13 +60,13 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         window.onfocus = this.updateViewPort;
     }
 
-    private handleImage = async (data: Blob) => {
+    private handleImage = async (data: ArrayBuffer) => {
         const canvas = this.canvas;
         if (!canvas) return
         const ctx = canvas.getContext("2d")
         if (!ctx) return
 
-        const img = await blobToImg(data)
+        const img = await ImageFactory.fromArrayBuffer(data)
         ctx.drawImage(img, 0, 0, canvas.clientWidth, canvas.clientHeight)
     }
 
@@ -139,21 +140,4 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
             </div>
         );
     }
-}
-
-
-function blobToImg(blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    const img: any = new Image();
-    return new Promise<HTMLImageElement>(resolve => {
-        img.src = url;
-        // https://medium.com/dailyjs/image-loading-with-image-decode-b03652e7d2d2
-        if (img.decode) {
-            img.decode()
-                // TODO: Figure out why decode() throws DOMException
-                .then(() => resolve(img));
-        } else {
-            img.onload = () => resolve(img);
-        }
-    });
 }

@@ -10,7 +10,6 @@ import Dialog from "./tfw/factory/dialog"
 import Theme from "./tfw/theme"
 import App from './app.container';
 import State from './web-brayns/state'
-import UrlArgs from "./tfw/url-args"
 
 import "./tfw/font/josefin.css"
 
@@ -38,11 +37,11 @@ async function start() {
         ));
 
         // Entry point for our app
-        const args = UrlArgs.parse()
-        const stream = args.stream || "image"
+        const stream = await figureOutStreamType()
+        console.info("Stream type:", stream.toUpperCase())
         const root = document.getElementById('root') as HTMLElement;
         ReactDOM.render(<Provider store={State.store}>
-                <App brayns={client} stream={stream === 'video' ? 'video' : 'image'}/>
+                <App brayns={client} stream={stream}/>
             </Provider>, root);
 
         const splash = document.getElementById('splash-screen');
@@ -58,5 +57,18 @@ async function start() {
     }
 
 }
+
+
+/**
+ * Brayns can send us data as JPEG images or as a video stream.
+ * We will try to know which type is used by the current Brayns Service.
+ */
+async function figureOutStreamType(): Promise<("image" | "video")> {
+    const result = await Scene.request("get-videostream")
+    console.info("result=", result);
+    if (!result) return "image"
+    return "video"
+}
+
 
 start();
