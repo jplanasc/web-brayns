@@ -2,6 +2,7 @@ import React from "react"
 import Scene from '../../scene'
 import Debouncer from '../../../tfw/debouncer'
 import Gesture from '../../../tfw/gesture'
+import ResizeWatcher, { IDimension } from '../../../tfw/watcher/resize'
 
 import { IScreenPoint, IPanningEvent } from '../../types'
 import { IEvent } from '../../../tfw/gesture/types'
@@ -23,11 +24,28 @@ export default class VideoStream
     private lastHeight: number = -1
     private arraySize: number = 0
     private bufArray: Uint8Array[] = []
-
+    // Used for setInterval() because we are watching on screen resize
+    // but we want to stp this watch on unmount.
+    private mediaSource: MediaSource | null = null
+    private resizeWatcher: ResizeWatcher | null = null
 
     componentDidMount() {
         const video = this.refVideo.current
         if (!video) return
+
+        /*const EVENTS = [
+            'abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'encrypted',
+            'ended', 'interruptbegin', 'interruptend', 'loadeddata', 'loadedmetadata',
+            'loadstart', 'mozaudioavailable', 'pause', 'play', 'playing', 'progress',
+            'ratechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate',
+            'volumechange', 'waiting'
+        ]
+        EVENTS.forEach((eventName: string) => {
+            video.addEventListener(
+                eventName,
+                (evt) => console.log(`Video event: ${eventName.toUpperCase()}`)
+            )
+        })*/
 
         Gesture(video).on({
             wheel: this.handleGestureWheel,
@@ -35,7 +53,10 @@ export default class VideoStream
             pan: this.handleGesturePan
         });
 
-        this.handleResize()
+        this.resizeWatcher = new ResizeWatcher(video, 500)
+        const rect = video.getBoundingClientRect()
+        console.info("rect=", rect);
+        this.handleResize(rect)
     }
 
     private handleGestureWheel = (evt: IEvent) => {
@@ -73,7 +94,7 @@ export default class VideoStream
         }
     }
 
-    private createMediaSource() {
+    private createMediaSource = () => {
         const video = this.refVideo.current
         if (!video) return
         const mediaSource = new MediaSource()
@@ -90,14 +111,25 @@ export default class VideoStream
             this.sourceBuffer = mediaSource.addSourceBuffer(MIMECODEC)
             await this.enableVideoStream()
         })
+        this.mediaSource = mediaSource
+        if (video.src) {
+            // Don't let memory leak!
+            window.URL.revokeObjectURL(video.src)
+        }
         video.src = window.URL.createObjectURL(mediaSource)
+        // The following code will work one day.
+        // But for now, Only MediaStream is implemented...
+        // And that's a pity because Google Chrome does not
+        // support createObjectURL on MediaSource any more.
+        // Septembre 12th, 2019.
+        //
+        // video.srcObject = mediaSource
     }
 
     componentWillUnmount() {
         const brayns = Scene.brayns
         if (!brayns) return
 
-        brayns.binaryListeners.add(this.handleWebSocketMessage)
         this.disableVideoStream()
     }
 
@@ -106,6 +138,9 @@ export default class VideoStream
         if (!brayns) return
 
         console.log("videostream", "ON")
+        if (this.resizeWatcher) {
+            this.resizeWatcher.subscribe(this.handleResize)
+        }
         brayns.binaryListeners.add(this.handleWebSocketMessage)
         return await Scene.request("set-videostream", { enabled: true })
     }
@@ -113,54 +148,50 @@ export default class VideoStream
     private async disableVideoStream() {
         const brayns = Scene.brayns
         if (!brayns) return
+        const video = this.refVideo.current
+        if (!video) return
 
         console.log("videostream", "OFF")
+        if (this.resizeWatcher) {
+            this.resizeWatcher.unsubscribe(this.handleResize)
+        }
         brayns.binaryListeners.remove(this.handleWebSocketMessage)
         await Scene.request("set-videostream", { enabled: false })
     }
 
-    private handleResize = () => {
-        requestAnimationFrame(this.handleResize)
-
+    private handleResize = async (dimension: IDimension) => {
         const video = this.refVideo.current
         if (!video) return
 
-        const box = video.getBoundingClientRect()
-        const { width, height } = box
-        if (width === this.lastWidth && height === this.lastHeight) return
-
-        this.lastWidth = width
-        this.lastHeight = height
-        this.updateViewport(width, height)
-    }
-
-    private updateViewport = Debouncer(async (width: number, height: number) => {
-        const video = this.refVideo.current
-        if (!video) return
-
-        console.log("updateViewport(", width, ", ", height, ")")
+        const { width, height } = dimension
+        console.log(">>> handleResize(", width, ", ", height, ")")
         await this.disableVideoStream()
         video.width = width
         video.height = height
-        console.log("Scene.setViewPort(", width, ", ", height, ")")
-        await Scene.setViewPort(width, height)
+        if (width > 8 && height > 8) {
+            await Scene.setViewPort(width, height)
+        }
         this.createMediaSource()
-    }, 300)
+        console.log("<<< handleResize(", width, ", ", height, ")")
+    }
 
     /**
      * Decode and display video.
      */
-    private handleWebSocketMessage = async (data: Blob) => {
+    private handleWebSocketMessage = async (arrayBuffer: ArrayBuffer) => {
         const video = this.refVideo.current
         if (!video) return
 
-        const arrayBuffer = await new Response(data).arrayBuffer();
+        //const arrayBuffer = await new Response(data).arrayBuffer();
         const bs = new Uint8Array( arrayBuffer )
+        //console.log("Buffering", bs.length, "bytes...")
         this.bufArray.push(bs)
         this.arraySize += bs.length
 
         if (video.error) {
             console.error("VIDEO ERROR: ", video.error)
+            //await this.disableVideoStream()
+            //requestAnimationFrame(this.createMediaSource)
             return
         }
 
@@ -169,7 +200,7 @@ export default class VideoStream
             let i = 0
             while (this.bufArray.length > 0) {
                 const b = this.bufArray.shift();
-                console.info("b=", b);
+                //console.info("Flushing", b.length, "bytes.");
                 streamBuffer.set(b, i);
                 i += b.length;
             }
@@ -179,17 +210,27 @@ export default class VideoStream
         }
 
         if (video.paused) {
-            video.play();            console.info("this.sourceBuffer=", this.sourceBuffer);
-
+            video.play();
         }
 
         video.width = video.videoWidth
         video.height = video.videoHeight
     }
 
+    handleVideoError = async (evt: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+        const video = this.refVideo.current
+        if (!video) return
+
+        console.error("Video ERROR: ", video.error, evt)
+        await this.disableVideoStream()
+        //requestAnimationFrame(this.createMediaSource)
+
+    }
+
     render() {
         return (<video
                     ref={this.refVideo}
+                    onError={this.handleVideoError}
                     autoPlay={false}
                     crossOrigin="anonymous"
                     className="webBrayns-view-VideoStream">
