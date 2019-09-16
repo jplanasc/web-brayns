@@ -109,12 +109,17 @@ export default class ClipPlane {
         const { frontPlane, backPlane } = this.computeClippingPlanes()
 
         if (this.isActivated) {
+            const planes = await Scene.Api.getClipPlanes()
+            console.info(">>> planes=", planes);
+            console.info("this.frontPlaneId, frontPlane=", this.frontPlaneId, frontPlane);
             await Scene.Api.updateClipPlane({
                 id: this.frontPlaneId, plane: frontPlane
             })
             await Scene.Api.updateClipPlane({
                 id: this.backPlaneId, plane: backPlane
             })
+            const planes2 = await Scene.Api.getClipPlanes()
+            console.info("<<< planes=", planes2);
         }
     }
 

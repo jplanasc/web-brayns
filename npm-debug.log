@@ -7,7 +7,7 @@
 6 silly lifecycle web-brayns@0.2.0~prestart: no script for prestart, continuing
 7 info lifecycle web-brayns@0.2.0~start: web-brayns@0.2.0
 8 verbose lifecycle web-brayns@0.2.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle web-brayns@0.2.0~start: PATH: /usr/share/npm/bin/node-gyp-bin:/home/petitjea/Code/github/web-brayns/node_modules/.bin:/home/petitjea/.local/bin:/home/petitjea/bin:/home/petitjea/Programs/openshift:/home/petitjea/Programs/Brayns/bin:/home/petitjea/Programs/ispc-v1.10.0-linux/bin:/home/petitjea/Code/github/spack/bin:/home/petitjea/.local/bin:/home/petitjea/bin:/home/petitjea/Programs/openshift:/home/petitjea/Programs/Brayns/bin:/home/petitjea/Programs/ispc-v1.10.0-linux/bin:/home/petitjea/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/puppetlabs/bin
+9 verbose lifecycle web-brayns@0.2.0~start: PATH: /usr/share/npm/bin/node-gyp-bin:/home/petitjea/Code/github/web-brayns/node_modules/.bin:/home/petitjea/.local/bin:/home/petitjea/Programs/openshift:/home/petitjea/Programs/Brayns/bin:/home/petitjea/Programs/ispc-v1.10.0-linux/bin:/home/petitjea/Code/github/spack/bin:/home/petitjea/.local/bin:/home/petitjea/Programs/openshift:/home/petitjea/Programs/Brayns/bin:/home/petitjea/Programs/ispc-v1.10.0-linux/bin:/home/petitjea/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/puppetlabs/bin
 10 verbose lifecycle web-brayns@0.2.0~start: CWD: /home/petitjea/Code/github/web-brayns
 11 silly lifecycle web-brayns@0.2.0~start: Args: [ '-c',
 11 silly lifecycle   'concurrently "npm run start-cgi" "npm run start-client"' ]
