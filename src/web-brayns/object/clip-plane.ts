@@ -109,17 +109,8 @@ export default class ClipPlane {
         const { frontPlane, backPlane } = this.computeClippingPlanes()
 
         if (this.isActivated) {
-            const planes = await Scene.Api.getClipPlanes()
-            console.info(">>> planes=", planes);
-            console.info("this.frontPlaneId, frontPlane=", this.frontPlaneId, frontPlane);
-            await Scene.Api.updateClipPlane({
-                id: this.frontPlaneId, plane: frontPlane
-            })
-            await Scene.Api.updateClipPlane({
-                id: this.backPlaneId, plane: backPlane
-            })
-            const planes2 = await Scene.Api.getClipPlanes()
-            console.info("<<< planes=", planes2);
+            await Scene.Api.updateClipPlane({ id: this.frontPlaneId, plane: frontPlane })
+            await Scene.Api.updateClipPlane({ id: this.backPlaneId, plane: backPlane })
         }
     }
 
@@ -136,15 +127,13 @@ export default class ClipPlane {
 
         const frontPlane = Geom.plane6to4(
             Geom.addVectors(center, Geom.scale(normal, depth * 0.5 + EPSILON)),
-            normal
+            Geom.scale(normal, -1)
         )
 
         const backPlane = Geom.plane6to4(
             Geom.addVectors(center, Geom.scale(normal, -depth * 0.5 - EPSILON)),
-            Geom.scale(normal, -1)
+            normal
         )
-
-        console.info("{ frontPlane, backPlane }=", { frontPlane, backPlane });
 
         return { frontPlane, backPlane }
     }

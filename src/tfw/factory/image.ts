@@ -21,8 +21,6 @@ function fromBlob(blob: Blob): Promise<HTMLImageElement> {
 
 
 function fromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<HTMLImageElement> {
-    console.info("arrayBuffer=", arrayBuffer);
     const blob = new Blob([arrayBuffer])
-    console.info("blob=", blob);
     return fromBlob(blob)
 }

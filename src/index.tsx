@@ -17,7 +17,17 @@ Theme.apply("default");
 
 async function start() {
     const hostName = await ServiceHost.getHostName(false);
-    const browser = await PathService.browse()
+    try {
+        await PathService.browse()
+    }
+    catch(err) {
+        console.error(err)
+        await Dialog.alert(<div>
+            <p><b>Cannot reach GPFS!</b></p>
+            <code style={{opacity: .5}}>{err.text}</code>
+        </div>)
+        location.reload()
+    }
 
     try {
         const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false);

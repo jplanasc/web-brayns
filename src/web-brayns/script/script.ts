@@ -8,7 +8,29 @@ export default { getAstrocytePath, test }
 
 async function test() {
     await Scene.clear();
-    await testAstrocytes();
+    const hippocampus = '/gpfs/bbp.cscs.ch/project/proj42/simulations/CA1.20190306/20191003/BlueConfig'
+    const model = await Scene.loadMeshFromPath({
+        path: hippocampus,
+        bounding_box: false,
+        loader_name: "Circuit viewer with meshes use-case",
+        loader_properties: {
+            "001_density": 0.01,
+            "002_random_seed": 0,
+            "010_targets": "",
+            "011_gids": "",
+            "020_report": "",
+            "023_synchronous_mode": false,
+            "040_mesh_folder": "",
+            "041_mesh_filename_pattern": "mesh_{gid}.obj",
+            "042_mesh_transformation": false,
+            "052_section_type_soma": true,
+            "053_section_type_axon": true,
+            "054_section_type_dendrite": true,
+            "055_section_type_apical_dendrite": true,
+            visible: true
+        }
+    });
+    console.info("model=", model);
 }
 
 async function testConnectionBrowser() {
@@ -61,19 +83,19 @@ async function testAstrocytes() {
         await model.applyTransfo();
     }
 
-/*
-    const clipPlane = new ClipPlane({
-        width: 32, height: 12,
-        center: [X, Y, Z],
-        orientation: Geom.makeQuaternionAsAxisRotation(
-            0 * Math.PI,
-            //Math.random() * Math.PI * 2,
-            [0,0,1]
-        )
-    })
-    await clipPlane.attach()
-    await clipPlane.setActivated(true)
-*/
+    /*
+        const clipPlane = new ClipPlane({
+            width: 32, height: 12,
+            center: [X, Y, Z],
+            orientation: Geom.makeQuaternionAsAxisRotation(
+                0 * Math.PI,
+                //Math.random() * Math.PI * 2,
+                [0,0,1]
+            )
+        })
+        await clipPlane.attach()
+        await clipPlane.setActivated(true)
+    */
     Scene.Api.setCamera({
         "current": "perspective",
         "orientation": [

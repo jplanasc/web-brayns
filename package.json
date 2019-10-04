@@ -4,16 +4,16 @@
   "private": false,
   "proxy": "http://localhost:3666/",
   "dependencies": {
-    "@types/jest": "^24.0.13",
+    "@types/jest": "^24.0.18",
     "@types/node": "^11.13.14",
     "@types/ol": "^4.6.5",
-    "@types/react": "^16.8.19",
-    "@types/react-dom": "^16.8.2",
-    "archiver": "^3.0.0",
+    "@types/react": "^16.9.5",
+    "@types/react-dom": "^16.9.1",
+    "archiver": "^3.1.1",
     "brayns": "^0.8.0",
-    "markdown-to-jsx": "^6.10.2",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4",
+    "markdown-to-jsx": "^6.10.3",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "react-redux": "^6.0.1",
     "react-scripts": "2.1.8",
     "redux": "^4.0.1",
@@ -21,7 +21,7 @@
     "request-promise-native": "^1.0.7",
     "rockets-client": "^0.3.0",
     "save-as-file": "^0.2.0",
-    "typescript": "^3.5.1"
+    "typescript": "^3.6.3"
   },
   "scripts": {
     "start": "concurrently \"npm run start-cgi\" \"npm run start-client\"",
@@ -44,8 +44,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "concurrently": "^4.1.1",
-    "gh-pages": "^2.0.1",
+    "concurrently": "^4.1.2",
+    "gh-pages": "^2.1.1",
     "react-app-rewire-yaml": "^1.1.0",
     "react-app-rewired": "^2.1.3",
     "react-dev-utils": "^8.0.0",

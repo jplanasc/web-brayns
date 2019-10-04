@@ -8,7 +8,27 @@ import { IModel, IVector, IQuaternion } from '../types'
 
 
 export default class Model {
+    private center: IVector = [0,0,0]
+
     constructor(private model: IModel) {}
+
+    /**
+     * Warning!
+     * For the client, the rotation center is defined in Object space.
+     * But for Brayns Server, it is defined in Global space.
+     */
+    get rotationCenter(): IVector {
+        return this.center
+    }
+
+    /**
+     * Warning!
+     * For the client, the rotation center is defined in Object space.
+     * But for Brayns Server, it is defined in Global space.
+     */
+    set rotationCenter(center: IVector) {
+        this.center = center
+    }
 
     /**
      * Set the location of the center.
@@ -20,6 +40,7 @@ export default class Model {
         const currentPosition = this.model.brayns.transformation.translation
         const relativeMoving = Geom.makeVector(currentPosition, nextPosition)
         const nextBounds = Geom.translateBounds(currentBounds, relativeMoving)
+        this.model.brayns.transformation.rotation_center = nextPosition
         this.model.brayns.transformation.translation = nextPosition
         this.model.brayns.bounds = nextBounds
     }
@@ -141,9 +162,13 @@ export default class Model {
      * Transformations remains local until you call this function.
      */
     async applyTransfo() {
+        const transformation = this.model.brayns.transformation
+        transformation.rotation_center = Geom.addVectors(
+            transformation.translation, this.center
+        )
         await Scene.Api.updateModel({
             id: this.model.brayns.id,
-            transformation: this.model.brayns.transformation
+            transformation
         });
     }
 
