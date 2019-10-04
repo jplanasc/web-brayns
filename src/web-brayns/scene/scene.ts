@@ -142,11 +142,13 @@ async function setViewPort(width: number, height: number) {
 }
 
 async function loadMeshFromPath(
-            path: string,
-            options: IModelOptions = {}): Promise<Model> {
+            path: string|{ path: string, [key: string]: any},
+            options: IModelOptions = {}
+        ): Promise<Model> {
+    const params = typeof path === 'string' ? { path } : path
     const result: IBraynsModel = (await Api.addModel({
         ...options.brayns,
-        path
+        ...params
     })) as IBraynsModel;
 
     const fixedOptions = await fixBoundsIfNeeded(result);

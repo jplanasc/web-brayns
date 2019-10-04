@@ -1,4 +1,3 @@
-
 /**
  * Listeners are function with only one argument of type TArgument.
  * @param name [description]

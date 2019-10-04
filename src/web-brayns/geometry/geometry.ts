@@ -83,13 +83,17 @@ function normalize(vector: IVector): IVector {
 
 /**
  * A plan can be defined by a point and a normal.
+ * The normal points to the hemi-space that must be visible.
+ *
  * This representation takes 6 floats.
  * You can also use a normal and a signed distance from the center,
  * which takes only 4 floats. This is how Brayns represent clipping planes.
  */
 function plane6to4(point: IVector, normal: IVector): [number, number, number, number] {
-  const d = scalarProduct(point, normalize(normal));
-  return [...normal, d];
+    const invNorm = scale(normal, -1)
+    const d = scalarProduct(point, normalize(invNorm))
+    const plane = [-invNorm[0], -invNorm[1], -invNorm[2], d]
+    return plane as [number, number, number, number]
 }
 
 
