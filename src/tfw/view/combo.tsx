@@ -15,7 +15,7 @@ interface IComboProps {
     keys?: string[];
     wide?: boolean;
     onChange?: (value: string) => void;
-    children: React.ReactElement<any>[];
+    children?: React.ReactElement<any>[];
 }
 
 export default class Combo extends React.Component<IComboProps, {}> {
@@ -37,7 +37,7 @@ export default class Combo extends React.Component<IComboProps, {}> {
         this.touchable = new Touchable({ onTap: this.handleClick });
     }
 
-    handleClick(event: React.MouseEvent) {
+    handleClick() {
         this.expand();
     }
 
@@ -70,7 +70,7 @@ export default class Combo extends React.Component<IComboProps, {}> {
         return { left, top, width, height };
     }
 
-    _showList(list: HTMLElement, button: HTMLElement, left: number, top: number, width: number, height: number): { screen: HTMLElement, bigList: HTMLElement } {
+    _showList(list: HTMLElement, left: number, top: number, width: number, height: number): { screen: HTMLElement, bigList: HTMLElement } {
         const screen = document.createElement("div");
         screen.className = "tfw-view-combo-screen";
         const bigList = document.createElement("div");
@@ -88,9 +88,9 @@ export default class Combo extends React.Component<IComboProps, {}> {
         return { screen, bigList };
     }
 
-    _ensureSelectionVisible() {
+    _ensureSelectionVisible(customBigList: HTMLElement | undefined = undefined) {
         let index = 0;
-        const bigList: HTMLElement | undefined = this.bigList;
+        const bigList: HTMLElement | undefined = customBigList || this.bigList;
         if (!bigList) return;
         const items = bigList.querySelectorAll("div.item");
         for (const key of this.keys) {
@@ -147,7 +147,7 @@ export default class Combo extends React.Component<IComboProps, {}> {
         if (!list || !button) return;
 
         const { left, top, width, height } = this._computeDimensions(list, button);
-        const { screen, bigList } = this._showList(list, button, left, top, width, height);
+        const { screen, bigList } = this._showList(list, left, top, width, height);
         this.selectedKey = this.props.value || "";
         window.setTimeout(() => this._ensureSelectionVisible(bigList), 10);
 
@@ -190,8 +190,8 @@ export default class Combo extends React.Component<IComboProps, {}> {
         const keys = ensureGoodKeys(p.keys, children);
         const value = castString(p.value, keys[0]);
         const classes = ["tfw-view-combo"];
-        const items = children.map(item => {
-            const key = item.key;
+        const items = children.map((item, index) => {
+            const key = item.key || `item-${index}`;
             return (<div className="item" key={key} > {item} </div>);
         });
 
@@ -256,17 +256,4 @@ function ensureGoodKeys(keys: string[] | undefined, children: React.ReactElement
     });
 
     return goodKeys;
-}
-
-
-function onTap(elem: HTMLElement, handler: () => void) {
-    const slot = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        elem.removeEventListener("mousedown", slot);
-        elem.removeEventListener("touchdown", slot);
-        handler();
-    };
-    elem.addEventListener("mousedown", slot, false);
-    elem.addEventListener("touchdown", slot, false);
 }

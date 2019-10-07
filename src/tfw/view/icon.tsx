@@ -165,7 +165,7 @@ function manageColors(attribs: { [key: string]: any }, props: IIconProps) {
         if (CLASSES.indexOf(key) === -1 && PENS.indexOf(key) === -1) return;
         if (PENS.indexOf(attribValue) !== -1 ) {
             // If we find fill="3", then we must look for property pen3.
-            const pen = props[`pen${attribValue}`];
+            const pen = getPen(attribValue, props)
             if( typeof pen === 'string' ) {
                 if( CLASSES.indexOf(pen) === -1 ) {
                     attribs[attribName] = pen;
@@ -182,6 +182,21 @@ function manageColors(attribs: { [key: string]: any }, props: IIconProps) {
 
     attribs.className = classes.join(" ").trim();
     return attribs;
+}
+
+function getPen(penIndex: string, props: IIconProps): EnumPenColor | string {
+    switch (penIndex) {
+        case "0": return props.pen0 || "#000"
+        case "1": return props.pen1 || "#fff"
+        case "2": return props.pen2 || "#f00"
+        case "3": return props.pen3 || "#0f0"
+        case "4": return props.pen4 || "#00f"
+        case "5": return props.pen5 || "#0ff"
+        case "6": return props.pen6 || "#f0f"
+        case "7": return props.pen7 || "#ff0"
+    }
+
+    return "#000"
 }
 
 function parseDef([name, arg1, arg2]: TIconDefinition) {

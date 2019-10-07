@@ -58,7 +58,7 @@ export default class List extends React.Component<IListProps, IListState> {
         onRefresh();
     }
 
-    onScroll(evt: any = null): void {
+    onScroll(): void {
         const main = this.refMain.current;
         const head = this.refHead.current;
         const body = this.refBody.current;
@@ -139,8 +139,8 @@ export default class List extends React.Component<IListProps, IListState> {
         try {
             children = this.state.items
                 .map(this.props.mapper)
-                .map(content => (
-                    <div className="item" key={content.key}
+                .map((content, index: number) => (
+                    <div className="item" key={content.key || `item-${index}`}
                         style={{
                             height: `${this.itemHeight}px`,
                             minHeight: `${this.itemHeight}px`,

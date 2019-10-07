@@ -30,10 +30,10 @@ export function fetchAssets(assets: { [key: string]: string },
             next();
         }
 
-        function onaudioloaded(audio: HTMLAudioElement, url: string) {
+        function onaudioloaded(audio: { loaded: boolean }, url: string) {
             console.log("Slot for ", url);
-            if (audio._loaded) return;
-            audio._loaded = true;
+            if (audio.loaded) return;
+            audio.loaded = true;
             console.log("Loaded: ", url);
             next();
         }
@@ -65,7 +65,7 @@ export function fetchAssets(assets: { [key: string]: string },
             else if (endsWith(url, "ogg", "wav", "mp3")) {
                 const audio = document.createElement("audio");
                 result[key] = audio;
-                const slot = onaudioloaded.bind(null, audio, url);
+                const slot = onaudioloaded.bind(null, { loaded: false }, url);
                 audio.addEventListener("canplay", slot);
                 audio.addEventListener("loadeddata", slot);
                 window.setTimeout(slot, 3000);

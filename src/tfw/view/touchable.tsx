@@ -15,7 +15,7 @@ interface ITouchableProps {
 
 export default class Touchable extends React.Component<ITouchableProps, {}> {
     readonly touchable: TouchableBehavior;
-    private ref = React.createRef();
+    private readonly ref: React.RefObject<HTMLDivElement> = React.createRef();
 
     constructor(props: ITouchableProps) {
         super(props);

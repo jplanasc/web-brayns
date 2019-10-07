@@ -59,16 +59,18 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
 /**
  * Try to connect to a Brayns service and fails if it take too long.
  */
-async function connect(hostName: string): Promise<BraynsService> {
+async function connect(client: BraynsService, hostName: string): Promise<BraynsService> {
     return new Promise(async (resolve, reject) => {
         const timeout = window.setTimeout(
             () => reject("Connection timeout!"),
             CONNECTION_TIMEOUT
-        );
-        const client = new BraynsService(hostName);
+        )
         try {
-            const isReady = await client.connect()
-            if (isReady) resolve(client)
+            const isReady = await client.connect(hostName)
+            if (isReady) {
+                window.clearTimeout(timeout)
+                resolve(client)
+            }
         }
         catch( ex ) {
             reject( ex )

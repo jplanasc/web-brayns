@@ -46,7 +46,10 @@ export default class InputImage extends React.Component<IInputImageProps, IInput
 
         reader.addEventListener("load", function() {
             const url = reader.result;
-            if( !url ) return;
+            if (!url) return;
+            if (typeof url !== 'string') {
+                throw Error("'url' should be a string, but not a " + typeof url)
+            }
             that.refresh(url).then(() => that.handleChange(canvas));
         });
         reader.readAsDataURL( file );
@@ -58,13 +61,19 @@ export default class InputImage extends React.Component<IInputImageProps, IInput
         handle(canvas.toDataURL("image/png", 1));
     }
 
-    private refresh(url: string) {
-        if( url === this.lastUrl ) return;
-        const canvas = this.refCanvas.current;
-        if( !canvas ) return;
-        const that = this;
-
+    private refresh(url: string): Promise<undefined> {
         return new Promise((resolve, reject) => {
+            if( url === this.lastUrl ) {
+                resolve()
+                return
+            }
+            const canvas = this.refCanvas.current
+            if( !canvas ) {
+                reject()
+                return
+            }
+            const that = this;
+
             const img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = () => {
@@ -91,6 +100,15 @@ export default class InputImage extends React.Component<IInputImageProps, IInput
 
     componentDidUpdate() {
         this.refresh(castString(this.props.value, ""));
+    }
+
+    handleSizeChange = (size: string) => {
+        switch (size) {
+            case "cover":
+            case "contain":
+            case "fill":
+                this.setState({ size })
+        }
     }
 
     render() {
@@ -133,7 +151,7 @@ export default class InputImage extends React.Component<IInputImageProps, IInput
                     wide={true}
                     flat={true}/>
                 <Combo value={this.state.size}
-                    onChange={size => this.setState({ size })}>{
+                    onChange={this.handleSizeChange}>{
                     ["fill", "cover", "contain"].map( label => (
                         <div key={label} className="tfw-view-InputImage-item">
                             <div className={`icon ${label}`}></div>

@@ -16,6 +16,6 @@ export default {
         // a.click() has completed, atleast on EdgeHTML 15.15048
         setTimeout(function() {
             window.URL.revokeObjectURL(url);
-        }, 1000);
+        }, 5000);
     }
 }

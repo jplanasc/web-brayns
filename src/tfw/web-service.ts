@@ -21,7 +21,8 @@ export default {
      * @param {string} root - URL of another webserver.
      * @return {WebService} an instance of a WebService bound to another webserver.
      */
-    create
+    create,
+    setRoot
 };
 
 export enum EnumWebServiceError {
@@ -74,6 +75,10 @@ class WebService {
         if (this.root.charAt(this.root.length - 1) !== '/') {
             this.root += "/";
         }
+    }
+
+    setRoot(root: string) {
+        this.root = root
     }
 
     getAbsoluteUrl(url: string): string {
@@ -155,6 +160,10 @@ function hash(code: number[], pwd: string): number[] {
 //------------------
 
 const gInstance = new WebService();
+
+function setRoot(root: string) {
+        gInstance.setRoot(root)
+}
 
 async function exec(name: string, args: any = null): Promise<any> {
     return await gInstance.exec(name, args);

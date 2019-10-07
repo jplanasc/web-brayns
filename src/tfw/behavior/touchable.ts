@@ -20,6 +20,7 @@ interface IRect {
 }
 
 export default class Touchable {
+    private removeTouchDisk: (() => void) | undefined = undefined
     _element: HTMLElement | undefined;
     _enabled: boolean = true;
     color: string = "#000";
@@ -61,8 +62,14 @@ export default class Touchable {
                 }
             },
 
-            down(evt) {
+            down() {
                 if (!that.enabled) return;
+            },
+
+            up() {
+                if (!that.removeTouchDisk) return;
+                that.removeTouchDisk();
+                delete that.removeTouchDisk;
             },
 
             tap(evt) {

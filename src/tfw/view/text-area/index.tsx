@@ -8,8 +8,8 @@ import Label from "../label"
 
 import "./text-area.css"
 
-import Intl from "../../intl"
-const _ = Intl.make(require("./text-area.yaml"));
+//import Intl from "../../intl"
+//const _ = Intl.make(require("./text-area.yaml"));
 
 interface IStringSlot {
     (value: string): void;
@@ -21,9 +21,10 @@ interface ITextAreaProps {
     label?: string;
     value?: string;
     wide?: boolean;
-    delay?: number;
     width?: string;
-    onChange?: IStringSlot
+    onChange: IStringSlot,
+    onFocus: () => void,
+    onBlur: () => void
 }
 
 export default class TextArea extends React.Component<ITextAreaProps, {}> {
@@ -42,29 +43,34 @@ export default class TextArea extends React.Component<ITextAreaProps, {}> {
         this.fireChange = Debouncer(this.fireChange.bind(this), 500);
     }
 
-    onFocus(event: React.FocusEvent<HTMLTextAreaElement>): void {
+    onFocus(): void {
         const input = this.input ? this.input.current : null;
         if (!input) return;
         if (!input.classList) return;
         input.classList.remove("thm-bg3");
         input.classList.add("thm-bgSL");
+
+        const onFocus = this.props.onFocus
+        if (typeof onFocus === 'function') {
+            onFocus()
+        }
     }
 
-    onBlur(event: React.FocusEvent<HTMLTextAreaElement>): void {
+    onBlur(): void {
         const input = this.input ? this.input.current : null;
         if (!input) return;
         if (!input.classList) return;
         input.classList.add("thm-bg3");
         input.classList.remove("thm-bgSL");
+
+        const onBlur = this.props.onBlur
+        if (typeof onBlur === 'function') {
+            onBlur()
+        }
     }
 
     onChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
-        const
-            p = this.props,
-            delay = castInteger(p.delay, 500);
-
         event.preventDefault();
-        this.fireChange.delay = delay;
         this.fireChange(event.target.value);
     }
 

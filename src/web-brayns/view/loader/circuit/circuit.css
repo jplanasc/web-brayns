@@ -1,0 +1,10 @@
+div.webBrayns-view-loader-Circuit {}
+
+div.webBrayns-view-loader-Circuit > div,
+div.webBrayns-view-loader-Circuit > footer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}

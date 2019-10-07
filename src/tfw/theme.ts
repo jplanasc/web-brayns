@@ -152,28 +152,29 @@ function codeText(themeName: string, style: IStyle) {
 }
 
 const ALPHA_HEXA = "123456789ABCDE";
+
 function codeVariables(themeName: string, style: IStyle) {
     let codeCSS = "body.dom-theme-" + themeName + '{\n';
     THEME_COLOR_NAMES.forEach(function(colorName) {
         const s = style[`bg${colorName}`] as string;
         codeCSS += `  --thm-bg${colorName}: ${s};\n`;
         for (const a of ALPHA_HEXA) {
-            codeCSS += `  --thm-bg${colorName}-${a}: ${s}${a}${a};\n`;
+            codeCSS += `  --thm-bg${colorName}-${a}: ${addAlpha(s, a)};\n`;
         }
         COLOR.parse(s);
-        const pen = COLOR.luminanceStep() ? style.black : style.white;
+        const pen = COLOR.luminanceStep() ? style.black || '#000' : style.white || '#fff';
         codeCSS += `  --thm-fg${colorName}: ${pen};\n`;
         for (const a of ALPHA_HEXA) {
-            codeCSS += `  --thm-fg${colorName}-${a}: ${pen}${a}${a};\n`;
+            codeCSS += `  --thm-fg${colorName}-${a}: ${addAlpha(pen, a)};\n`;
         }
     });
-    style.white = normalize(style.white);
-    style.black = normalize(style.black);
+    style.white = normalize(style.white || '#fff');
+    style.black = normalize(style.black || '#000');
     codeCSS += `  --thm-white: ${style.white};\n`;
     codeCSS += `  --thm-black: ${style.black};\n`;
     for (const letter of ALPHA_HEXA) {
-        codeCSS += `  --thm-white-${letter}: ${style.white}${letter}${letter};\n`;
-        codeCSS += `  --thm-black-${letter}: ${style.black}${letter}${letter};\n`;
+        codeCSS += `  --thm-white-${letter}: ${addAlpha(style.white, letter)};\n`;
+        codeCSS += `  --thm-black-${letter}: ${addAlpha(style.black, letter)};\n`;
     }
     codeCSS += "}\n";
     return codeCSS;
@@ -232,8 +233,8 @@ function codeElevation(themeName: string, style: IStyle) {
     COLOR.parse(style.bg2);
     const luminance = COLOR.luminance();
     var elevationColor = luminance < .6
-        ? addAlpha(style.white, 4)
-        : addAlpha(style.black, 6);
+        ? addAlpha(style.white || '#fff', '4')
+        : addAlpha(style.black || '#000', '6');
     var codeCSS = '';
     const elevationKeys = Object.keys(ELEVATIONS);
     elevationKeys.forEach(function(elevationKey) {

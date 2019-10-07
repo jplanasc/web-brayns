@@ -8,13 +8,15 @@ export default { getAstrocytePath, test }
 
 async function test() {
     await Scene.clear();
+
+    /*
     const hippocampus = '/gpfs/bbp.cscs.ch/project/proj42/simulations/CA1.20190306/20191003/BlueConfig'
-    const model = await Scene.loadMeshFromPath({
+    const query = Scene.brayns.execAsync("add-model", {
         path: hippocampus,
         bounding_box: false,
         loader_name: "Circuit viewer with meshes use-case",
         loader_properties: {
-            "001_density": 0.01,
+            "001_density": 0.001,
             "002_random_seed": 0,
             "010_targets": "",
             "011_gids": "",
@@ -29,8 +31,22 @@ async function test() {
             "055_section_type_apical_dendrite": true,
             visible: true
         }
-    });
-    console.info("model=", model);
+    })
+    query.progress.add(arg => {
+        console.info(arg.label, ` ${(100 * arg.progress).toFixed(2)} %`);
+    })
+    const id = window.setTimeout(() => {
+        console.warn("Cancel!")
+        query.cancel()
+    }, 2000)
+    console.info("id=", id);
+    try {
+        const result = await query.promise
+        console.info("result=", result);
+    }
+    catch(err) {
+        console.error("PB: ", err)
+    }*/
 }
 
 async function testConnectionBrowser() {
