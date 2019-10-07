@@ -31,3 +31,9 @@ div.tfw-view-input input {
     line-height: 2rem;
     transition: all .2s;
 }
+
+div.tfw-view-input.invalid input {
+    text-decoration-style: wavy;
+    text-decoration-color: red;
+    text-decoration-color: var(--thm-bgSD);
+}

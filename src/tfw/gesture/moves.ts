@@ -7,9 +7,9 @@ const CAPACITY = 3;
  * @type {[type]}
  */
 export default class Moves {
-    private _x0: number;
-    private _y0: number;
-    private _time0: number;
+    private _x0: number = 0;
+    private _y0: number = 0;
+    private _time0: number = 0;
     private _x: number[] = new Array(CAPACITY);
     private _y: number[] = new Array(CAPACITY);
     private _time: number[] = new Array(CAPACITY);

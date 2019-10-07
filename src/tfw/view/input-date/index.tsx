@@ -1,12 +1,12 @@
 import * as React from "react"
 import "../theme.css"
 import "./input-date.css"
-import castInteger from "../converter/integer"
-import castBoolean from "../converter/boolean"
-import castString from "../converter/string"
-import Debouncer from "../debouncer"
+import castInteger from "../../converter/integer"
+import castBoolean from "../../converter/boolean"
+import castString from "../../converter/string"
+import Debouncer from "../../debouncer"
 
-import Intl from "../intl"
+import Intl from "../../intl"
 const _ = Intl.make(require("./input-date.yaml"));
 
 interface INumberSlot {
@@ -41,11 +41,17 @@ export default class Input extends React.Component<IInputProps, IInputState> {
 
     handleChange(): void {
         try {
-            const day = parseInt(this.inputDay.current.value);
+            const inputDay = this.inputDay.current
+            if (!inputDay) throw "Element inputDay has disappeared!"
+            const inputMonth = this.inputMonth.current
+            if (!inputMonth) throw "Element inputMonth has disappeared!"
+            const inputYear = this.inputYear.current
+            if (!inputYear) throw "Element inputYear has disappeared!"
+            const day = parseInt(inputDay.value);
             if (isNaN(day)) throw "day is not a number!";
-            const month = parseInt(this.inputMonth.current.value);
+            const month = parseInt(inputMonth.value);
             if (isNaN(month)) throw "month is not a number!";
-            const year = parseInt(this.inputYear.current.value);
+            const year = parseInt(inputYear.value);
             if (isNaN(year)) throw "year is not a number!";
 
             const date = new Date(year, month, day);
@@ -83,16 +89,16 @@ export default class Input extends React.Component<IInputProps, IInputState> {
                     ref={this.inputDay}
                     className="day"
                     type="number"
-                    maxLength="2"
+                    maxLength={2}
                     min="1"
                     max="31"
                     id={id}
-                    size="2"
+                    size={2}
                     onChange={this.handleChange}
-                    defaultValue={date.getDate()} />
+                    defaultValue={`${date.getDate()}`} />
                 <select ref={this.inputMonth}
                     onChange={this.handleChange}
-                    defaultValue={date.getMonth()}>{
+                    defaultValue={`${date.getMonth()}`}>{
                         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(monthId => (
                             <option key={monthId} value={monthId}>{_(`month-${monthId}`)}</option>
                         ))
@@ -101,10 +107,10 @@ export default class Input extends React.Component<IInputProps, IInputState> {
                     ref={this.inputYear}
                     className="year"
                     type="number"
-                    maxLength="4"
-                    size="4"
+                    maxLength={4}
+                    size={4}
                     onChange={this.handleChange}
-                    defaultValue={date.getFullYear()} />
+                    defaultValue={`${date.getFullYear()}`} />
             </div>
         </div>);
     }
@@ -115,6 +121,3 @@ let globalId = 0;
 function nextId() {
     return `tfw-view-input-${globalId++}`;
 }
-
-
-const NUMBER_VALIDATOR = (value: string) => isNaN(parseFloat(value)) ? _('nan') : true;

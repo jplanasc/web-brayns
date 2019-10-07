@@ -20,11 +20,8 @@ interface IInputPathState {
 export default class  extends React.Component<IInputPathProps, IInputPathState> {
     constructor( props: IInputPathProps ) {
         super( props );
-        this.state = { path: '' }
-
-        this.handleChange(
-            Storage.get("path", '/gpfs/bbp.cscs.ch/project/proj3/resources/meshes/astrocytes/GLIA_000099.h5_decimated.off')
-        )
+        this.state = { path: Storage.get("path", '') }
+        this.handleChange(this.state.path)
     }
 
     handleChange = (path: string) => {

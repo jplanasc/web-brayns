@@ -2,31 +2,39 @@
  * There is only one scene in Brayns.
  */
 //import { Client as BraynsClient } from "brayns"
+import React from "react"
 
 import Api from "./api"
 import { IBraynsModel, IModel, IModelOptions, IMaterial } from '../types'
 import Python from '../service/python'
 import State from '../state'
+import Dialog from '../../tfw/factory/dialog'
+import Wait from '../view/wait'
 import ServiceHost from '../service/host'
 import Model from './model'
 import Camera from './camera'
 import Renderer from './renderer'
+import Loader from './loader'
+import LoaderService from '../service/loader'
+
 import GesturesHandler from './gestures-handler'
 import BraynsService from '../service/brayns'
 
 // Brayns' client.
 const Scene: {
-    brayns: (BraynsService | null),
+    brayns: BraynsService,
     camera: (Camera | null),
     host: string,
     renderer: Renderer,
-    gestures: GesturesHandler
+    gestures: GesturesHandler,
+    loader: Loader
 } = {
-    brayns: null,
+    brayns: new BraynsService(),
     camera: null,
     host: '',
     renderer: new Renderer(),
-    gestures: new GesturesHandler()
+    gestures: new GesturesHandler(),
+    loader: new Loader()
 }
 
 const defaultObjectToExport = {
@@ -41,7 +49,8 @@ const defaultObjectToExport = {
     get camera(): Camera { return Scene.camera || new Camera({}) },
     get host() { return Scene.host },
     get renderer(): Renderer { return Scene.renderer },
-    get gestures(): GesturesHandler { return Scene.gestures }
+    get gestures(): GesturesHandler { return Scene.gestures },
+    get loader() { return Scene.loader }
  }
 
  export default defaultObjectToExport;
@@ -52,13 +61,16 @@ const defaultObjectToExport = {
 async function connect(hostName: string): Promise<BraynsService> {
     /*const bs = new BraynsService(hostName);
     const isConnected = await bs.connect()*/
-
+    console.info("hostName=", hostName);
     Scene.host = hostName;
-    Scene.brayns = await ServiceHost.connect(hostName);
+    await ServiceHost.connect(Scene.brayns, hostName);
 
-    await request("set-videostream", {
-        enabled: false
-    })
+    const loadersDefinition = await request("get-loaders")
+    if (Array.isArray(loadersDefinition)) {
+        Scene.loader.init(loadersDefinition)
+    }
+    const videostreamAvailable = await isVideoStreamingAvailable()
+    console.info("videostreamAvailable=", videostreamAvailable);
 
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
@@ -68,6 +80,16 @@ async function connect(hostName: string): Promise<BraynsService> {
     State.dispatch(State.Animation.update(animation));
 
     return Scene.brayns;
+}
+
+async function isVideoStreamingAvailable(): Promise<boolean> {
+    try {
+        await request("set-videostream", { enabled: false })
+        return true
+    }
+    catch(err) {
+        return false
+    }
 }
 
 async function request(method: string, params: {} = {}) {
@@ -83,9 +105,12 @@ async function request(method: string, params: {} = {}) {
                 resolve(output)
             },
             (error: any) => {
-                console.error("Brayns request error!", error);
+                /*
+                console.error("Brayns request error!");
                 console.error("   >>> method =", method);
                 console.error("   >>> params =", params);
+                console.error("   >>> error  =", error);
+                */
                 reject(error)
             });
         }
@@ -141,17 +166,27 @@ async function setViewPort(width: number, height: number) {
     });
 }
 
-async function loadMeshFromPath(
-            path: string|{ path: string, [key: string]: any},
-            options: IModelOptions = {}
-        ): Promise<Model> {
-    const params = typeof path === 'string' ? { path } : path
-    const result: IBraynsModel = (await Api.addModel({
-        ...options.brayns,
-        ...params
-    })) as IBraynsModel;
-
-    const fixedOptions = await fixBoundsIfNeeded(result);
+async function loadMeshFromPath(path: string): Promise<Model|null> {
+    console.log("AAA")
+    const params = await LoaderService.getLoaderParams(path)
+    console.info("params=", params);
+    const query = Scene.brayns.execAsync("add-model", params)
+    const wait = <Wait label="Loading..." progress={0} onCancel={() => {
+        query.cancel()
+        dialog.hide()
+    }}/>
+    const dialog = Dialog.show({ content: wait, footer: null })
+    query.progress.add(args => {
+        //console.info("args=", args);
+    })
+    const result = await query.promise
+    dialog.hide()
+    console.info("result=", result);
+    if (!result || result.state !== 'ok') {
+        console.error(result)
+        return null
+    }
+    const fixedOptions = await fixBoundsIfNeeded(result.message);
 
     const model: IModel = {
         brayns: {

@@ -24,6 +24,7 @@ interface IInputProps {
     | "search" | "tel" | "time" | "url" | "week";
     validator?: (value: string) => boolean | RegExp;
     onValidation?: (validation: boolean) => void;
+    valid?: boolean,
     onChange?: IStringSlot,
     onEnterPressed?: (value: string) => void
 }
@@ -78,14 +79,16 @@ export default class Input extends React.Component<IInputProps, {}> {
             label = castString(p.label, ""),
             value = castString(p.value, ""),
             placeholder = castString(p.placeholder, ""),
+            valid = castBoolean(p.valid, true),
             wide = castBoolean(p.wide, false),
             focus = castBoolean(p.focus, false),
             enabled = castBoolean(p.enabled, true),
             size = Math.max(1, castInteger(p.size, 8)),
             width = castUnit(p.width, "auto"),
             id = nextId();
-        const classes = ["tfw-view-input"];
-        if (wide) classes.push("wide");
+        const classes = ["tfw-view-input"]
+        if (wide) classes.push("wide")
+        if (!valid) classes.push("invalid")
         /*
         const header = (error ? <div className="error">{error}</div> :
             (label ? (<Label htmlFor={id} label={label}/>) : null));

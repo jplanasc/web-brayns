@@ -8,8 +8,13 @@ export interface IEvent extends IBasicEvent {
     y: number;
 }
 
-export interface IWheelEvent extends IEvent {
-    delatX: number,
+export interface IWheelEvent {
+    preventDefault?: () => void;
+    stopPropagation?: () => void;
+    target: EventTarget | null;
+    x: number,
+    y: number,
+    deltaX: number,
     deltaY: number,
     deltaZ: number
 }

@@ -31,8 +31,16 @@ export default class InputFile extends React.Component<IInputFileProps, {}> {
         return new Promise((resolve, reject) => {
             const reader: FileReader = new FileReader();
             reader.onload = (data) => {
+                if (!data || !data.target) {
+                    resolve("")
+                    return
+                }
                 const content = data.target.result;
-                resolve(content);
+                if (typeof content === 'string') {
+                    resolve(content);
+                } else {
+                    resolve("")
+                }
             };
             reader.onerror = (err) => {
                 reject(err);

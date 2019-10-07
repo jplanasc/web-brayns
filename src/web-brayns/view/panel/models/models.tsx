@@ -17,7 +17,7 @@ export default class Model extends React.Component<{}, {}> {
     handleLoadMesh = async () => {
         let path = '';
         const confirmed = await Dialog.confirm(
-            "Load Mesh",
+            "Load Model",
             <InputPath onChange={(p: string) => path = p}/>);
         if (!confirmed) return;
         await Scene.loadMeshFromPath(path);

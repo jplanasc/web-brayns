@@ -30,10 +30,11 @@ async function start() {
     }
 
     try {
-        const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false);
-        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false);
-        const planes = await Scene.Api.getClipPlanes();
-        const planeIds = planes.map( p => p.id );
+        const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
+        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
+        const planes = await Scene.Api.getClipPlanes()
+        const notNullplanes: {id: number, plane: [number,number,number,number]}[] = planes.filter( p => p !== null )
+        const planeIds = notNullplanes.map( p => p.id )
         Scene.Api.removeClipPlanes(planeIds);
 
         State.dispatch(State.Models.reset(
@@ -74,10 +75,15 @@ async function start() {
  * We will try to know which type is used by the current Brayns Service.
  */
 async function figureOutStreamType(): Promise<("image" | "video")> {
-    const result = await Scene.request("get-videostream")
-    console.info("result=", result);
-    if (!result) return "image"
-    return "video"
+    try {
+        const result = await Scene.request("get-videostream")
+        console.info("result=", result);
+        if (!result) return "image"
+        return "video"
+    }
+    catch(err) {
+        return "image"
+    }
 }
 
 

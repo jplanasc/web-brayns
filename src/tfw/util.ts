@@ -13,6 +13,20 @@ export default {
         return value;
     },
 
+    loadTextFromFile(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader: FileReader = new FileReader();
+            reader.onload = (data) => {
+                const content = `${data.target.result}`;
+                resolve(content);
+            };
+            reader.onerror = (err) => {
+                reject(err);
+            };
+            reader.readAsText(file);
+        })
+    },
+
     loadTextFromURL(url: string): Promise<string> {
         return new Promise((resolve, reject) => {
             fetch(url)

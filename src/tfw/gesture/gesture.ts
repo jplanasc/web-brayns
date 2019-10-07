@@ -35,7 +35,7 @@ type THandlers = {
     swipeleft?: (event: IEvent) => void;
     keydown?: (event: KeyboardEvent) => void;
     keyup?: (event: KeyboardEvent) => void;
-    wheel?: (event: IWheelEvent) => void;
+    wheel?: (event: WheelEvent) => void;
     [key: string]: ((evt: any) => void) | undefined;
 };
 
@@ -52,8 +52,6 @@ interface IPointer {
     time?: number;
     id?: number;
 }
-
-const STANDARD_EVENTS = ["keydown", "keyup", "wheel"];
 
 class Gesture {
     //private readonly basicHandler: BasicHandler;
@@ -80,15 +78,13 @@ class Gesture {
     get identifier() { return this.id; }
 
     on(handlers: THandlers) {
-        this.handlers = wrapSpecialHandlers(Object.assign(this.handlers, handlers));
-        Object.keys(this.handlers).forEach(eventName => {
-            if (STANDARD_EVENTS.indexOf(eventName) === -1) return;
-            // This is a non-pointer event. (i.e., keyboard, resize, ...)
-            const handler = this.handlers[eventName];
-            if (typeof handler === 'function' ) {
-                this.element.addEventListener(eventName, handler, false);
-            }
-        });
+        if (handlers.wheel)
+            this.element.addEventListener("wheel", handlers.wheel)
+        if (handlers.keyup)
+            this.element.addEventListener("keyup", handlers.keyup)
+        if (handlers.keydown)
+            this.element.addEventListener("keydown", handlers.keydown)
+        this.handlers = { ...this.handlers, ...handlers }
     }
 
     /**
@@ -317,29 +313,4 @@ export default function(elem: IHTMLElementWithGesture): Gesture {
     gesture = new Gesture(elem);
     elem[SYMBOL] = gesture;
     return gesture;
-}
-
-
-/**
- * Somw event (like "wheel") need their handler to be wrapped in order to
- * map the event is something else.
- */
-function wrapSpecialHandlers(rawHandlers: THandlers): THandlers {
-    const handlers: THandlers = {};
-    for( const eventName of Object.keys(rawHandlers) ) {
-        if (eventName === 'wheel') {
-            handlers.wheel = (evt: WheelEvent) => {
-                rawHandlers.wheel({
-                    deltaX: evt.deltaX,
-                    deltaY: evt.deltaY,
-                    deltaZ: evt.deltaZ,
-                    x: 0,
-                    y: 0
-                });
-            }
-            continue;
-        }
-        handlers[eventName] = rawHandlers[eventName];
-    }
-    return handlers;
 }

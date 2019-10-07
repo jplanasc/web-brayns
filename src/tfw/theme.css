@@ -31,6 +31,7 @@ hr {
     border: none;
     height: 1px;
     background-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .5) 50%, transparent);
+    background-image: linear-gradient(to right, transparent, var(--thm-fg0-7) 50%, transparent);
 }
 
 button {
