@@ -1,6 +1,7 @@
 import React from "react"
 
 import { IModel } from '../../types'
+import Dialog from '../../../tfw/factory/dialog'
 import Button from '../../../tfw/view/button'
 import Scene from '../../scene'
 import State from '../../state'
@@ -47,6 +48,14 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
         await Scene.camera.lookAtBounds(model.brayns.bounds);
     }
 
+    handleRemove = async () => {
+        const model = new Model(this.props.model)
+        await Dialog.wait(
+            "Removing model...",
+            model.remove()
+        )
+    }
+
     render() {
         const { model } = this.props;
         const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
@@ -76,7 +85,9 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
                         <Button small={true} icon="hide" onClick={this.handleHide}/> :
                         <Button small={true} icon="show" onClick={this.handleShow}/>
                     }
-                    <Button enabled={false} small={true} icon="delete" warning={true}/>
+                    <Button enabled={true} small={true}
+                            icon="delete" warning={true}
+                            onClick={this.handleRemove}/>
                 </div>
             </Touchable>)
     }

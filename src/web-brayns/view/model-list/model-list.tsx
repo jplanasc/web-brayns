@@ -2,6 +2,7 @@ import React from "react"
 
 import { IModel, IBounds } from '../../types'
 import ModelButton from '../model-button'
+import Button from '../../../tfw/view/button'
 import List from '../../../tfw/view/list'
 import Input from '../../../tfw/view/input'
 import Combo from '../../../tfw/view/combo'
@@ -12,7 +13,8 @@ import Debouncer from '../../../tfw/debouncer'
 import "./model-list.css"
 
 interface IModelListProps {
-    models: IModel[]
+    models: IModel[],
+    onLoad: () => void
 }
 
 interface IModelListState {
@@ -64,8 +66,21 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
             .sort(this.state.sort === 'name' ? sortByName : sortByVolume);
     }
 
+    renderEmptyList() {
+        return (
+            <div className="webBrayns-view-ModelList">
+                <div className="centered">
+                    <p>Please load a model</p>
+                    <Button icon="import" onClick={this.props.onLoad}/>
+                </div>
+            </div>
+        )
+    }
+
     render() {
         const models = this.props.models;
+        if (models.length === 0) return this.renderEmptyList()
+
         const filteredModels = this.filter();
         const mapper = (model: IModel) =>
             <ModelButton
@@ -74,20 +89,23 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
                 model={model}/>;
 
         return (<div className="webBrayns-view-ModelList">
-            <header>
-                <Input
-                    label={`Filter by name (${filteredModels.length} / ${models.length})`}
-                    value={this.state.filterInput}
-                    onChange={this.handleFilterInputChange}
-                    wide={true}/>
-                <Combo
-                    label="Sorting"
-                    value={this.state.sort}
-                    onChange={this.handleSortChange}>
-                    <div key="name">Name</div>
-                    <div key="volume">Volume</div>
-                </Combo>
-            </header>
+            {
+                models.length > 9 &&
+                <header>
+                    <Input
+                            label={`Filter by name (${filteredModels.length} / ${models.length})`}
+                            value={this.state.filterInput}
+                            onChange={this.handleFilterInputChange}
+                            wide={true}/>
+                    <Combo
+                            label="Sorting"
+                            value={this.state.sort}
+                            onChange={this.handleSortChange}>
+                        <div key="name">Name</div>
+                        <div key="volume">Volume</div>
+                    </Combo>
+                </header>
+            }
             <List itemHeight={100}
                   items={filteredModels}
                   width="100%"

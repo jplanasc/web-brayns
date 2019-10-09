@@ -38,3 +38,8 @@ div.webBrayns-view-Panel > div {
     bottom: 0;
     width: 100%;
 }
+
+div.webBrayns-view-Panel .faded {
+    opacity: .5;
+    font-size: 80%;
+}
