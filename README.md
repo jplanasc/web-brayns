@@ -6,6 +6,7 @@ This is the easiest way to start web-brayns.
 
 ```
 mount_gpfs
+docker pull tolokoban/web-brayns:latest
 docker run --rm -ti -p 8666:80 -v /gpfs:/gpfs tolokoban/web-brayns:latest
 firefox 'http://localhost:8666/?host=128.178.97.23:5000'
 ```
