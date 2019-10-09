@@ -84,6 +84,9 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
 
         Storage.set("view/loader/circuit/state", { density, soma, axon, dendrite, apicalDendrite, morphoSDF })
 
+        // When showing only soma, we will have a bigger radius.
+        const radiusMultiplier = axon || dendrite || apicalDendrite ? 1 : 8
+
         const params = {
             path,
             bounding_box: false,
@@ -91,7 +94,7 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
             visible: true,
             loader_properties: {
                 "000_db_connection_string": "",
-                "001_density": parseFloat(density),
+                "001_density": parseFloat(density) / 100,
                 "002_random_seed": 0,
                 "010_targets": targets,
                 "011_gids": "",
@@ -103,7 +106,7 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
                 "040_mesh_folder": "",
                 "041_mesh_filename_pattern": "mesh_{gid}.obj",
                 "042_mesh_transformation": false,
-                "050_radius_multiplier": 1,
+                "050_radius_multiplier": radiusMultiplier,
                 "051_radius_correction": 0,
                 "052_section_type_soma": soma,
                 "053_section_type_axon": axon,
@@ -129,6 +132,12 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
         onOK(params)
     }
 
+    handleReportChange = (report: string) => {
+        this.setState({ report })
+        if (this.targetsMap.has(report)) return
+        this.setState({ targets: this.targetsMap.get("report") || "" })
+    }
+
     render() {
         const { path, onCancel } = this.props
         const { density, densityValid, report, reports, targets } = this.state
@@ -147,7 +156,7 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
                     onChange={density => this.setState({ density })}/>
                 <Combo label="Report"
                     value={report}
-                    onChange={report => this.setState({ report })}>{
+                    onChange={this.handleReportChange}>{
                     reports.map((name: string) => {
                         if (name.length === 0) {
                             return <div key=""><em>Don't load any simulation</em></div>

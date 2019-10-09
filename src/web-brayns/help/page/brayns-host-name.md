@@ -21,11 +21,8 @@ This will give you the hostname (near to the last output line). It looks somethi
 Now, you must start a Brayns service on a port of your choice (choose __5000__ if you don't know what to pick up):
 ```bash
 module purge
-module load nix/viz/circuit-explorer/latest
-module load viz/latest brayns/latest
-braynsService --http-server :5000 \
-              --plugin braynsCircuitExplorer \
-              --module braynsCircuitExplorer
+module load brayns/1.0.1/serial
+braynsService --http-server :5000 --plugin braynsCircuitExplorer
 ```
 
 In the example above, the host name you need is:

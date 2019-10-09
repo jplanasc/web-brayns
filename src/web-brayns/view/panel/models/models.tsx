@@ -6,6 +6,7 @@ import Dialog from '../../../../tfw/factory/dialog'
 import Icon from '../../../../tfw/view/icon'
 import InputPath from '../../../view/input-path'
 import ModelList from '../../../view/model-list/container'
+import Package from '../../../../../package.json'
 
 import "../panel.css"
 
@@ -26,7 +27,7 @@ export default class Model extends React.Component<{}, {}> {
     }
 
     handleMovie = () => {
-        
+
     }
 
     toggleConsoleVisibility = async () => {
@@ -36,8 +37,8 @@ export default class Model extends React.Component<{}, {}> {
     render() {
         return (<div className="webBrayns-view-Panel">
             <header className="thm-bgPD thm-ele-nav">
-                <p>Web-Brayns</p>
-                <div>
+                <p>Web-Brayns <span className="faded">{Package.version}</span></p>
+                <div className="thm-bgPD">
                     <Icon content='import' onClick={this.handleLoadMesh}/>
                     <Icon content='gps' onClick={() => Scene.camera.lookAtWholeScene()}/>
                     <Icon content='movie' onClick={this.handleMovie}/>
@@ -45,7 +46,7 @@ export default class Model extends React.Component<{}, {}> {
                     <Icon content='bug' onClick={this.toggleConsoleVisibility}/>
                 </div>
             </header>
-            <ModelList />
+            <ModelList onLoad={this.handleLoadMesh}/>
         </div>)
     }
 }

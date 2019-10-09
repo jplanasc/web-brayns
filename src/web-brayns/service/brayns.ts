@@ -5,6 +5,8 @@ import Listeners from '../../tfw/listeners'
 
 interface IQuery {
     id: string,
+    method: string,
+    params: any,
     resolve: (data: any) => void
     reject: (data: { code: number, message: string }) => void
 }
@@ -36,9 +38,9 @@ export default class BraynsService {
     readonly subscribers: ISubscribers = {}
     private host = ""
 
-    async connect(hostname: string): Promise<boolean> {
-        this.host = hostname
-        const url = `ws://${hostname}/ws`
+    async connect(hostname: string|null = null): Promise<boolean> {
+        this.host = hostname || this.host
+        const url = `ws://${this.host}/ws`
 
         return new Promise((resolve) => {
             const handleResolve = () => {
@@ -80,7 +82,7 @@ export default class BraynsService {
                     params
                 }
                 if (!this.ws) return;
-                this.queries[id] = { id, resolve, reject }
+                this.queries[id] = { id, method, params, resolve, reject }
                 this.ws.send(JSON.stringify(protocol));
             }
             catch( ex ) {
@@ -118,6 +120,8 @@ export default class BraynsService {
                 if (arg.code === -31002) {
                     resolve({ status: "cancel", message: arg.message })
                 } else {
+                    console.error(`Error while calling method "${method}" with these params: `, params)
+                    console.error(arg)
                     reject(arg)
                 }
             }
@@ -130,7 +134,7 @@ export default class BraynsService {
                 params
             }
 
-            that.queries[id] = { id, resolve: onMessage, reject: onError }
+            that.queries[id] = { id, method, params, resolve: onMessage, reject: onError }
             ws.send(JSON.stringify(protocol));
         })
 
@@ -232,6 +236,9 @@ export default class BraynsService {
             // to any of our queries.
             return;
         }
+
+        console.error(`Error while calling "${query.method}" with params: "`, query.params)
+        console.error("  >>> ", error)
 
         delete this.queries[id]
         query.reject({

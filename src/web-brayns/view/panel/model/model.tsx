@@ -5,7 +5,6 @@ import Button from '../../../../tfw/view/button'
 import State from '../../../state'
 import Scene from '../../../scene'
 import MaterialDialog from '../../../dialog/material'
-import Python from '../../../service/python'
 
 import "../panel.css"
 
