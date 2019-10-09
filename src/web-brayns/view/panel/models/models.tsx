@@ -20,7 +20,13 @@ export default class Model extends React.Component<{}, {}> {
             "Load Model",
             <InputPath onChange={(p: string) => path = p}/>);
         if (!confirmed) return;
-        await Scene.loadMeshFromPath(path);
+        const model = await Scene.loadMeshFromPath(path);
+        if (!model) return
+        model.focus()
+    }
+
+    handleMovie = () => {
+        
     }
 
     toggleConsoleVisibility = async () => {
@@ -32,9 +38,10 @@ export default class Model extends React.Component<{}, {}> {
             <header className="thm-bgPD thm-ele-nav">
                 <p>Web-Brayns</p>
                 <div>
-                    <Icon content='cut' onClick={this.handleClip}/>
                     <Icon content='import' onClick={this.handleLoadMesh}/>
                     <Icon content='gps' onClick={() => Scene.camera.lookAtWholeScene()}/>
+                    <Icon content='movie' onClick={this.handleMovie}/>
+                    <Icon content='cut' onClick={this.handleClip}/>
                     <Icon content='bug' onClick={this.toggleConsoleVisibility}/>
                 </div>
             </header>

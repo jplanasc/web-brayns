@@ -11,6 +11,7 @@ import Models from "./models"
 import Navigation from './navigation'
 import Path from './path'
 import Slicer from './slicer'
+import Wait from './wait'
 
 
 const INITIAL_STATE: IAppState = {
@@ -20,7 +21,8 @@ const INITIAL_STATE: IAppState = {
     models: Models.INITIAL_STATE,
     navigation: Navigation.INITIAL_STATE,
     path: Path.INITIAL_STATE,
-    slicer: Slicer.INITIAL_STATE
+    slicer: Slicer.INITIAL_STATE,
+    wait: Wait.INITIAL_STATE
 };
 
 function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction): IAppState {
@@ -31,7 +33,8 @@ function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction):
         models: Models.reducer(state.models, action),
         navigation: Navigation.reducer(state.navigation, action),
         path: Path.reducer(state.path, action),
-        slicer: Slicer.reducer(state.slicer, action)
+        slicer: Slicer.reducer(state.slicer, action),
+        wait: Wait.reducer(state.wait, action)
     };
 }
 
@@ -44,5 +47,6 @@ export default {
     Models,
     Navigation,
     Path,
-    Slicer
+    Slicer,
+    Wait
 };

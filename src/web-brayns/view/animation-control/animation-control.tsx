@@ -15,7 +15,7 @@ interface IAnimationControlProps {
     current?: (number /* Integer */);
     delta?: (number /* Integer */);
     dt?: number;
-    frameCount?: (number /* Integer */);
+    frame_count?: (number /* Integer */);
     playing?: boolean;
     unit?: string;
 }
@@ -47,9 +47,9 @@ export default class AnimationControl extends React.Component<IAnimationControlP
 
     shift(delta: number) {
         const current = this.props.current || 1;
-        const frameCount = this.props.frameCount || 1;
+        const frame_count = this.props.frame_count || 1;
         const speed = keyToSpeed(this.state.speedKey);
-        const nextValue = Util.clamp(current + speed * delta, 1, frameCount);
+        const nextValue = Util.clamp(current + speed * delta, 1, frame_count);
         if (nextValue !== current) {
             const params = { current: nextValue };
             State.dispatch(State.Animation.update(params));
@@ -65,10 +65,10 @@ export default class AnimationControl extends React.Component<IAnimationControlP
     render() {
         const p = this.props;
         const current = p.current || 0;
-        const frameCount = p.frameCount || 0;
-        if (frameCount < 2) return null;
+        const frame_count = p.frame_count || 0;
+        if (frame_count < 2) return null;
 
-        const percent = Math.floor(.5 + 100 * (p.current || 0) / frameCount);
+        const percent = Math.floor(.5 + 100 * (p.current || 0) / frame_count);
         return (<div className="webBrayns-view-AnimationControl thm-bgPD-C">
             <div className="thm-bgPD flex">
                 <Icon content="skip-prev2" enabled={current > 1}
@@ -76,16 +76,16 @@ export default class AnimationControl extends React.Component<IAnimationControlP
                 <Icon content="skip-prev" enabled={current > 1}
                     onClick={this.handlePrevClick}/>
                 <Button icon="play" small={true}/>
-                <Icon content="skip-next" enabled={current < frameCount}
+                <Icon content="skip-next" enabled={current < frame_count}
                     onClick={this.handleNextClick}/>
-                <Icon content="skip-next2" enabled={current < frameCount}
+                <Icon content="skip-next2" enabled={current < frame_count}
                     onClick={this.handleNext2Click}/>
             </div>
             <div className="label">
                 <b>{p.current}</b>
-                <span className='hint'>{` / ${frameCount} (${p.unit})`}</span>
+                <span className='hint'>{` / ${frame_count} (${p.unit})`}</span>
             </div>
-            <Slider min={0} max={frameCount}
+            <Slider min={0} max={frame_count}
                     value={p.current || 0}
                     step={1}
                     text={`${percent} %`}

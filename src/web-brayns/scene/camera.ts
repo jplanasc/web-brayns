@@ -173,22 +173,6 @@ export default class Camera {
         const dir = this.direction;
         const { position, target } = this.params;
         this.params.position = [
-            position[0] + dir[0] * dist,
-            position[1] + dir[1] * dist,
-            position[2] + dir[2] * dist
-        ];
-        this.params.target = [
-            target[0] + dir[0] * dist,
-            target[1] + dir[1] * dist,
-            target[2] + dir[2] * dist
-        ];
-        await this.applyCamera();
-    }
-
-    async moveBackward(dist: number) {
-        const dir = this.direction;
-        const { position, target } = this.params;
-        this.params.position = [
             position[0] - dir[0] * dist,
             position[1] - dir[1] * dist,
             position[2] - dir[2] * dist
@@ -197,6 +181,22 @@ export default class Camera {
             target[0] - dir[0] * dist,
             target[1] - dir[1] * dist,
             target[2] - dir[2] * dist
+        ];
+        await this.applyCamera();
+    }
+
+    async moveBackward(dist: number) {
+        const dir = this.direction;
+        const { position, target } = this.params;
+        this.params.position = [
+            position[0] + dir[0] * dist,
+            position[1] + dir[1] * dist,
+            position[2] + dir[2] * dist
+        ];
+        this.params.target = [
+            target[0] + dir[0] * dist,
+            target[1] + dir[1] * dist,
+            target[2] + dir[2] * dist
         ];
         await this.applyCamera();
     }

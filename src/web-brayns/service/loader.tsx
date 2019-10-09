@@ -34,12 +34,10 @@ function getLoaderParams(path: string): Promise<{}> {
                 content: (<CircuitLoaderView
                             path={path}
                             onCancel={() => {
-                                console.info("onCancel")
                                 dialog.hide()
                                 resolve(null)
                             }}
                             onOK={params => {
-                                console.info("onOK")
                                 dialog.hide()
                                 resolve({
                                     ...commonParams,

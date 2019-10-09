@@ -1,54 +1,56 @@
 {
-  "name": "web-brayns",
-  "version": "0.2.0",
-  "private": false,
-  "proxy": "http://localhost:3666/",
-  "dependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/node": "^11.13.14",
-    "@types/ol": "^4.6.5",
-    "@types/react": "^16.9.5",
-    "@types/react-dom": "^16.9.1",
-    "archiver": "^3.1.1",
-    "brayns": "^0.8.0",
-    "markdown-to-jsx": "^6.10.3",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
-    "react-redux": "^6.0.1",
-    "react-scripts": "2.1.8",
-    "redux": "^4.0.1",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.7",
-    "rockets-client": "^0.3.0",
-    "save-as-file": "^0.2.0",
-    "typescript": "^3.6.3"
-  },
-  "scripts": {
-    "start": "./scripts/start.sh",
-    "start-client": "react-app-rewired start",
-    "start-cgi": "cd backend && chmod a+x cgi-bin/*.py cgi-bin/phaneron/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
-    "build": "react-app-rewired build",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "test": "react-app-rewired test",
-    "test:dbg": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
-  "devDependencies": {
-    "concurrently": "^4.1.2",
-    "gh-pages": "^2.1.1",
-    "react-app-rewire-yaml": "^1.1.0",
-    "react-app-rewired": "^2.1.3",
-    "react-dev-utils": "^8.0.0",
-    "redux-devtools-extension": "^2.13.8"
-  }
+    "name": "web-brayns",
+    "version": "0.2.0",
+    "private": false,
+    "proxy": "http://localhost:3666/",
+    "dependencies": {
+        "@types/jest": "^24.0.18",
+        "@types/node": "^11.13.14",
+        "@types/ol": "^4.6.5",
+        "@types/react": "^16.9.5",
+        "@types/react-dom": "^16.9.1",
+        "archiver": "^3.1.1",
+        "brayns": "^0.8.0",
+        "markdown-to-jsx": "^6.10.3",
+        "react": "^16.10.2",
+        "react-dom": "^16.10.2",
+        "react-redux": "^6.0.1",
+        "react-scripts": "2.1.8",
+        "redux": "^4.0.1",
+        "request": "^2.88.0",
+        "request-promise-native": "^1.0.7",
+        "rockets-client": "^0.3.0",
+        "save-as-file": "^0.2.0",
+        "typescript": "^3.6.3"
+    },
+    "scripts": {
+        "docker": "docker build -t tolokoban/web-brayns:latest . && docker login && docker push tolokoban/web-brayns:latest",
+        "docker:deploy": "npm run docker && oc login && oc project bbp-ou-visualization && oc import-image tide-remote-control && watch oc get pods",
+        "start": "./scripts/start.sh",
+        "start-client": "react-app-rewired start",
+        "start-cgi": "cd backend && chmod a+x cgi-bin/*.py cgi-bin/phaneron/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
+        "build": "react-app-rewired build",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build",
+        "test": "react-app-rewired test",
+        "test:dbg": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not ie <= 11",
+        "not op_mini all"
+    ],
+    "devDependencies": {
+        "concurrently": "^4.1.2",
+        "gh-pages": "^2.1.1",
+        "react-app-rewire-yaml": "^1.1.0",
+        "react-app-rewired": "^2.1.3",
+        "react-dev-utils": "^8.0.0",
+        "redux-devtools-extension": "^2.13.8"
+    }
 }

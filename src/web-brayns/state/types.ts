@@ -31,7 +31,7 @@ export interface IAnimation {
     current?: (number /* Integer */);
     delta?: (number /* Integer */);
     dt?: number;
-    frameCount?: (number /* Integer */);
+    frame_count?: (number /* Integer */);
     playing?: boolean;
     unit?: string;
 }
@@ -43,6 +43,15 @@ export interface IPathState {
     folders: string[]
 }
 
+/**
+ * For progress display.
+ */
+export interface IWait {
+    label: string,
+    // Number between 0 and 1.
+    progress: number
+}
+
 export interface IAppState {
     animation: IAnimation,
     currentModel: IModel,
@@ -50,7 +59,8 @@ export interface IAppState {
     models: IModel[],
     navigation: INavigationState,
     path: IPathState,
-    slicer: ISlicerState
+    slicer: ISlicerState,
+    wait: IWait
 }
 
 export interface IAction {

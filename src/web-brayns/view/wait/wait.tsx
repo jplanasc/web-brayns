@@ -1,4 +1,8 @@
 import React from "react"
+import { connect } from 'react-redux'
+
+import { IAppState } from "../../types"
+
 import Icon from '../../../tfw/view/icon'
 import Button from '../../../tfw/view/button'
 
@@ -11,7 +15,7 @@ interface IWaitProps {
     onCancel: () => void
 }
 
-export default class Wait extends React.Component<IWaitProps, {}> {
+class Wait extends React.Component<IWaitProps, {}> {
     constructor( props: IWaitProps ) {
         super( props );
     }
@@ -23,9 +27,30 @@ export default class Wait extends React.Component<IWaitProps, {}> {
                 <div>{this.props.label}</div>
                 <div>{`${Math.ceil(100 * this.props.progress)}%`}</div>
             </div>
-            <div className="thm-bg2">
-                <Button flat={true} small={true} icon="cancel" label="Cancel" onClick={this.props.onCancel}/>
+            <hr/>
+            <div>
+                <Button flat={true}
+                    small={true}
+                    icon="cancel"
+                    label="Cancel"
+                    onClick={this.props.onCancel}/>
             </div>
         </div>)
     }
 }
+
+
+function mapStateToProps(state: IAppState) {
+    return {
+        label: state.wait.label,
+        progress: state.wait.progress
+    };
+}
+
+function mapDispatchToProps(dispatch: any) {
+    return {
+        // onClick: ...
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Wait);

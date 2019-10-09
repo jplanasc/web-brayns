@@ -1,6 +1,13 @@
+div.webBrayns-view-Wait {
+    padding: 0;
+    width: 440px;
+}
+
 div.webBrayns-view-Wait > div {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
+    min-height: 3rem;
+    margin: 0;
 }
