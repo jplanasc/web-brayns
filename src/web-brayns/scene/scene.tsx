@@ -3,8 +3,10 @@
  */
 //import { Client as BraynsClient } from "brayns"
 import React from "react"
+import { Provider } from 'react-redux'
 
 import Api from "./api"
+import Models from '../models'
 import { IBraynsModel, IModel, IModelOptions, IMaterial } from '../types'
 import Python from '../service/python'
 import State from '../state'
@@ -27,14 +29,16 @@ const Scene: {
     host: string,
     renderer: Renderer,
     gestures: GesturesHandler,
-    loader: Loader
+    loader: Loader,
+    worldRadius: number
 } = {
     brayns: new BraynsService(),
     camera: null,
     host: '',
     renderer: new Renderer(),
     gestures: new GesturesHandler(),
-    loader: new Loader()
+    loader: new Loader(),
+    worldRadius: 10
 }
 
 const defaultObjectToExport = {
@@ -50,7 +54,8 @@ const defaultObjectToExport = {
     get host() { return Scene.host },
     get renderer(): Renderer { return Scene.renderer },
     get gestures(): GesturesHandler { return Scene.gestures },
-    get loader() { return Scene.loader }
+    get loader() { return Scene.loader },
+    get worldRadius() { return Scene.worldRadius }
  }
 
  export default defaultObjectToExport;
@@ -76,8 +81,13 @@ async function connect(hostName: string): Promise<BraynsService> {
     const cameraParams = await request('get-camera-params');
     Scene.camera = new Camera({ ...cameraParams, ...camera });
     Scene.renderer.init(Scene.brayns);
+
     const animation = await Api.getAnimationParameters();
     State.dispatch(State.Animation.update(animation));
+    Scene.brayns.subscribe("set-animation-parameters", animation => {
+        console.info("animation=", animation);
+        State.dispatch(State.Animation.update(animation))
+    })
 
     return Scene.brayns;
 }
@@ -167,56 +177,68 @@ async function setViewPort(width: number, height: number) {
 }
 
 async function loadMeshFromPath(path: string): Promise<Model|null> {
-    console.log("AAA")
-    const params = await LoaderService.getLoaderParams(path)
-    console.info("params=", params);
-    const query = Scene.brayns.execAsync("add-model", params)
-    const wait = <Wait label="Loading..." progress={0} onCancel={() => {
-        query.cancel()
+    let dialog: any = null
+
+    try {
+        const params = await LoaderService.getLoaderParams(path)
+        const query = Scene.brayns.execAsync("add-model", params)
+        const wait = <Provider store={State.store}><Wait onCancel={() => {
+            query.cancel()
+            dialog.hide()
+        }}/></Provider>
+        dialog = Dialog.show({ content: wait, footer: null })
+        query.progress.add(arg => {
+            State.store.dispatch(State.Wait.update(arg.label, arg.progress))
+        })
+
+        const result = await query.promise
         dialog.hide()
-    }}/>
-    const dialog = Dialog.show({ content: wait, footer: null })
-    query.progress.add(args => {
-        //console.info("args=", args);
-    })
-    const result = await query.promise
-    dialog.hide()
-    console.info("result=", result);
-    if (!result || result.state !== 'ok') {
-        console.error(result)
+        if (!result || result.status !== 'ok') {
+            console.error(result)
+            return null
+        }
+        const fixedOptions = await fixBoundsIfNeeded(result.message);
+
+        const model: IModel = {
+            brayns: {
+                name: path,
+                bounds: {
+                    min: [-10, -10, -10],
+                    max: [+10, +10, +10]
+                },
+                transformation: {
+                    rotation: [0,0,0,1],
+                    scale: [1,1,1],
+                    translation: [0,0,0]
+                },
+                ...result.message
+            },
+            materialIds: [],
+            deleted: false,
+            selected: false,
+            technical: false,
+            parent: -1,
+            ...fixedOptions
+        };
+        const modelInstance = new Model(model);
+        // We have to applyTransfo because the scale can change the location.
+        modelInstance.locate(model.brayns.transformation.translation)
+        modelInstance.applyTransfo()
+        const materialIds = await modelInstance.getMaterialIds();
+        model.materialIds = materialIds;
+        State.dispatch(State.Models.add(model));
+        return new Model(model);
+    }
+    catch (ex) {
+        dialog.hide()
+        console.error(ex)
+        Dialog.alert(
+            <div>
+                <h1>Error!</h1>
+                <div>{ex.message}</div>
+            </div>)
         return null
     }
-    const fixedOptions = await fixBoundsIfNeeded(result.message);
-
-    const model: IModel = {
-        brayns: {
-            name: path,
-            bounds: {
-                min: [-10, -10, -10],
-                max: [+10, +10, +10]
-            },
-            transformation: {
-                rotation: [0,0,0,1],
-                scale: [1,1,1],
-                translation: [0,0,0]
-            },
-            ...result
-        },
-        materialIds: [],
-        deleted: false,
-        selected: false,
-        technical: false,
-        parent: -1,
-        ...fixedOptions
-    };
-    const modelInstance = new Model(model);
-    // We have to applyTransfo because the scale can change the location.
-    modelInstance.locate(model.brayns.transformation.translation)
-    modelInstance.applyTransfo()
-    const materialIds = await modelInstance.getMaterialIds();
-    model.materialIds = materialIds;
-    State.dispatch(State.Models.add(model));
-    return new Model(model);
 }
 
 async function setMaterial(modelId: number, materialId: number,
@@ -251,3 +273,16 @@ async function fixBoundsIfNeeded(braynsModel: IBraynsModel): Promise<IBraynsMode
     }
     return braynsModel;
 }
+
+/**
+ * Compute world radius every two seconds.
+ */
+window.setInterval(async () => {
+    // Compute world radius.
+    const models = Models.getVisibleModels();
+    const bounds = Models.getModelsBounds(models);
+    const x = bounds.max[0] - bounds.min[0]
+    const y = bounds.max[1] - bounds.min[1]
+    const z = bounds.max[2] - bounds.min[2]
+    Scene.worldRadius = 0.5 * Math.sqrt(x*x + y*y + z*z)
+}, 2000)

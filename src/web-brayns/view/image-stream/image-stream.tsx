@@ -21,8 +21,8 @@ interface IImageStreamProps {
 }
 
 export default class ImageStream extends React.Component<IImageStreamProps> {
-    private readonly canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
-    private orientation: IQuaternion = [0,0,0,1];
+    private readonly canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef()
+    private orientation: IQuaternion = [0,0,0,1]
 
     constructor(props: IImageStreamProps) {
         super(props);
@@ -47,11 +47,17 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
             down: this.handleDown,
             wheel(evt) {
                 if (!Scene.camera) return;
+                console.info("evt=", evt);
+                let speed = 0.1
+                if (evt.shiftKey) speed *= .05
+                if (evt.ctrlKey) speed *= .1
+                if (evt.altKey) speed *= 5
+
                 if (evt.deltaY < 0) {
-                    Scene.camera.moveForward(10);
+                    Scene.camera.moveForward(Scene.worldRadius * speed);
                 }
                 else if (evt.deltaY > 0) {
-                    Scene.camera.moveBackward(10);
+                    Scene.camera.moveBackward(Scene.worldRadius * speed);
                 }
             },
             pan: this.handlePan

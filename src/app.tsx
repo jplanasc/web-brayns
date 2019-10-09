@@ -38,58 +38,8 @@ export default class App extends React.Component<IAppProps, {}> {
 
     async componentDidMount() {
         try {
-            Script.test();
-            /*
-            const materialTemplate = {
-                opacity: 1,
-                glossiness: 1,
-                diffuseColor: [1,0,0],
-                shadingMode: 'cartoon'
-            }
-
-            const materials = [
-                //{ ...materialTemplate, shadingMode: "diffuse", glossiness: 0 },
-                //{ ...materialTemplate, shadingMode: "diffuse", glossiness: 0.7 },
-                //{ ...materialTemplate, shadingMode: "diffuse" },
-                //{ ...materialTemplate, shadingMode: "electron" },
-                { ...materialTemplate, shadingMode: "cartoon" }
-            ]
-            for( const material of materials ) {
-                const output = await Scene.setMaterial(model.params.id, 0, material);
-                continue;
-                const options = await SnapshotDialog.show();
-                if (!options) return;  // Action cancelled.
-                const canvas = await SnapshotService.getCanvas(options);
-                await SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`);
-            }
-*/
-
-            /*
-            //Scene.clear();
-            let modelNumber = 1;
-            const factor = 200;
-            const models: Model[] = [];
-            const positions: IVector[] = [];
-
-            for (let x=-1; x<=1; x++) {
-                for (let y=-1; y<=1; y++) {
-                    for (let z=-1; z<=1; z++) {
-                        const astro = await loadAstrocyte(modelNumber++);
-                        models.push(astro);
-                        positions.push([
-                            factor * x,
-                            factor * y,
-                            factor * z
-                        ])
-                    }
-                }
-            }
-
-            models.forEach( async (model: Model, index: number) => {
-                await model.locate(positions[index]);
-            })*/
-
-            //Scene.camera.lookAtWholeScene();
+            //Script.test();
+            Scene.camera.lookAtWholeScene();
         }
         catch( ex ) {
             console.error(ex);

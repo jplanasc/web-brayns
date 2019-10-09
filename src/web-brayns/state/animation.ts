@@ -8,7 +8,7 @@ export default {
         current: 0,
         delta: 1,
         dt: 1,
-        frameCount: 0,
+        frame_count: 0,
         playing: false,
         unit: ''
     },
@@ -31,5 +31,6 @@ export default {
 
 
 function update(state: IAnimation, action: IAction): IAnimation {
+    console.info("action=", action);
     return Object.assign( state, action.animation );
 }

@@ -1,5 +1,3 @@
-div.webBrayns-view-loader-Circuit {}
-
 div.webBrayns-view-loader-Circuit > div,
 div.webBrayns-view-loader-Circuit > footer {
     width: 100%;
@@ -7,4 +5,8 @@ div.webBrayns-view-loader-Circuit > footer {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
+}
+
+div.webBrayns-view-loader-Circuit em {
+    opacity: .5;
 }
