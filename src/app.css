@@ -29,12 +29,17 @@ div.App {
 div.App > div.view {
     position: absolute;
     top: 0;
-    left: var(--panel-width);
+    left: 0;
     height: 100%;
-    width: calc(100% - var(--panel-width));
+    right: 0;
+    /*width: calc(100% - var(--panel-width));*/
     overflow: hidden;
     background: #500;
     display: block;
+}
+
+div.App.visible > div.view {
+    left: var(--panel-width);
 }
 
 div.App > div.view > div:first-child {
