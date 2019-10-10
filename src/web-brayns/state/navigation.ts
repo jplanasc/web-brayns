@@ -1,4 +1,4 @@
-import { INavigation, IAction } from '../types'
+import { INavigation, IAction } from './types'
 
 const PREFIX = "navigation:"
 
@@ -15,17 +15,12 @@ export default {
         const command = action.type.substr(PREFIX.length);
         switch (command) {
             case "set-panel": return setPanel(state, action);
-            case "toggle-console-visibility": return toggleConsoleVisibility(state);
             default: throw Error(`Unknown action "${type}"!`);
         }
     },
 
     setPanel(panel: string): IAction {
         return { type: `${PREFIX}set-panel`, panel };
-    },
-
-    toggleConsoleVisibility(): IAction {
-        return { type: `${PREFIX}toggle-console-visibility` };
     }
 }
 

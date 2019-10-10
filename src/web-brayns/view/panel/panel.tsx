@@ -5,6 +5,7 @@ import Stack from '../../../tfw/layout/stack'
 import Icon from '../../../tfw/view/icon'
 import PanelModels from './models'
 import PanelModel from './model/container'
+import PanelMovie from './movie'
 import PanelClip from './clip/container'
 import PanelDebug from '../websocket-console'
 import { IModel } from '../../types'
@@ -14,12 +15,14 @@ import "./panel.css"
 interface IPanelProps {
     value: string,
     model: IModel,
+    visible: boolean,
+    onVisibleChange: (visible: boolean) => void,
     onChange: (value: string) => void
 }
 
 export default class Panel extends React.Component<IPanelProps, {}> {
-    constructor( props: IPanelProps ) {
-        super( props );
+    handleToggleVisible = () => {
+        this.props.onVisibleChange(!this.props.visible)
     }
 
     render() {
@@ -30,7 +33,10 @@ export default class Panel extends React.Component<IPanelProps, {}> {
                         onClick={() => this.props.onChange(panel)}/>
         }
 
-        return (<div className="webBrayns-view-Panel thm-bg0">
+        const classes = ["webBrayns-view-Panel", "thm-bg0"]
+        if (this.props.visible) classes.push('visible')
+
+        return (<div className={classes.join(' ')}>
             <header className="thm-bgPD thm-ele-nav">
                 <div>{/*icon('more', 'menu')*/}</div>
                 <p>Web-Brayns <span className="faded">{Package.version}</span></p>
@@ -42,11 +48,15 @@ export default class Panel extends React.Component<IPanelProps, {}> {
                 </div>
             </header>
             <Stack value={this.props.value}>
-                <PanelModels key="models"/>
                 <PanelModel key="model"/>
+                <PanelModels key="models"/>
+                <PanelMovie key="movie"/>
                 <PanelClip key="clip" model={this.props.model}/>
                 <PanelDebug key="bug"/>
             </Stack>
+            <div className="handle thm-bgPD" onClick={this.handleToggleVisible}>
+                <Icon content="left" rotate={this.props.visible ? 0 : 180}/>
+            </div>
         </div>)
     }
 }

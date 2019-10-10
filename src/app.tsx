@@ -22,13 +22,14 @@ interface IAppProps {
 }
 
 interface IAppState {
-    data: Blob
+    data: Blob,
+    panelVisible: boolean
 }
 
-export default class App extends React.Component<IAppProps, {}> {
+export default class App extends React.Component<IAppProps, IAppState> {
     constructor( props: IAppProps ) {
         super( props );
-        this.state = { blob: new Blob() }
+        this.state = { data: new Blob(), panelVisible: true }
     }
 
     private handleScreenShot = async () => {
@@ -42,10 +43,18 @@ export default class App extends React.Component<IAppProps, {}> {
         State.store.dispatch(State.Navigation.setPanel(panel))
     }
 
+    private handlePanelVisibleChange = (panelVisible: boolean) => {
+        this.setState({ panelVisible })
+    }
+
     render() {
-        return (<div className="App">
+        const className = this.state.panelVisible ? "App visible" : "App"
+
+        return (<div className={className}>
             <Panel value={this.props.panel}
                    model={this.props.model}
+                   visible={this.state.panelVisible}
+                   onVisibleChange={this.handlePanelVisibleChange}
                    onChange={this.handlePanelChange}/>
             <div className='view'>
                 {
