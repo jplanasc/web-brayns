@@ -41,6 +41,27 @@ export default class GesturesHandler {
         //else this.rotateCamera(evt);
     }, 20)
 
+    handleWheel = (evt: WheelEvent) => {
+        if (!Scene.camera) return
+        evt.preventDefault()
+        evt.stopPropagation()
+
+        let speed = 0.1
+        if (evt.shiftKey) {
+            speed *= evt.altKey ? .01 : .05
+        }
+        else if (evt.ctrlKey) {
+            speed *= evt.altKey ? 10 : 2
+        }
+
+        if (evt.deltaY < 0) {
+            Scene.camera.moveForward(Scene.worldRadius * speed);
+        }
+        else if (evt.deltaY > 0) {
+            Scene.camera.moveBackward(Scene.worldRadius * speed);
+        }
+    }
+
     /**
      * screenX and screenY are between 0 and 1.
      */

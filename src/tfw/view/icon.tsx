@@ -82,6 +82,9 @@ export default class Icon extends React.Component<IIconProps, {}> {
             rotate = castInteger(p.rotate, 0),
             onClick = p.onClick,
             classes = ["tfw-view-icon"];
+
+        if (!visible) return null
+
         const svgContent = createSvgContent(content, p);
         if (!svgContent) return null;
 
@@ -184,16 +187,16 @@ function manageColors(attribs: { [key: string]: any }, props: IIconProps) {
     return attribs;
 }
 
-function getPen(penIndex: string, props: IIconProps): EnumPenColor | string {
+function getPen(penIndex: string, props: IIconProps): EnumPenColor | string | undefined {
     switch (penIndex) {
-        case "0": return props.pen0 || "#000"
-        case "1": return props.pen1 || "#fff"
-        case "2": return props.pen2 || "#f00"
-        case "3": return props.pen3 || "#0f0"
-        case "4": return props.pen4 || "#00f"
-        case "5": return props.pen5 || "#0ff"
-        case "6": return props.pen6 || "#f0f"
-        case "7": return props.pen7 || "#ff0"
+        case "0": return props.pen0
+        case "1": return props.pen1
+        case "2": return props.pen2
+        case "3": return props.pen3
+        case "4": return props.pen4
+        case "5": return props.pen5
+        case "6": return props.pen6
+        case "7": return props.pen7
     }
 
     return "#000"

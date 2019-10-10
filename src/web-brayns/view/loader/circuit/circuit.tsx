@@ -133,9 +133,10 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
     }
 
     handleReportChange = (report: string) => {
+        const map = this.targetsMap
         this.setState({ report })
-        if (this.targetsMap.has(report)) return
-        this.setState({ targets: this.targetsMap.get("report") || "" })
+        if (!map.has(report)) return
+        this.setState({ targets: map.get(report) || "" })
     }
 
     render() {
@@ -172,7 +173,8 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
             <div>
                 <Combo label="Colors" value={circuitColorScheme}
                        onChange={circuitColorScheme => this.setState({ circuitColorScheme })}>
-                    <div key="By layer">By Layer</div>
+                   <div key="By id">By Cell ID</div>
+                   <div key="By layer">By Layer</div>
                     <div key="By mtype">By Morphology Type</div>
                     <div key="By etype">By Electrical Type</div>
                 </Combo>

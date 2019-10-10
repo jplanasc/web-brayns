@@ -1,0 +1,14 @@
+div.webBrayns-view-inputPath > div.flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+
+div.webBrayns-view-inputPath > div.flex > * {
+    flex: 1 1 auto;
+}
+
+div.webBrayns-view-inputPath > div.flex > *:last-child {
+    flex: 0 0 auto;
+}

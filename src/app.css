@@ -19,6 +19,7 @@ div.App {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    background-image: url(./checker.jpg);
 }
 
 div.App {
@@ -80,4 +81,10 @@ div.App > div.panel > div {
 
 div.App > div.panel > div > * {
     flex: 1 1 auto;
+}
+
+div.App > div.view > div.icons {
+    position: absolute;
+    right: 8px;
+    top: 8px;
 }

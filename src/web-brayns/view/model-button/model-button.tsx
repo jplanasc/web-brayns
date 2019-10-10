@@ -3,6 +3,7 @@ import React from "react"
 import { IModel } from '../../types'
 import Dialog from '../../../tfw/factory/dialog'
 import Button from '../../../tfw/view/button'
+import Checkbox from '../../../tfw/view/checkbox'
 import Scene from '../../scene'
 import State from '../../state'
 import Model from '../../scene/model'
@@ -15,29 +16,29 @@ interface IModelButtonProps {
     onToggleSelection: (model: IModel) => void
 }
 
-export default class ModelButton extends React.Component<IModelButtonProps, {}> {
+interface IModelButtonState {
+    visible: boolean
+}
+
+export default class ModelButton extends React.Component<IModelButtonProps, IModelButtonState> {
     constructor( props: IModelButtonProps ) {
         super( props );
+        this.state = {
+            visible: props.model.brayns.visible || false
+        }
     }
 
-    handleToggleSelection = () => {
+    handleToggleSelection = async () => {
         const handle = this.props.onToggleSelection;
         if (typeof handle === 'function') handle(this.props.model);
-    }
-
-    handleFocus = async () => {
         const model = new Model(this.props.model);
         await model.focus();
     }
 
-    handleShow = async () => {
+    handleVisible = async (visible: boolean) => {
         const model = new Model(this.props.model);
-        await model.setVisible(true);
-    }
-
-    handleHide = async () => {
-        const model = new Model(this.props.model);
-        await model.setVisible(false);
+        this.setState({ visible: visible })
+        await model.setVisible(visible);
     }
 
     handleMore = async () => {
@@ -73,18 +74,13 @@ export default class ModelButton extends React.Component<IModelButtonProps, {}> 
                 </div>
                 <div className="icons">
                     <div>
-                        <Button small={true} icon="gps" onClick={this.handleFocus}/>
                         <Button
                             onClick={this.handleMore}
                             enabled={true}
                             small={true}
                             icon="more"/>
                     </div>
-                    {
-                        model.brayns.visible ?
-                        <Button small={true} icon="hide" onClick={this.handleHide}/> :
-                        <Button small={true} icon="show" onClick={this.handleShow}/>
-                    }
+                    <Checkbox label="Visible" value={this.state.visible} onChange={this.handleVisible}/>
                     <Button enabled={true} small={true}
                             icon="delete" warning={true}
                             onClick={this.handleRemove}/>

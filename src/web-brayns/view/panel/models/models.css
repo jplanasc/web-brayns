@@ -1,0 +1,19 @@
+div.webBrayns-view-panel-Models {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+div.webBrayns-view-panel-Models > * {
+    flex: 1 1 auto;
+}
+
+div.webBrayns-view-panel-Models > footer,
+div.webBrayns-view-panel-Models > header {
+    padding: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}

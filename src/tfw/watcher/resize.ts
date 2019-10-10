@@ -109,8 +109,15 @@ export default class ResizeWatcher {
         this.observer.unobserve(this.element)
     }
 
-    private fire = (width: number, height: number) => {
-        this.listeners.fire({ width, height })
+    fire = (width: number = -1, height: number = -1) => {
+        if (width > 0 && height > 0) this.listeners.fire({ width, height })
+        else {
+            const rect = this.element.getBoundingClientRect()
+            this.listeners.fire({
+                width: rect.width,
+                height: rect.height 
+            })
+        }
     }
 
     private onEntries = (entries: IResizeObserverEntry[]) => {

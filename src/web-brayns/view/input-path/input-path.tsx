@@ -2,15 +2,17 @@ import React from "react"
 import { Provider } from 'react-redux'
 
 import Input from '../../../tfw/view/input'
+import Button from '../../../tfw/view/button'
 import PathSelector from '../path-selector'
 import State from '../../state'
 import LocalStorage from '../../service/local-storage'
 
+import './input-path.css'
 
 const Storage = new LocalStorage("input-path");
 
 interface IInputPathProps {
-    onChange: (path: string) => void
+    onLoadClick: (path: string) => void
 }
 
 interface IInputPathState {
@@ -25,21 +27,26 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
     }
 
     handleChange = (path: string) => {
-        const handler = this.props.onChange;
         this.setState({ path });
         Storage.set('path', path);
-        if (typeof handler !== 'function') return;
-        handler(path);
+    }
+
+    handleClick = () => {
+        this.props.onLoadClick(this.state.path)
     }
 
     render() {
-        return <div>
-            <Input
-                label="Please type a model path"
-                size={100}
-                value={this.state.path}
-                onChange={this.handleChange}
-                wide={true}/>
+        return <div className="webBrayns-view-inputPath">
+            <div className="flex">
+                <Input
+                    label="Please type a model path"
+                    size={100}
+                    value={this.state.path}
+                    onChange={this.handleChange}
+                    onEnterPressed={this.handleClick}
+                    wide={true}/>
+                <Button label="Load" onClick={this.handleClick}/>
+            </div>
             <hr/>
             <Provider store={State.store}>
                 <PathSelector onFileClick={this.handleChange}/>

@@ -1,24 +1,14 @@
 div.webBrayns-view-WebsocketConsole {
     position: absolute;
+    left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 300px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
     overflow: hidden;
-    transform: translateX(100%);
-    opacity: 0;
-    transition: all .3s;
-    z-index: 9;
-}
-
-div.webBrayns-view-WebsocketConsole.visible {
-    transform: translateX(0);
-    opacity: .9;
-    transition: all .2s;
 }
 
 div.webBrayns-view-WebsocketConsole > textarea.input {
@@ -49,7 +39,6 @@ div.webBrayns-view-WebsocketConsole > div.error {
     background: #f00;
 }
 
-div.webBrayns-view-WebsocketConsole > div.head,
-div.webBrayns-view-WebsocketConsole > div.button {
+div.webBrayns-view-WebsocketConsole > * {
     flex: 0 0 auto;
 }

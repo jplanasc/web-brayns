@@ -4,17 +4,30 @@ import Icon from '../../../../tfw/view/icon'
 import Button from '../../../../tfw/view/button'
 import State from '../../../state'
 import Scene from '../../../scene'
+import Model from '../../../scene/model'
 import MaterialDialog from '../../../dialog/material'
 
-import "../panel.css"
+import "./model.css"
 
 interface IModelProps {
     model: IModel
 }
 
-export default class Model extends React.Component<IModelProps, {}> {
+interface IModelState {
+    materialIds: number[]
+}
+
+export default class ModelPanel extends React.Component<IModelProps, IModelState> {
     constructor( props: IModelProps ) {
         super( props );
+        this.state = { materialIds: [] }
+    }
+
+    componentDidMount = async () => {
+        const model = new Model(this.props.model)
+        const materialIds = await model.getMaterialIds()
+        console.info("materialIds=", materialIds);
+        this.setState({ materialIds })
     }
 
     handleBack = () => {
@@ -27,6 +40,7 @@ export default class Model extends React.Component<IModelProps, {}> {
         if (!material) return;
         try {
             await Scene.setMaterial(this.props.model.brayns.id, materialId, material)
+            await Scene.Api.updateModel({ id: this.props.model.brayns.id })
         }
         catch (ex) {
             console.error(ex);
@@ -35,13 +49,14 @@ export default class Model extends React.Component<IModelProps, {}> {
 
     render() {
         const { model } = this.props;
-        const { materialIds } = model;
+        const materialIds = this.state.materialIds;
         const { name, id, path, bounds, transformation } = model.brayns;
 
-        return (<div className="webBrayns-view-Panel">
-            <header className="thm-bgPD thm-ele-nav">
-                <Icon content='back' onClick={this.handleBack}/>
-                <p>{name} <em>{`#${id}`}</em></p>
+
+        return (<div className="webBrayns-view-panel-Model">
+            <header className="thm-bgPL thm-ele-nav">
+                <div>{name}</div>
+                <div>{`#${id}`}</div>
             </header>
             <div>
                 <p><em>Path: </em>{path}</p>
@@ -49,10 +64,10 @@ export default class Model extends React.Component<IModelProps, {}> {
                     <em>Location: </em>
                     <code>{JSON.stringify(transformation.translation, null, '  ')}</code>
                 </p>
-                <p>
+                <div>
                     <em>Bounds: </em>
                     <pre>{JSON.stringify(bounds, null, '  ')}</pre>
-                </p>
+                </div>
                 <hr/>
                 <div>{
                     materialIds.map((id: number) => (
@@ -63,7 +78,7 @@ export default class Model extends React.Component<IModelProps, {}> {
                             label={`Set material #${id}`} />
                     ))
                 }</div>
-            </div>
+            }</div>
         </div>)
     }
 }

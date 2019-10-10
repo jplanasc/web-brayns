@@ -2,8 +2,8 @@ div.webBrayns-view-Panel {
     position: absolute;
     left: 0;
     top: 0;
-    right: 0;
     bottom: 0;
+    width: var(--panel-width);
 }
 
 div.webBrayns-view-Panel > header {
@@ -18,7 +18,7 @@ div.webBrayns-view-Panel > header {
 }
 
 div.webBrayns-view-Panel > header > div {
-    flex: 1 0 auto;
+    flex: 0 0 auto;
 }
 
 div.webBrayns-view-Panel > header > p {
@@ -27,7 +27,7 @@ div.webBrayns-view-Panel > header > p {
     flex: 1 1 auto;
 }
 
-div.webBrayns-view-Panel p em {
+div.webBrayns-view-Panel > header > p em {
     opacity: .6;
 }
 
@@ -37,6 +37,20 @@ div.webBrayns-view-Panel > div {
     top: 3rem;
     bottom: 0;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+div.webBrayns-view-Panel > div > div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
 }
 
 div.webBrayns-view-Panel .faded {

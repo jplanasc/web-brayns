@@ -13,7 +13,8 @@ const MIMECODEC = 'video/mp4; codecs="avc1.42E032"';
 
 interface IVideoStreamProps {
     onPanStart: (panning: IPanningEvent) => void,
-    onPan: (panning: IPanningEvent) => void
+    onPan: (panning: IPanningEvent) => void,
+    onWheel: (evt: WheelEvent) => void
 }
 
 export default class VideoStream
@@ -33,22 +34,8 @@ export default class VideoStream
         const video = this.refVideo.current
         if (!video) return
 
-        /*const EVENTS = [
-            'abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'encrypted',
-            'ended', 'interruptbegin', 'interruptend', 'loadeddata', 'loadedmetadata',
-            'loadstart', 'mozaudioavailable', 'pause', 'play', 'playing', 'progress',
-            'ratechange', 'seeked', 'seeking', 'stalled', 'suspend', 'timeupdate',
-            'volumechange', 'waiting'
-        ]
-        EVENTS.forEach((eventName: string) => {
-            video.addEventListener(
-                eventName,
-                (evt) => console.log(`Video event: ${eventName.toUpperCase()}`)
-            )
-        })*/
-
         Gesture(video).on({
-            wheel: this.handleGestureWheel,
+            wheel: this.props.onWheel,
             down: this.handleGestureDown,
             pan: this.handleGesturePan
         });
@@ -56,9 +43,6 @@ export default class VideoStream
         this.resizeWatcher = new ResizeWatcher(video, 500)
         const rect = video.getBoundingClientRect()
         this.handleResize(rect)
-    }
-
-    private handleGestureWheel = (evt: IEvent) => {
     }
 
     private handleGestureDown = (evt: IEvent) => {

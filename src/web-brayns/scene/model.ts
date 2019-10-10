@@ -130,10 +130,6 @@ export default class Model {
     async setSelected(selected: boolean) {
         this.model.selected = selected;
         this.model.brayns.bounding_box = selected;
-        await Scene.Api.updateModel({
-            id: this.model.brayns.id,
-            bounding_box: selected
-        });
         this.updateState();
     }
 
@@ -144,7 +140,8 @@ export default class Model {
     async setVisible(visible: boolean) {
         await Scene.Api.updateModel({
             id: this.model.brayns.id,
-            visible
+            visible,
+            bounding_box: false
         });
         this.model.brayns.visible = true;
         this.updateState();

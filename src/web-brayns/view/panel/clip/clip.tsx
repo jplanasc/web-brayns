@@ -1,29 +1,20 @@
 import React from "react"
 
-import Storage from '../../../../tfw/storage'
-import SnapshotService from '../../../service/snapshot'
-import SnapshotDialog from '../../../dialog/snapshot'
+import Storage from '../../../storage'
 import State from '../../../state'
-import Scene from '../../../scene'
-import Models from '../../../models'
 import Geom from '../../../geometry'
-import Util from '../../../../tfw/util'
 import Color from '../../../../tfw/color'
 import Icon from '../../../../tfw/view/icon'
-import Button from '../../../../tfw/view/button'
 import Checkbox from '../../../../tfw/view/checkbox'
-import Slider from '../../../../tfw/view/slider'
-import Range from '../../range'
 import Throttler from '../../../../tfw/throttler'
-import Debouncer from '../../../../tfw/debouncer'
-import Theme from '../../../../tfw/theme'
 import OrientationView from '../../orientation'
 import LocationView from '../../location'
 import ScaleView from '../../scale'
 import SnapshotView from '../../snapshot/snapshot.container'
 import ClipPlaneObject from '../../../object/clip-plane'
+import ModelObject from '../../../scene/model'
 
-import { IBounds } from '../../../types'
+import { IBounds, IModel } from '../../../types'
 
 import "./clip.css"
 
@@ -39,6 +30,7 @@ interface IPlane {
 }
 
 interface IClipProps {
+    model: IModel,
     activated: boolean,
     minX: number,
     maxX: number,
@@ -101,11 +93,20 @@ export default class Model extends React.Component<IClipProps, IClipState> {
     }
 
     async componentDidMount() {
-        this.clipPlanes = Storage.session.get("web-brayns/clipping-planes", [{
-            x: 0, y: 0, z: 0,
-            width: 32, height: 24, depth: 4,
+        console.info("this.props.model=", this.props.model);
+
+        const bounds = this.props.model.brayns.bounds
+        const x = 0.5 * (bounds.max[0] + bounds.min[0])
+        const y = 0.5 * (bounds.max[1] + bounds.min[1])
+        const z = 0.5 * (bounds.max[2] + bounds.min[2])
+        const width = bounds.max[0] - bounds.min[0]
+        const height = bounds.max[1] - bounds.min[1]
+        const depth = Math.min(width, height) / 8
+
+        this.clipPlanes = [{
+            x, y, z, width, height, depth,
             latitude: 0, longitude: 0, tilt: 0
-        }])
+        }]
         this.setCurrentPlaneIndex(0)
         this.clipPlaneObject.setActivated(this.state.activated)
         this.clipPlaneObject.attach()

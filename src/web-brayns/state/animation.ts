@@ -31,6 +31,5 @@ export default {
 
 
 function update(state: IAnimation, action: IAction): IAnimation {
-    console.info("action=", action);
     return Object.assign( state, action.animation );
 }
