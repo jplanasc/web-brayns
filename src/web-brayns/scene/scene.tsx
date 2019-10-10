@@ -85,7 +85,6 @@ async function connect(hostName: string): Promise<BraynsService> {
     const animation = await Api.getAnimationParameters();
     State.dispatch(State.Animation.update(animation));
     Scene.brayns.subscribe("set-animation-parameters", animation => {
-        console.info("animation=", animation);
         State.dispatch(State.Animation.update(animation))
     })
 
@@ -227,6 +226,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         const materialIds = await modelInstance.getMaterialIds();
         model.materialIds = materialIds;
         State.dispatch(State.Models.add(model));
+        State.dispatch(State.CurrentModel.reset(model));
         return new Model(model);
     }
     catch (ex) {
@@ -241,14 +241,52 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
     }
 }
 
+/**
+ * materialshadingMode: "none", "diffuse", "electron", "cartoon", "electron-alpha", 'perlin' or 'diffuse-alpha'.
+ */
 async function setMaterial(modelId: number, materialId: number,
                            material: Partial<IMaterial>) {
-    return await Python.exec("phaneron/set-material", {
+    await request("set-material-extra-attributes", { modelId })
+        const finalMaterial = {
+        glossiness: 1,
+        emission: 0,
+        opacity: 1,
+        diffuseColor: [1,1,1],
+        specularColor: [1,1,1],
+        specularExponent: 20,
+        reflectionIndex: 0,
+        refractionIndex: 1,
+        clipped: false,
+        simulationDataCast: true,
         ...material,
-        modelId,
-        materialId,
-        host: Scene.host
-    });
+        modelId, materialId,
+        shadingMode: convertShadingMode(material.shadingMode)
+    }
+    console.info("finalMaterial=", finalMaterial);
+    await request("set-material", finalMaterial)
+}
+
+/**
+ * SHADING_MODE_NONE = 0
+ * SHADING_MODE_DIFFUSE = 1
+ * SHADING_MODE_ELECTRON = 2
+ * SHADING_MODE_CARTOON = 3
+ * SHADING_MODE_ELECTRON_TRANSPARENCY = 4
+ * SHADING_MODE_PERLIN = 5
+ * SHADING_MODE_DIFFUSE_TRANSPARENCY = 6
+ */
+function convertShadingMode(mode: string|undefined) {
+    if (typeof mode !== 'string') return 0
+
+    switch (mode.toLowerCase()) {
+        case 'diffuse': return 1
+        case 'electron': return 2
+        case 'cartoon': return 3
+        case 'electron-alpha': return 4
+        case 'perlin': return 5
+        case 'diffuse-alpha': return 6
+        default: return 0
+    }
 }
 
 

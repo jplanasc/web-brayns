@@ -1,27 +1,22 @@
 import React from "react"
 //import { Client as BraynsClient } from "brayns"
 
-import Script from './web-brayns/script'
+import SnapshotService from './web-brayns/service/snapshot'
+import SnapshotDialog from './web-brayns/dialog/snapshot'
+import Snapshot from './web-brayns/dialog/snapshot'
 import Scene from './web-brayns/scene'
-import Model from './web-brayns/scene/model'
+import State from './web-brayns/state'
 import ImageStream from './web-brayns/view/image-stream'
 import VideoStream from './web-brayns/view/video-stream'
-import Stack from './tfw/layout/stack'
-import WebsocketConsole from './web-brayns/view/websocket-console'
-import PanelModels from './web-brayns/view/panel/models'
-import PanelModel from './web-brayns/view/panel/model/container'
-import PanelClip from './web-brayns/view/panel/clip/container'
-
-import { IVector } from './web-brayns/types'
+import Button from './tfw/view/button'
+import Panel from './web-brayns/view/panel'
+import { IModel } from './web-brayns/types'
 
 import "./app.css"
 
-import Python from './web-brayns/service/python'
-import SnapshotService from './web-brayns/service/snapshot'
-import SnapshotDialog from './web-brayns/dialog/snapshot'
-
 interface IAppProps {
     panel: string,
+    model: IModel,
     stream: "image" | "video",
     showConsole: boolean
 }
@@ -36,41 +31,45 @@ export default class App extends React.Component<IAppProps, {}> {
         this.state = { blob: new Blob() }
     }
 
-    async componentDidMount() {
-        try {
-            //Script.test();
-            Scene.camera.lookAtWholeScene();
-        }
-        catch( ex ) {
-            console.error(ex);
-        }
+    private handleScreenShot = async () => {
+        const options = await Snapshot.show();
+        if (!options) return;  // Action cancelled.
+        const canvas = await SnapshotService.getCanvas(options);
+        await SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`);
+    }
+
+    private handlePanelChange = (panel: string) => {
+        State.store.dispatch(State.Navigation.setPanel(panel))
     }
 
     render() {
         return (<div className="App">
-            <div className="panel">
-                <Stack value={this.props.panel}>
-                    <PanelModels key="models"/>
-                    <PanelModel key="model"/>
-                    <PanelClip key="clip"/>
-                </Stack>
-            </div>
+            <Panel value={this.props.panel}
+                   model={this.props.model}
+                   onChange={this.handlePanelChange}/>
             <div className='view'>
                 {
                     this.props.stream === 'image' &&
                     <ImageStream
                         key="image-stream"
                         onPan={Scene.gestures.handlePan}
-                        onPanStart={Scene.gestures.handlePanStart}/>
+                        onPanStart={Scene.gestures.handlePanStart}
+                        onWheel={Scene.gestures.handleWheel}/>
                 }
                 {
                     this.props.stream === 'video' &&
                     <VideoStream
                         key="video-stream"
                         onPan={Scene.gestures.handlePan}
-                        onPanStart={Scene.gestures.handlePanStart}/>
+                        onPanStart={Scene.gestures.handlePanStart}
+                        onWheel={Scene.gestures.handleWheel}/>
                 }
-                <WebsocketConsole visible={this.props.showConsole}/>
+                <div className="icons">
+                    <Button
+                        icon="camera"
+                        onClick={this.handleScreenShot}
+                        warning={true}/>
+                </div>
             </div>
         </div>)
     }

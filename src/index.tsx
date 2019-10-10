@@ -33,19 +33,20 @@ async function start() {
         const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
         const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
         const planes = await Scene.Api.getClipPlanes()
-        const notNullplanes: {id: number, plane: [number,number,number,number]}[] = planes.filter( p => p !== null )
+        const notNullplanes: {id: number, plane: [number,number,number,number]}[] =
+            planes.filter( p => p !== null )
         const planeIds = notNullplanes.map( p => p.id )
         Scene.Api.removeClipPlanes(planeIds);
 
-        State.dispatch(State.Models.reset(
-            scene.models.map((params: IBraynsModel) => ({
-                brayns: params,
-                parent: -1,
-                deleted: false,
-                selected: false,
-                technical: false
-            }))
-        ));
+        const models = scene.models.map((params: IBraynsModel) => ({
+            brayns: params,
+            parent: -1,
+            deleted: false,
+            selected: false,
+            technical: false
+        }))
+        State.dispatch(State.Models.reset(models))
+        State.dispatch(State.CurrentModel.reset(models[0]))
 
         // Entry point for our app
         const stream = await figureOutStreamType()

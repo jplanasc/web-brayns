@@ -4,6 +4,7 @@ import ClipView from "./clip"
 
 function mapStateToProps(state: IAppState) {
     return {
+        model: state.currentModel || state.models[0],
         activated: state.slicer.activated,
         minX: state.slicer.minX,
         maxX: state.slicer.maxX,

@@ -7,6 +7,7 @@ import { IAppState, IAction } from "../types"
 import Animation from './animation'
 import CurrentModel from './current-model'
 import Dialogs from './dialogs'
+import KeyFrames from './key-frames'
 import Models from "./models"
 import Navigation from './navigation'
 import Path from './path'
@@ -18,6 +19,7 @@ const INITIAL_STATE: IAppState = {
     animation: Animation.INITIAL_STATE,
     currentModel: CurrentModel.INITIAL_STATE,
     dialogs: Dialogs.INITIAL_STATE,
+    keyFrames: KeyFrames.INITIAL_STATE,
     models: Models.INITIAL_STATE,
     navigation: Navigation.INITIAL_STATE,
     path: Path.INITIAL_STATE,
@@ -30,6 +32,7 @@ function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction):
         animation: Animation.reducer(state.animation, action),
         currentModel: CurrentModel.reducer(state.currentModel, action),
         dialogs: Dialogs.reducer(state.dialogs, action),
+        keyFrames: KeyFrames.reducer(state.keyFrames, action),
         models: Models.reducer(state.models, action),
         navigation: Navigation.reducer(state.navigation, action),
         path: Path.reducer(state.path, action),

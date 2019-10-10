@@ -9,10 +9,6 @@ import Scene from '../../scene'
 import "./websocket-console.css"
 
 
-interface IWebsocketConsoleProps {
-    visible: boolean
-}
-
 interface IWebsocketConsoleState {
     method: string,
     params: string,
@@ -22,8 +18,8 @@ interface IWebsocketConsoleState {
 }
 
 
-export default class WebsocketConsole extends React.Component<IWebsocketConsoleProps, IWebsocketConsoleState> {
-    constructor( props: IWebsocketConsoleProps ) {
+export default class WebsocketConsole extends React.Component<{}, IWebsocketConsoleState> {
+    constructor( props: {} ) {
         super( props );
         this.state = {
             method: get("method", "get-renderer-params"),
@@ -65,7 +61,6 @@ export default class WebsocketConsole extends React.Component<IWebsocketConsoleP
 
     render() {
         const classNames = ["webBrayns-view-WebsocketConsole", "thm-bg0"];
-        if (this.props.visible) classNames.push("visible");
 
         return (<div className={classNames.join(' ')}>
             <div className="head">

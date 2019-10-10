@@ -1,13 +1,11 @@
 import React from 'react';
 
-import SnapshotService from '../../service/snapshot'
 import { IQuaternion, IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
 import Scene from '../../scene'
 import Gesture from '../../../tfw/gesture'
-import Button from '../../../tfw/view/button'
-import Snapshot from '../../dialog/snapshot'
 import AnimationControl from '../animation-control'
 import ImageFactory from '../../../tfw/factory/image'
+import ResizeWatcher, { IDimension } from '../../../tfw/watcher/resize'
 import { IEvent } from '../../../tfw/gesture/types'
 
 import "./image-stream.css"
@@ -16,8 +14,9 @@ interface IImageStreamProps {
     onHit?: (point: IHitPoint) => void,
     // Hitting the void, actually
     onTap?: (point: IScreenPoint) => void,
-    onPanStart?: (panning: IPanningEvent) => void,
-    onPan?: (panning: IPanningEvent) => void
+    onPanStart: (panning: IPanningEvent) => void,
+    onPan: (panning: IPanningEvent) => void,
+    onWheel: (event: WheelEvent) => void
 }
 
 export default class ImageStream extends React.Component<IImageStreamProps> {
@@ -41,29 +40,25 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
 
         brayns.binaryListeners.add(this.handleImage)
 
-        const that = this;
-
         Gesture(this.canvas).on({
             down: this.handleDown,
-            wheel(evt) {
-                if (!Scene.camera) return;
-                console.info("evt=", evt);
-                let speed = 0.1
-                if (evt.shiftKey) speed *= .05
-                if (evt.ctrlKey) speed *= .1
-                if (evt.altKey) speed *= 5
-
-                if (evt.deltaY < 0) {
-                    Scene.camera.moveForward(Scene.worldRadius * speed);
-                }
-                else if (evt.deltaY > 0) {
-                    Scene.camera.moveBackward(Scene.worldRadius * speed);
-                }
-            },
+            wheel: this.props.onWheel,
             pan: this.handlePan
         });
-        this.updateViewPort();
-        window.onfocus = this.updateViewPort;
+
+        const resizeWatcher = new ResizeWatcher(this.canvas, 300)
+        resizeWatcher.subscribe(this.handleResize)
+        resizeWatcher.fire()
+    }
+
+    private handleResize = async (dimension: IDimension) => {
+        const canvas = this.canvasRef.current;
+        if (!canvas ) return;
+        const w = Math.floor(dimension.width);
+        const h = Math.floor(dimension.height);
+        canvas.width = w;
+        canvas.height = h;
+        await Scene.setViewPort(w, h);
     }
 
     private handleImage = async (data: ArrayBuffer) => {
@@ -109,24 +104,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         }
     }
 
-    private updateViewPort = async () => {
-        const canvas = this.canvasRef.current;
-        if (!canvas ) return;
-        const rect = canvas.getBoundingClientRect();
-        const w = Math.floor(rect.width);
-        const h = Math.floor(rect.height);
-        canvas.width = w;
-        canvas.height = h;
-        await Scene.setViewPort(w, h);
-    }
-
-    private handleScreenShot = async () => {
-        const options = await Snapshot.show();
-        if (!options) return;  // Action cancelled.
-        const canvas = await SnapshotService.getCanvas(options);
-        await SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`);
-    }
-
     // We use moz-opaque to improve the perf. of the canvas
     // See https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
     render() {
@@ -136,12 +113,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
                     ref={this.canvasRef}
                     className=""
                     moz-opaque="true" />
-                <div className="icons">
-                    <Button
-                        icon="camera"
-                        onClick={this.handleScreenShot}
-                        warning={true}/>
-                </div>
                 <AnimationControl />
             </div>
         );

@@ -22,7 +22,9 @@ Now, you must start a Brayns service on a port of your choice (choose __5000__ i
 ```bash
 module purge
 module load brayns/1.0.1/serial
-braynsService --http-server :5000 --plugin braynsCircuitExplorer
+braynsService --http-server :5000 \
+              --plugin braynsCircuitExplorer \
+              --videostreaming
 ```
 
 In the example above, the host name you need is:

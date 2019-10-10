@@ -25,7 +25,10 @@ class Wait extends React.Component<IWaitProps, {}> {
             <div>
                 <Icon content="wait" animate={true}/>
                 <div>{this.props.label}</div>
-                <div>{`${Math.ceil(100 * this.props.progress)}%`}</div>
+                {
+                    this.props.progress > 0 && 
+                    <div>{`${Math.ceil(100 * this.props.progress)}%`}</div>
+                }
             </div>
             <hr/>
             <div>

@@ -1,4 +1,4 @@
-import { IModel } from '../types'
+import { IModel, IQuaternion, IVector } from '../types'
 
 export interface INavigationState {
     panel: string,
@@ -52,10 +52,19 @@ export interface IWait {
     progress: number
 }
 
+export interface IKeyFrame {
+    // Frame's index, starting at 0.
+    index: number,
+    cameraLocation: IVector,
+    cameraOrientation: IQuaternion,
+    simulationStep: number
+}
+
 export interface IAppState {
     animation: IAnimation,
     currentModel: IModel,
     dialogs: IDialogs,
+    keyFrames: IKeyFrame[],
     models: IModel[],
     navigation: INavigationState,
     path: IPathState,

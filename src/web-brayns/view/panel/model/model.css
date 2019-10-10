@@ -1,0 +1,11 @@
+div.webBrayns-view-panel-Model > header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 .5rem;
+}
+
+div.webBrayns-view-panel-Model > header > div:last-child {
+    opacity: .6;
+}
