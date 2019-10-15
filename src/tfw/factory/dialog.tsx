@@ -9,6 +9,7 @@ import "./dialog.css"
 
 import Button from "../view/button"
 
+
 import Intl from "../intl";
 const _ = Intl.make(require("./dialog.yaml"));
 

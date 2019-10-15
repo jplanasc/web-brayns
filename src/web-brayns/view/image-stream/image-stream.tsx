@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IQuaternion, IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
+import { IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
 import Scene from '../../scene'
 import Gesture from '../../../tfw/gesture'
 import AnimationControl from '../animation-control'
@@ -21,7 +21,6 @@ interface IImageStreamProps {
 
 export default class ImageStream extends React.Component<IImageStreamProps> {
     private readonly canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef()
-    private orientation: IQuaternion = [0,0,0,1]
 
     constructor(props: IImageStreamProps) {
         super(props);
@@ -58,7 +57,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         const h = Math.floor(dimension.height);
         canvas.width = w;
         canvas.height = h;
-        await Scene.setViewPort(w, h);
+        await Scene.renderer.setViewPort(w, h);
     }
 
     private handleImage = async (data: ArrayBuffer) => {

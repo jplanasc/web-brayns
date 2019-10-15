@@ -7,7 +7,6 @@ import { ICamera, IVector, IQuaternion, IAxis } from '../types'
 import Scene from './scene'
 import Geom from '../geometry'
 import Models from '../models'
-import State from '../state'
 
 
 export default class Camera {
@@ -46,23 +45,23 @@ export default class Camera {
     }
 
     setPosition(position: IVector) {
-        this.params.position = position;
+        this.params.position = Geom.copyVector(position);
         this.applyCamera();
     }
 
     get orientation(): IQuaternion {
-        return this.params.orientation.slice() as IQuaternion;
+        return Geom.copyQuaternion(this.params.orientation)
     }
 
-    setOrientation(orientation: IQuaternion) {
-        this.params.orientation = orientation;
-        this.applyCamera();
+    async setOrientation(orientation: IQuaternion) {
+        this.params.orientation = Geom.copyQuaternion(orientation);
+        return await this.applyCamera();
     }
 
-    setPositionAndOrientation(position: IVector, orientation: IQuaternion) {
-        this.params.position = position;
-        this.params.orientation = orientation;
-        this.applyCamera();
+    async setPositionAndOrientation(position: IVector, orientation: IQuaternion) {
+        this.params.position = Geom.copyVector(position);
+        this.params.orientation = Geom.copyQuaternion(orientation);
+        return await this.applyCamera();
     }
 
     async setOrthographic(width: number, height: number,
@@ -73,7 +72,7 @@ export default class Camera {
         params.position = position
         params.orientation = orientation
         params.height = height  //Math.max(width, height)
-        await this.applyCamera();
+        return await this.applyCamera();
     }
 
     get axis(): IAxis {

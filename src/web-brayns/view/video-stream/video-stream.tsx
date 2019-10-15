@@ -154,7 +154,7 @@ export default class VideoStream
         await this.disableVideoStream()
         video.width = width
         video.height = height
-        await Scene.setViewPort(width, height)
+        await Scene.renderer.setViewPort(width, height)
         this.createMediaSource()
         console.log("<<< handleResize(", width, ", ", height, ")")
     }
