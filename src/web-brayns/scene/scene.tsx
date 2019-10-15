@@ -7,8 +7,7 @@ import { Provider } from 'react-redux'
 
 import Api from "./api"
 import Models from '../models'
-import { IBraynsModel, IModel, IModelOptions, IMaterial } from '../types'
-import Python from '../service/python'
+import { IBraynsModel, IModel, IVector, IMaterial } from '../types'
 import State from '../state'
 import Dialog from '../../tfw/factory/dialog'
 import Wait from '../view/wait'
@@ -30,7 +29,8 @@ const Scene: {
     renderer: Renderer,
     gestures: GesturesHandler,
     loader: Loader,
-    worldRadius: number
+    worldRadius: number,
+    worldCenter: IVector
 } = {
     brayns: new BraynsService(),
     camera: null,
@@ -38,7 +38,8 @@ const Scene: {
     renderer: new Renderer(),
     gestures: new GesturesHandler(),
     loader: new Loader(),
-    worldRadius: 10
+    worldRadius: 10,
+    worldCenter: [0,0,0]
 }
 
 const defaultObjectToExport = {
@@ -48,13 +49,13 @@ const defaultObjectToExport = {
     loadMeshFromPath,
     request,
     setMaterial,
-    setViewPort,
     get brayns() { return Scene.brayns },
     get camera(): Camera { return Scene.camera || new Camera({}) },
     get host() { return Scene.host },
     get renderer(): Renderer { return Scene.renderer },
     get gestures(): GesturesHandler { return Scene.gestures },
     get loader() { return Scene.loader },
+    get worldCenter() { return Scene.worldCenter },
     get worldRadius() { return Scene.worldRadius }
  }
 
@@ -80,7 +81,6 @@ async function connect(hostName: string): Promise<BraynsService> {
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
     Scene.camera = new Camera({ ...cameraParams, ...camera });
-    Scene.renderer.init(Scene.brayns);
 
     const animation = await Api.getAnimationParameters();
     State.dispatch(State.Animation.update(animation));
@@ -164,15 +164,6 @@ async function clear(): Promise<boolean> {
     });
 
     return true;
-}
-
-async function setViewPort(width: number, height: number) {
-    // NEgative or null sizes make Brayns crash!
-    if (width < 32 || height < 32) return
-
-    return await request("set-application-parameters", {
-        viewport: [width, height]
-    });
 }
 
 async function loadMeshFromPath(path: string): Promise<Model|null> {
@@ -323,4 +314,9 @@ window.setInterval(async () => {
     const y = bounds.max[1] - bounds.min[1]
     const z = bounds.max[2] - bounds.min[2]
     Scene.worldRadius = 0.5 * Math.sqrt(x*x + y*y + z*z)
+    Scene.worldCenter = [
+        0.5 * (bounds.max[0] + bounds.min[0]),
+        0.5 * (bounds.max[1] + bounds.min[1]),
+        0.5 * (bounds.max[2] + bounds.min[2])
+    ]
 }, 2000)

@@ -57,6 +57,11 @@ export default class Snapshot extends React.Component<IProps, {}> {
 
     handleSizeKeyChange = (size: string) => {
         this.props.onSizeKeyChange(size);
+        const resolution = RESOLUTIONS[size];
+        if (!resolution) return '';
+        const [w,h] = resolution;
+        this.props.onWidthChange(w)
+        this.props.onHeightChange(h)
     }
 
     handleSamplesChange = (samples: string) => {
@@ -67,6 +72,9 @@ export default class Snapshot extends React.Component<IProps, {}> {
 
     handleSamplesKeyChange = (key: string) => {
         this.props.onSamplesKeyChange(key);
+        const samples = SAMPLINGS[key]
+        if (!samples) return
+        this.props.onSamplesChange(samples)
     }
 
     handleFilenameChange = (filename: string) => {
