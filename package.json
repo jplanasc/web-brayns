@@ -25,7 +25,7 @@
     },
     "scripts": {
         "docker": "docker build -t tolokoban/web-brayns:latest . && docker login && docker push tolokoban/web-brayns:latest",
-        "docker:deploy": "npm run docker && oc login && oc project bbp-ou-visualization && oc import-image tide-remote-control && watch oc get pods",
+        "docker:deploy": "npm run docker && oc login && oc project bbp-ou-visualization && oc import-image web-brayns",
         "start": "./scripts/start.sh",
         "start-client": "react-app-rewired start",
         "start-cgi": "cd backend && chmod a+x cgi-bin/*.py cgi-bin/phaneron/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
