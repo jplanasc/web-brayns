@@ -11,6 +11,7 @@ import "./key-frames.css"
 
 interface IKeyFramesProps {
     keyFrames: IKeyFrame[],
+    currentFrameIndex: number,
     onKeyFramesAdd: (keyFrame: IKeyFrame) => void,
     onKeyFrameClick: (keyFrame: IKeyFrame) => void,
     onKeyFrameDelete: (keyFrame: IKeyFrame) => void
@@ -23,13 +24,14 @@ export default class KeyFrames extends React.Component<IKeyFramesProps, {}> {
             index: frameIndex,
             simulationStep: state.animation.current || 0,
             cameraLocation: G.copyVector(Scene.camera.position),
-            cameraOrientation: G.copyQuaternion(Scene.camera.orientation)
+            cameraOrientation: G.copyQuaternion(Scene.camera.orientation),
+            previewURL: ''
         }
         this.props.onKeyFramesAdd(keyFrame)
     }
 
     render() {
-        const { keyFrames, onKeyFrameClick, onKeyFrameDelete } = this.props
+        const { keyFrames, onKeyFrameClick, onKeyFrameDelete, currentFrameIndex } = this.props
 
         if (keyFrames.length === 0) {
             return (<div className="webBrayns-view-panel-movie-KeyFrames empty">
@@ -42,13 +44,13 @@ export default class KeyFrames extends React.Component<IKeyFramesProps, {}> {
                     </div>
                     <hr/>
                     <p>Use key frames to store the current state of your scene.</p>
-                    <p>
-                        A state owns
+                    <div>
+                        <p>A state owns</p>
                         <ul>
                             <li>the camera position and</li>
                             <li>the simulation current step.</li>
                         </ul>
-                    </p>
+                    </div>
                 </div>
             </div>)
         }
@@ -56,10 +58,15 @@ export default class KeyFrames extends React.Component<IKeyFramesProps, {}> {
         return (<div className="webBrayns-view-panel-movie-KeyFrames">
             <div>{
                 keyFrames.map((kf: IKeyFrame, index: number) => {
-                    const result = <div>
-                        <Touchable classNames={["key-frame thm-bg2 thm-ele-button"]}
+                    const classes = ["key-frame", "thm-bg2", "thm-ele-button"]
+                    // Highligth current frame.
+                    classes.push(kf.index === currentFrameIndex ? "thm-bgSL" : "thm-bg2")
+
+                    return (<div>
+                        <Touchable classNames={classes}
                                    onClick={() => onKeyFrameClick(kf)}
                                    key={`index-${index}`}>
+                            <img src={kf.previewURL}/>
                             <div className='text'>
                                 <div>
                                     <span className="faded">Frame #</span>
@@ -73,8 +80,7 @@ export default class KeyFrames extends React.Component<IKeyFramesProps, {}> {
                             <Button small={true} icon="delete" warning={true}
                                     onClick={() => onKeyFrameDelete(kf)}/>
                         </Touchable>
-                    </div>
-                    return result
+                    </div>)
                 })
             }</div>
             <NewFrame onNewFrame={this.handleNewFrame}/>

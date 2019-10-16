@@ -57,7 +57,8 @@ export interface IKeyFrame {
     index: number,
     cameraLocation: IVector,
     cameraOrientation: IQuaternion,
-    simulationStep: number
+    simulationStep: number,
+    previewURL: string
 }
 
 export interface IAppState {

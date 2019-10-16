@@ -22,10 +22,14 @@ Now, you must start a Brayns service on a port of your choice (choose __5000__ i
 ```bash
 module purge
 module load brayns/1.0.1/serial
+export OMP_NUM_THREADS=1
 braynsService --http-server :5000 \
               --plugin braynsCircuitExplorer \
               --videostreaming
 ```
+
+> Note:  
+> the `OMP_NUM_THREADS` variable is used to prevent a Brion bug from crashing Brayns during simulation.
 
 In the example above, the host name you need is:
 __`r1i7n12.bbp.epfl.ch:5000`__

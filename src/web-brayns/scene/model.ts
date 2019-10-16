@@ -94,18 +94,24 @@ export default class Model {
     }
 
     async getMaterialIds(): Promise<number[]> {
-        const id = this.model.brayns.id;
-        const currentMaterialIds = this.model.materialIds;
-        if (Array.isArray(currentMaterialIds) && currentMaterialIds.length > 0) {
-            return currentMaterialIds;
+        try {
+            const id = this.model.brayns.id;
+            const currentMaterialIds = this.model.materialIds;
+            if (Array.isArray(currentMaterialIds) && currentMaterialIds.length > 0) {
+                return currentMaterialIds;
+            }
+            const result: { ids: number[] } = await Scene.request("get-material-ids", { id }) as { ids: number[] }
+            console.info("result=", result);
+            // This strange filter is because Javascript only support 53 bits integers,
+            // but Brayns can send up to 64 bits integers.
+            this.model.materialIds = result.ids.filter((id: number) => id < 18000000000000000000)
+            console.info("this.model=", this.model);
+            return this.model.materialIds
         }
-        const result: { ids: number[] } = await Scene.request("get-material-ids", { id }) as { ids: number[] }
-        console.info("result=", result);
-        // This strange filter is because Javascript only support 53 bits integers,
-        // but Brayns can send up to 64 bits integers.
-        this.model.materialIds = result.ids.filter((id: number) => id < 18000000000000000000)
-        console.info("this.model=", this.model);
-        return this.model.materialIds
+        catch(err) {
+            console.error(err)
+            return []
+        }
     }
 
     /**

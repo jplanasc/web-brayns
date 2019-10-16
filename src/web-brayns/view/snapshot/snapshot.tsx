@@ -1,5 +1,6 @@
 import React from "react"
 
+import Checkbox from '../../../tfw/view/checkbox'
 import Combo from '../../../tfw/view/combo'
 import Input from '../../../tfw/view/input'
 import Flex from '../../../tfw/layout/flex'
@@ -28,7 +29,8 @@ interface IProps extends ISnapshot {
     onWidthChange: (width: number) => void,
     onHeightChange: (width: number) => void,
     onSamplesKeyChange: (key: string) => void,
-    onSamplesChange: (samples: number) => void
+    onSamplesChange: (samples: number) => void,
+    onLandscapeChange: (value: boolean) => void
 }
 
 function res(name: string): string {
@@ -81,6 +83,10 @@ export default class Snapshot extends React.Component<IProps, {}> {
         this.props.onFilenameChange(filename);
     }
 
+    handleLandscapeChange = (value: boolean) => {
+        this.props.onLandscapeChange(value)
+    }
+
     render() {
         const p = this.props;
 
@@ -103,6 +109,9 @@ export default class Snapshot extends React.Component<IProps, {}> {
                 <Input label="Height" value={`${p.height}`}
                        enabled={p.sizeKey === 'custom'}
                        onChange={this.handleHeightChange}/>
+                <Checkbox label="landscape"
+                          value={this.props.landscape}
+                          onChange={this.handleLandscapeChange}/>
             </Flex>
             <Combo value={p.samplesKey} wide={true} onChange={this.handleSamplesKeyChange}>
                 <div key="quick">Quick and dirty</div>

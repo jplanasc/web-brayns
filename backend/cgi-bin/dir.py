@@ -56,7 +56,7 @@ def exec(input):
         files = os.listdir(path)
         children = list()
         for file in files:
-            info = os.stat(path + file)
+            info = os.stat(path + file, follow_symlinks=False)
             fullpathFile = path + file
             if os.path.isdir(fullpathFile):
                 children.append({"name": file})

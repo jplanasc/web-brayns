@@ -66,18 +66,26 @@ export default class GesturesHandler {
      * screenX and screenY are between 0 and 1.
      */
     private async computeCurrentTarget(screenX: number, screenY: number) {
+        /*
         const hitPoint = await Scene.Api.inspect([screenX, screenY]);
-        console.info("screenX, screenY=", screenX, screenY);
-        console.info("hitPoint=", hitPoint);
         if (hitPoint.hit) {
             Scene.camera.setTarget(hitPoint.position, false);
-        } else {
+        } else {*/
             const bounds = Models.getModelsBounds(Models.getVisibleModels());
-            const centerX = (bounds.min[0] + bounds.max[0]) / 2;
-            const centerY = (bounds.min[1] + bounds.max[1]) / 2;
-            const centerZ = (bounds.min[2] + bounds.max[2]) / 2;
-            Scene.camera.setTarget([centerX, centerY, centerZ], false)
-        }
+            const center: IVector = [
+                (bounds.min[0] + bounds.max[0]) / 2,
+                (bounds.min[1] + bounds.max[1]) / 2,
+                (bounds.min[2] + bounds.max[2]) / 2
+            ]
+            const location = Scene.camera.position
+            const orientation = Scene.camera.orientation
+            const z = Geom.rotateWithQuaternion([0,0,1], orientation)
+            const toCenter = Geom.makeVector(location, center)
+            const distToPerpendicularPlan = Geom.scalarProduct(z, toCenter)
+            const direction = Geom.scale(z, distToPerpendicularPlan)
+            const target = Geom.addVectors(location, direction)
+            Scene.camera.setTarget(target, false)
+        //}
     }
 
     private translateCamera(evt: IPanningEvent) {

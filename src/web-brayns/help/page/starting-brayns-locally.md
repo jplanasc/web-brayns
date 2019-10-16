@@ -53,10 +53,10 @@ ninja install
 
 cd /home/petitjea/Code/github/Brayns/Build
 rm -rf *
-CMAKE_PREFIX_PATH=/home/petitjea/Code/github/embree/Build/install:/home/petitjea/Code/github/OSPRay/Build/install:/home/petitjea/Code/github/libwebsockets/Build/install \
+CMAKE_PREFIX_PATH=/home/petitjea/Installs \
     cmake .. -DCLONE_SUBPROJECTS=ON \
              -DBRAYNS_NETWORKING_ENABLED=ON \
-             -DCMAKE_INSTALL_PREFIX=/home/petitjea/Code/github/Brayns/Build/install \
+             -DCMAKE_INSTALL_PREFIX=/home/petitjea/Installs \
              -G Ninja
 ninja install
 ```

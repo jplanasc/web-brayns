@@ -42,6 +42,7 @@ export default class Panel extends React.Component<IPanelProps, {}> {
                 <p>Web-Brayns <span className="faded">{Package.version}</span></p>
                 <div>
                     {icon('menu', 'models')}
+                    {icon('earth', 'world')}
                     {icon('movie', 'movie')}
                     {icon('cut', 'clip')}
                     {icon('bug', 'bug')}

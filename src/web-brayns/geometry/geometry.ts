@@ -218,7 +218,7 @@ function mixQuaternions(q1: IQuaternion, q2: IQuaternion, alpha: number): IQuate
             beta * q1[0] + alpha * q2[0],
             beta * q1[1] + alpha * q2[1],
             beta * q1[2] + alpha * q2[2],
-            beta * q1[2] + alpha * q2[2]
+            beta * q1[3] + alpha * q2[3]
         ]
     }
     const c1 = Math.sin(beta * gamma) / sinGamma
@@ -227,6 +227,6 @@ function mixQuaternions(q1: IQuaternion, q2: IQuaternion, alpha: number): IQuate
         c1 * q1[0] + c2 * q2[0],
         c1 * q1[1] + c2 * q2[1],
         c1 * q1[2] + c2 * q2[2],
-        c1 * q1[2] + c2 * q2[2]
+        c1 * q1[3] + c2 * q2[3]
     ]
 }

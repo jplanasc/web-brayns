@@ -20,7 +20,7 @@ interface ITransformation {
     rotation?: IQuaternion
 }
 
-const EPSILON = 0.001
+const EPSILON = 0.1
 const PATH = '/gpfs/bbp.cscs.ch/project/proj3/.tolokoban/clipping-plane.ply'
 
 export default class ClipPlane {
