@@ -4,10 +4,31 @@ import Scene from '../scene'
 import { API_snapshot_Param0 } from '../scene/api'
 import State from '../state'
 import { ISnapshot } from '../types'
+import Debouncer from '../../tfw/debouncer'
 
 
 export default {
     async getCanvas(options: ISnapshot): Promise<HTMLCanvasElement> {
+        return new Promise(resolve => {
+            const canvas = Scene.renderer.createCanvas(options.width, options.height)
+            Scene.renderer.push({
+                canvas,
+                fps:30,
+                progressive: false,
+                samples: options.samples,
+                quality: 100,
+                resizable: false,
+                onPaint: Debouncer((paintedCanvas) => {
+                    Scene.renderer.pop()
+                    console.log("SHOT!")
+                    document.body.appendChild(paintedCanvas)
+                    resolve(paintedCanvas)
+                }, 100)
+            })
+        })
+    },
+
+    async GARBAGE(options: ISnapshot) {
         const params: API_snapshot_Param0 = {
             animation_parameters: State.store.getState().animation,
             samples_per_pixel: options.samples,
@@ -43,9 +64,15 @@ export default {
     async saveCanvasToFile(canvas: HTMLCanvasElement,
                            filename: string,
                            mimetype: string = "image/jpeg") {
-        canvas.toBlob(async (blob) => {
-            if (!blob) return;
-            const result = await SaveAsFile(blob, filename);
-        }, mimetype, 100);
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    reject("canvas.toBlob  ->  null")
+                    return;
+                }
+                const result = SaveAsFile(blob, filename);
+                resolve(result)
+            }, mimetype, 100);
+        })
     }
 }

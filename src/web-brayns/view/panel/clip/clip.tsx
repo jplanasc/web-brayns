@@ -144,8 +144,9 @@ export default class Model extends React.Component<IClipProps, IClipState> {
         })
     }, 50)
 
-    componentWillUnmount() {
-        //this.removeAllClipPlanes();
+    async componentWillUnmount() {
+        await this.clipPlaneObject.setActivated(false)
+        await this.clipPlaneObject.detach()
     }
 
     handlePlaneOrientationChange = (latitude: number,
@@ -166,8 +167,6 @@ export default class Model extends React.Component<IClipProps, IClipState> {
 
     handleBack = async () => {
         State.dispatch(State.Navigation.setPanel("models"));
-        await this.clipPlaneObject.setActivated(false)
-        await this.clipPlaneObject.detach()
     }
 
     handleActivatedChange = async (activated: boolean) => {
@@ -184,12 +183,6 @@ export default class Model extends React.Component<IClipProps, IClipState> {
          } = this.state
 
         return (<div className="webBrayns-view-panel-Clip">
-            <header className="thm-bgPD thm-ele-nav">
-                <div>
-                    <Icon content="back" onClick={this.handleBack}/>
-                </div>
-                <p>Slicing</p>
-            </header>
             <div>
                 <Checkbox
                     label="Activate slicing"

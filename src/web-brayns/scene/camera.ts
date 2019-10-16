@@ -76,38 +76,16 @@ export default class Camera {
     }
 
     get axis(): IAxis {
-        const [b, c, d, a] = this.orientation;
-        const aa = a * a;
-        const bb = b * b;
-        const cc = c * c;
-        const dd = d * d;
-        const ab2 = 2 * a * b;
-        const ac2 = 2 * a * c;
-        const ad2 = 2 * a * d;
-        const bc2 = 2 * b * c;
-        const bd2 = 2 * b * d;
-        const cd2 = 2 * c * d;
+        const { orientation } = this;
         return {
-            x: [
-                aa + bb + cc + dd,
-                ad2 + bc2,
-                bd2 - ac2
-            ],
-            y: [
-                bc2 - ad2,
-                aa - bb + cc - dd,
-                ab2 + cd2
-            ],
-            z: [
-                ac2 + bd2,
-                cd2 - ab2,
-                aa - bb - cc + dd
-            ]
+            x: Geom.rotateWithQuaternion([1,0,0], orientation),
+            y: Geom.rotateWithQuaternion([0,1,0], orientation),
+            z: Geom.rotateWithQuaternion([0,0,1], orientation)
         }
     }
 
     get target(): IVector {
-        return this.params.target.slice() as IVector;
+        return Geom.copyVector(this.params.target)
     }
 
     /**

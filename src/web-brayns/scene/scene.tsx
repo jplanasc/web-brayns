@@ -80,6 +80,8 @@ async function connect(hostName: string): Promise<BraynsService> {
 
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
+    console.info("camera, cameraParams=", camera, cameraParams);
+    
     Scene.camera = new Camera({ ...cameraParams, ...camera });
 
     const animation = await Api.getAnimationParameters();
@@ -87,6 +89,8 @@ async function connect(hostName: string): Promise<BraynsService> {
     Scene.brayns.subscribe("set-animation-parameters", animation => {
         State.dispatch(State.Animation.update(animation))
     })
+
+    Scene.brayns.binaryListeners.add(Scene.renderer.handleImage)
 
     return Scene.brayns;
 }

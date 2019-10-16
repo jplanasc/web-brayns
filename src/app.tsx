@@ -9,6 +9,7 @@ import State from './web-brayns/state'
 import ImageStream from './web-brayns/view/image-stream'
 import VideoStream from './web-brayns/view/video-stream'
 import Button from './tfw/view/button'
+import Dialog from './tfw/factory/dialog'
 import Panel from './web-brayns/view/panel'
 import { IModel } from './web-brayns/types'
 
@@ -35,8 +36,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
     private handleScreenShot = async () => {
         const options = await Snapshot.show();
         if (!options) return;  // Action cancelled.
-        const canvas = await SnapshotService.getCanvas(options);
-        await SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`);
+        const canvas = await Dialog.wait("Snapshoting in progress...", SnapshotService.getCanvas(options))
+        console.info("canvas=", canvas);
+        await Dialog.wait("Saving in progress...", SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`))
     }
 
     private handlePanelChange = (panel: string) => {

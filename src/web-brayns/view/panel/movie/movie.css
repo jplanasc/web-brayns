@@ -8,16 +8,25 @@ div.webBrayns-view-panel-Movie {
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
+    overflow-y: auto;
 }
 
 div.webBrayns-view-panel-Movie > * {
     flex: 0 0 auto;
 }
 
+div.webBrayns-view-panel-Movie header,
 div.webBrayns-view-panel-Movie footer {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-end;
     padding: .5rem 0;
+}
+
+div.webBrayns-view-panel-Movie header {
+    font-size: 80%;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 0;
 }

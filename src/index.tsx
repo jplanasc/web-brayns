@@ -47,6 +47,9 @@ async function start() {
         }))
         State.dispatch(State.Models.reset(models))
         State.dispatch(State.CurrentModel.reset(models[0]))
+        Scene.Api.setRenderer({
+            background_color: [0.824, 0.847, 0.675]
+        })
 
         // Entry point for our app
         const stream = await figureOutStreamType()

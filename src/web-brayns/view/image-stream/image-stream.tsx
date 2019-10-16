@@ -4,8 +4,8 @@ import { IScreenPoint, IHitPoint, IPanningEvent } from '../../types'
 import Scene from '../../scene'
 import Gesture from '../../../tfw/gesture'
 import AnimationControl from '../animation-control'
-import ImageFactory from '../../../tfw/factory/image'
-import ResizeWatcher, { IDimension } from '../../../tfw/watcher/resize'
+//import ImageFactory from '../../../tfw/factory/image'
+//import ResizeWatcher, { IDimension } from '../../../tfw/watcher/resize'
 import { IEvent } from '../../../tfw/gesture/types'
 
 import "./image-stream.css"
@@ -26,30 +26,25 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         super(props);
     }
 
-    get canvas(): HTMLCanvasElement | null {
-        return this.canvasRef.current;
-    }
-
     componentDidMount() {
-        // If there's no container we can bind the camera to,
-        // there's no point in continuing
-        if (!this.canvas) return
-        const brayns = Scene.brayns
-        if (!brayns) return
+        const canvas = this.canvasRef.current
+        if (!canvas) return
 
-        brayns.binaryListeners.add(this.handleImage)
+        Scene.renderer.push({ canvas })
 
-        Gesture(this.canvas).on({
+        Gesture(canvas).on({
             down: this.handleDown,
             wheel: this.props.onWheel,
             pan: this.handlePan
         });
 
-        const resizeWatcher = new ResizeWatcher(this.canvas, 300)
-        resizeWatcher.subscribe(this.handleResize)
-        resizeWatcher.fire()
     }
 
+    componentWillUnmount() {
+        Scene.renderer.pop()
+    }
+
+/*
     private handleResize = async (dimension: IDimension) => {
         const canvas = this.canvasRef.current;
         if (!canvas ) return;
@@ -59,7 +54,8 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         canvas.height = h;
         await Scene.renderer.setViewPort(w, h);
     }
-
+*/
+/*
     private handleImage = async (data: ArrayBuffer) => {
         const canvas = this.canvas;
         if (!canvas) return
@@ -69,7 +65,7 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         const img = await ImageFactory.fromArrayBuffer(data)
         ctx.drawImage(img, 0, 0, canvas.clientWidth, canvas.clientHeight)
     }
-
+*/
     private handleDown = (evt: IEvent) => {
         const handler = this.props.onPanStart;
         if (typeof handler !== 'function') return;
@@ -93,9 +89,11 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
      * between 0 and 1.
      */
     private getScreenPoint(x: number, y: number): IScreenPoint {
-        if (!this.canvas) return { screenX: -1, screenY: -1, aspect: 1 };
-        const w = this.canvas.clientWidth;
-        const h = this.canvas.clientHeight;
+        const canvas = this.canvasRef.current
+        if (!canvas) return { screenX: -1, screenY: -1, aspect: 1 };
+
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
         return {
             screenX: x / w,
             screenY: 1 - (y / h),
