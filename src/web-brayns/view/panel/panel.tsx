@@ -9,8 +9,11 @@ import PanelMovie from './movie'
 import PanelClip from './clip/container'
 import PanelDebug from '../websocket-console'
 import { IModel } from '../../types'
+import UrlArgs from '../../../tfw/url-args'
 
 import "./panel.css"
+
+const Args = UrlArgs.parse()
 
 interface IPanelProps {
     value: string,
@@ -26,6 +29,8 @@ export default class Panel extends React.Component<IPanelProps, {}> {
     }
 
     render() {
+        const debug = (Args.debug === '1')
+
         const icon = (icon: string, panel: string) => {
             return <Icon
                         content={icon}
@@ -45,7 +50,13 @@ export default class Panel extends React.Component<IPanelProps, {}> {
                     {icon('earth', 'world')}
                     {icon('movie', 'movie')}
                     {icon('cut', 'clip')}
-                    {icon('bug', 'bug')}
+                    {
+                        debug ?
+                        icon('bug', 'bug') :
+                        <Icon
+                            content="bug"
+                            onClick={() => window.open("https://bbpteam.epfl.ch/project/issues/projects/BVWS/issues/?filter=allissues", "JIRA")}/>
+                    }
                 </div>
             </header>
             <Stack value={this.props.value}>
