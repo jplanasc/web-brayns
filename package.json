@@ -24,7 +24,7 @@
         "typescript": "^3.6.3"
     },
     "scripts": {
-        "docker": "docker build -t tolokoban/web-brayns:latest . && docker login && docker push tolokoban/web-brayns:latest",
+        "docker": "npm run build && docker build -t tolokoban/web-brayns:latest . && docker login && docker push tolokoban/web-brayns:latest",
         "docker:deploy": "npm run docker && oc login && oc project bbp-ou-visualization && oc import-image web-brayns",
         "start": "./scripts/start.sh",
         "start-client": "react-app-rewired start",
