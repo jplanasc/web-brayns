@@ -5,6 +5,7 @@ import Dialog from "../../tfw/factory/dialog"
 import Button from "../../tfw/view/button"
 import InputHostName from "../view/input-host-name"
 import BraynsService from "../service/brayns"
+import Help from '../help'
 
 // Timeout connection to Brayns service.
 const CONNECTION_TIMEOUT = 5000;
@@ -34,9 +35,16 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
             dialog.hide();
             resolve(hostName);
         }
-        const input = <InputHostName
-            onEnterPressed={onOk}
-            onChange={(value: string) => hostName = value}/>;
+        const input = <div>
+                <InputHostName
+                    onEnterPressed={onOk}
+                    onChange={(value: string) => hostName = value}/>
+                <br/>
+                <Button label="How to get Brayns' host name?"
+                        small={true} flat={true} icon="link"
+                        onClick={Help.showBraynsHostName}/>
+                <br/>
+            </div>
         const dialog = Dialog.show({
             closeOnEscape: true,
             content: input,

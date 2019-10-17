@@ -1,0 +1,6 @@
+div.webBrayns-Help pre {
+    margin: .5rem;
+    padding: .5rem;
+    background: var(--thm-bg3);
+    box-shadow: 0 2px 4px var(--thm-black-7);
+}
