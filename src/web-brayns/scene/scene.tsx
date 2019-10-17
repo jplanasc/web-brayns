@@ -65,8 +65,6 @@ const defaultObjectToExport = {
  * Try to connect to a Brayns service and fails if it takes too long.
  */
 async function connect(hostName: string): Promise<BraynsService> {
-    /*const bs = new BraynsService(hostName);
-    const isConnected = await bs.connect()*/
     console.info("hostName=", hostName);
     Scene.host = hostName;
     await ServiceHost.connect(Scene.brayns, hostName);
@@ -81,7 +79,7 @@ async function connect(hostName: string): Promise<BraynsService> {
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
     console.info("camera, cameraParams=", camera, cameraParams);
-    
+
     Scene.camera = new Camera({ ...cameraParams, ...camera });
 
     const animation = await Api.getAnimationParameters();
@@ -159,10 +157,9 @@ async function clear(): Promise<boolean> {
 
     await Api.setRenderer({
         accumulation: true,
-        background_color: [0.3,0.4,0.5],
         current: "advanced_simulation",
         head_light: true,
-        max_accum_frames: 16,
+        max_accum_frames: 32,
         samples_per_pixel: 1,
         subsampling: 1
     });

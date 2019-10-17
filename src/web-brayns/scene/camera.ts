@@ -164,7 +164,9 @@ export default class Camera {
 
     async moveBackward(dist: number) {
         const dir = this.direction;
+        console.info("dir=", dir);
         const { position, target } = this.params;
+        console.info("position, target=", position, target);
         this.params.position = [
             position[0] + dir[0] * dist,
             position[1] + dir[1] * dist,

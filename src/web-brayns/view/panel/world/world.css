@@ -1,0 +1,7 @@
+div.webBrayns-view-panel-World > div.flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 .5rem;
+}
