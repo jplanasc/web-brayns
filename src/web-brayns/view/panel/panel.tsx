@@ -6,6 +6,7 @@ import Icon from '../../../tfw/view/icon'
 import PanelModels from './models'
 import PanelModel from './model/container'
 import PanelMovie from './movie'
+import PanelWorld from './world'
 import PanelClip from './clip/container'
 import PanelDebug from '../websocket-console'
 import { IModel } from '../../types'
@@ -60,6 +61,7 @@ export default class Panel extends React.Component<IPanelProps, {}> {
                 </div>
             </header>
             <Stack value={this.props.value}>
+                <PanelWorld key="world"/>
                 <PanelModel key="model"/>
                 <PanelModels key="models"/>
                 <PanelMovie key="movie"/>

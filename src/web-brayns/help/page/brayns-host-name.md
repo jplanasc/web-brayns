@@ -25,6 +25,7 @@ Now, you must start a Brayns service on a port of your choice (choose __5000__ i
 ```bash
 module purge
 module load brayns/1.0.1/serial
+module load ffmpeg/4.2
 export OMP_NUM_THREADS=1
 braynsService --http-server :5000 \
               --plugin braynsCircuitExplorer \

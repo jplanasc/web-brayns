@@ -8,7 +8,7 @@ import BraynsService from "../service/brayns"
 import Help from '../help'
 
 // Timeout connection to Brayns service.
-const CONNECTION_TIMEOUT = 5000;
+const CONNECTION_TIMEOUT = 10000;
 
 
 export default { getHostName, connect }
