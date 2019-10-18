@@ -4,7 +4,7 @@ import Scene from '../scene'
 import Dialog from '../../tfw/factory/dialog'
 import CircuitLoaderView from '../view/loader/circuit'
 
-export default { getLoaderParams, loadFromFile }
+export default { getLoaderParams, loadFromFile, loadFromString }
 
 const CIRCUIT = 'Circuit viewer with meshes use-case'
 
@@ -82,6 +82,30 @@ async function loadFromFile(file: File) {
     }
     reader.readAsArrayBuffer(file)
 
+
+    return asyncCall
+}
+
+
+async function loadFromString(filename: string, path: string, content: string) {
+    const chunksId = Scene.brayns.nextId()
+    const { base, extension } = parseFilename(filename)
+    const asyncCall = Scene.brayns.execAsync(
+        "request-model-upload",
+        {
+            chunks_id: chunksId,
+            loader_name: "mesh",
+            loader_properties: { geometry_quality: "high" },
+            name: base,
+            path: path,
+            size: content.length,
+            type: extension
+        })
+
+    await Scene.request("chunk", { id: chunksId })
+    const encoder = new TextEncoder()
+    const data = encoder.encode(content)
+    Scene.brayns.sendChunk(data)
 
     return asyncCall
 }
