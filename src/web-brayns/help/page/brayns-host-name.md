@@ -28,8 +28,7 @@ module load brayns/1.0.1/serial
 module load ffmpeg/4.2
 export OMP_NUM_THREADS=1
 braynsService --http-server :5000 \
-              --plugin braynsCircuitExplorer \
-              --videostreaming
+              --plugin braynsCircuitExplorer
 ```
 
 You will get something like this output:

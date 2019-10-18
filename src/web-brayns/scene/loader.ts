@@ -31,13 +31,19 @@ export default class Loader {
      */
     listLoadersForPath(path: string): ILoader[] {
         const loaders: ILoader[] = []
+        let pathLength = path.length
 
-        for (const ext of this.loaders.keys()) {
-            if (path.endsWith(ext)) {
-                const loadersForThisExt = this.loaders.get(ext)
-                if (!Array.isArray(loadersForThisExt)) continue
-                loaders.push( ...loadersForThisExt )
+        while (loaders.length === 0 && pathLength > 0) {
+            for (const ext of this.loaders.keys()) {
+                if (path.substr(0, pathLength).endsWith(ext)) {
+                    const loadersForThisExt = this.loaders.get(ext)
+                    if (!Array.isArray(loadersForThisExt)) continue
+                    loaders.push( ...loadersForThisExt )
+                }
             }
+            // Sometime, users just add extensions after the expected extension.
+            // For instance: .../circuit/BlueConfig_v2
+            pathLength--
         }
         return loaders
     }
