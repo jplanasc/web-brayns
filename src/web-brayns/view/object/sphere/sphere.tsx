@@ -1,13 +1,15 @@
 import React from "react"
 
-import Button from "../../../../tfw/view/button"
 import Color from "../../../../tfw/color"
 import Input from "../../../../tfw/view/input"
-import ColorButton from "../../../../tfw/view/color-button"
+import InputColor from "../../../../tfw/view/input-color"
+import { ISphereOptions } from './types'
 
 import "./sphere.css"
 
-interface TSphereProps {}
+interface TSphereProps {
+    onUpdate: (arg: ISphereOptions) => void
+}
 interface TSphereState {
     x: string,
     y: string,
@@ -26,10 +28,22 @@ export default class Sphere extends React.Component<TSphereProps, TSphereState> 
             r: "1",
             color: "#1E90FF"
         }
+        this.update(this.state)
     }
 
     update = (state: Partial<TSphereState>) => {
         this.setState({ ...this.state, ...state })
+        const x = parseFloat(this.state.x)
+        const y = parseFloat(this.state.y)
+        const z = parseFloat(this.state.z)
+        const r = parseFloat(this.state.r)
+        const color = new Color(this.state.color)
+        if (isNaN(x) || isNaN(y) || isNaN(z) || isNaN(r)) return
+        if (r < 0.000001) return
+        this.props.onUpdate({
+            x, y, z, r,
+            color: [color.R, color.G, color.B]
+        })
     }
 
     render() {
@@ -45,11 +59,11 @@ export default class Sphere extends React.Component<TSphereProps, TSphereState> 
                 <Input label="Radius" size={6} value={r} onChange={r => upd({r})}/>
             </div>
             <div>
-                <Input label="Background color"
+                <InputColor
+                    label="Sphere color"
                     value={color}
-                    size={10}
-                    onChange={color => upd({color})}/>
-                <ColorButton value={color} />
+                    wide={true}
+                    onChange={color => this.setState({ color })}/>
             </div>
         </div>)
     }

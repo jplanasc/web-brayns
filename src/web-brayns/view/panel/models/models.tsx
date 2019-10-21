@@ -5,9 +5,12 @@ import Scene from '../../../scene'
 import Util from '../../../../tfw/util'
 import Dialog from '../../../../tfw/factory/dialog'
 import Button from '../../../../tfw/view/button'
+import SphereView from '../../object/sphere'
+import { ISphereOptions } from '../../object/sphere/types'
 import InputPath from '../../../view/input-path'
 import ModelList from '../../../view/model-list/container'
 import LoaderService from '../../../service/loader'
+import OkCancel from "../../../../tfw/view/ok-cancel"
 
 import LowPolySphere from '../../../object/mesh/low-poly-sphere.ply'
 
@@ -33,11 +36,29 @@ export default class Model extends React.Component<{}, {}> {
     }
 
     handleAddObject = async () => {
-        const ply = await Util.loadTextFromURL(LowPolySphere)
-        console.log(ply)
-        const asyncResult = await LoaderService.loadFromString("sphere.ply", "sphere.ply", ply)
-        const result = await asyncResult.promise
-        console.info("result=", result);
+        let options: ISphereOptions = { x: 0, y: 0, z: 0, r: 0, color: [0,0,0] }
+        const view = <SphereView onUpdate={v => options = v}/>
+        const dialog = Dialog.show({
+            title: "Add object",
+            content: view,
+            footer: <OkCancel onCancel={() => dialog.hide()}
+                onOK={async () => {
+                    dialog.hide()
+                    const ply = await Util.loadTextFromURL(LowPolySphere)
+                    console.log(ply)
+                    const model = await LoaderService.loadFromString(
+                        "sphere.ply", ply, {
+                            path: "@object/sphere",
+                            transformation: {
+                                scale: [options.r, options.r, options.r],
+                                translation: [options.x, options.y, options.z]
+                            }
+                        })
+                    console.info("model=", model);
+                    // @TODO  Setting material...
+                }}/>
+        })
+
     }
 
     render() {

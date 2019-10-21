@@ -17,7 +17,7 @@ export default class Stack extends React.Component<IStackProps, {}> {
         const children = castArray(this.props.children);
         const scrollable = castBoolean(this.props.scrollable, false);
         const fullscreen = castBoolean(this.props.fullscreen, false);
-        const classes = ["tfw-layout-stack"];
+        const classes = ["tfw-layout-Stack"];
         classes.push(...castStringArray(this.props.classNames));
         if (scrollable) classes.push("scrollable");
         if (fullscreen) classes.push("fullscreen");

@@ -1,6 +1,9 @@
 import React from "react"
 
+import { IQuaternion, IVector, IModel } from '../types'
+import State from '../state'
 import Scene from '../scene'
+import Model from '../scene/model'
 import Dialog from '../../tfw/factory/dialog'
 import CircuitLoaderView from '../view/loader/circuit'
 
@@ -82,14 +85,48 @@ async function loadFromFile(file: File) {
     }
     reader.readAsArrayBuffer(file)
 
-
     return asyncCall
 }
 
+interface ILoadFromStringOptions {
+    path?: string,
+    transformation?: {
+       rotation?: [
+          number,
+          number,
+          number,
+          number
+       ];
+       rotation_center?: [
+          number,
+          number,
+          number
+       ];
+       scale?: [
+          number,
+          number,
+          number
+       ];
+       translation?: [
+          number,
+          number,
+          number
+       ];
+    }
+}
 
-async function loadFromString(filename: string, path: string, content: string) {
+async function loadFromString(
+        filename: string,
+        content: string,
+        options: ILoadFromStringOptions = {}) {
     const chunksId = Scene.brayns.nextId()
     const { base, extension } = parseFilename(filename)
+    const transfo: {
+        rotation?: IQuaternion,
+        rotation_center?: IVector,
+        scale?: IVector,
+        translation?: IVector
+    } = options.transformation || {}
     const asyncCall = Scene.brayns.execAsync(
         "request-model-upload",
         {
@@ -97,9 +134,15 @@ async function loadFromString(filename: string, path: string, content: string) {
             loader_name: "mesh",
             loader_properties: { geometry_quality: "high" },
             name: base,
-            path: path,
+            path: options.path || filename,
             size: content.length,
-            type: extension
+            type: extension,
+            transformation: {
+                rotation: transfo.rotation || [0,0,0,1],
+                rotation_center: transfo.rotation_center || [0,0,0],
+                scale: transfo.scale || [1,1,1],
+                translation: transfo.translation || [0,0,0]
+            }
         })
 
     await Scene.request("chunk", { id: chunksId })
@@ -107,7 +150,33 @@ async function loadFromString(filename: string, path: string, content: string) {
     const data = encoder.encode(content)
     Scene.brayns.sendChunk(data)
 
-    return asyncCall
+    const result = await asyncCall.promise
+
+    const model: IModel = {
+        brayns: {
+            transformation: {
+                rotation: [0,0,0,1],
+                scale: [1,1,1],
+                translation: [0,0,0]
+            },
+            ...result.message
+        },
+        materialIds: [],
+        deleted: false,
+        selected: false,
+        technical: false,
+        parent: -1
+    };
+    const modelInstance = new Model(model);
+    // We have to applyTransfo because the scale can change the location.
+    modelInstance.locate(model.brayns.transformation.translation)
+    await modelInstance.applyTransfo()
+    const materialIds = await modelInstance.getMaterialIds();
+    model.materialIds = materialIds;
+    State.dispatch(State.Models.add(model));
+    State.dispatch(State.CurrentModel.reset(model));
+    return new Model(model);
+
 }
 
 

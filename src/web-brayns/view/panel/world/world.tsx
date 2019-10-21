@@ -4,7 +4,7 @@ import Scene from '../../../scene'
 import Debouncer from "../../../../tfw/debouncer"
 import Color from "../../../../tfw/color"
 import Input from "../../../../tfw/view/input"
-import ColorButton from "../../../../tfw/view/color-button"
+import InputColor from "../../../../tfw/view/input-color"
 
 import "./world.css"
 
@@ -31,6 +31,8 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
     }
 
     applyBackground = Debouncer(async (colorText: string) => {
+        if (!Color.isValid(colorText)) return
+        
         const color = new Color(colorText)
         await Scene.Api.setRenderer({
             background_color: [color.R, color.G, color.B]
@@ -49,11 +51,11 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
 
         return (<div className={classes.join(' ')}>
             <div className="flex">
-                <Input label="Background color"
+                <InputColor
+                    wide={true}
+                    label="Background color"
                     value={background}
-                    size={10}
                     onChange={this.handleBackgroundChange}/>
-                <ColorButton value={background} />
             </div>
         </div>)
     }
