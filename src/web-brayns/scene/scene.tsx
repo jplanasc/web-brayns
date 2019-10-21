@@ -188,6 +188,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
             console.error(result)
             return null
         }
+
         const fixedOptions = await fixBoundsIfNeeded(result.message);
 
         const model: IModel = {
@@ -214,7 +215,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         const modelInstance = new Model(model);
         // We have to applyTransfo because the scale can change the location.
         modelInstance.locate(model.brayns.transformation.translation)
-        modelInstance.applyTransfo()
+        await modelInstance.applyTransfo()
         const materialIds = await modelInstance.getMaterialIds();
         model.materialIds = materialIds;
         State.dispatch(State.Models.add(model));

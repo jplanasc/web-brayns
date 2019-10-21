@@ -1,27 +1,29 @@
 div.tfw-view-InputColor {
-    display: inline-flex;
+    display: inline-block;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     margin: .5rem;
 }
 div.tfw-view-InputColor.wide {
-    display: flex;
+    display: block;
+    width: 100%;
 }
-div.tfw-view-InputColor > div > div {
+div.tfw-view-InputColor > div.summary > div {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
 }
-div.tfw-view-InputColor > div > div > div {
+div.tfw-view-InputColor > div.summary > div > div {
     max-height: 2rem;
     min-height: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex: 0 0 auto;
 }
-div.tfw-view-InputColor > div > div > input {
+div.tfw-view-InputColor > div.summary > div > input {
     line-height: 2rem;
     font-size: 1rem;
     font-family: monospace;
@@ -30,13 +32,13 @@ div.tfw-view-InputColor > div > div > input {
     border: 0;
     outline: 0;
     width: 6rem;
-    max-width: 6rem;
     min-width: 6rem;
     max-height: 2rem;
     min-height: 2rem;
+    flex: 1 1 auto;
     text-transform: uppercase;
 }
-div.tfw-view-InputColor > div > div > input.invalid {
+div.tfw-view-InputColor > div.summary > div > input.invalid {
     font-weight: normal;
     text-decoration: line-through;
 }

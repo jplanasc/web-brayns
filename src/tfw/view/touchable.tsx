@@ -1,5 +1,5 @@
 import * as React from "react"
-import castArray from "../converter/array"
+import castString from "../converter/string"
 import castBoolean from "../converter/boolean"
 import TouchableBehavior from "../behavior/touchable"
 import "./touchable.css"
@@ -8,7 +8,7 @@ interface ITouchableProps {
     enabled?: boolean;
     onClick?: ()=>void;
     title?: string;
-    classNames?: string[];
+    className?: string;
     color?: string;
     children?: React.ReactElement<any>|React.ReactElement<any>[];
 }
@@ -39,7 +39,8 @@ export default class Touchable extends React.Component<ITouchableProps, {}> {
     render() {
         const p = this.props;
         const enabled = castBoolean(p.enabled, true);
-        const classes = ["tfw-view-touchable"].concat(castArray(p.classNames));
+        const classes = ["tfw-view-touchable"]
+            .concat(castString(p.className, "").split(" "));
         if( enabled ) classes.push("enabled");
         return <div ref={this.ref}
                 tabIndex={0}

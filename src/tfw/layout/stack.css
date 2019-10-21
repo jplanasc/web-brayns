@@ -1,4 +1,4 @@
-div.tfw-layout-stack.fullscreen {
+div.tfw-layout-Stack.fullscreen {
   position: absolute;
   left    : 0;
   top     : 0;
@@ -7,7 +7,7 @@ div.tfw-layout-stack.fullscreen {
   margin  : 0;
   padding : 0;
 }
-div.tfw-layout-stack.fullscreen > div {
+div.tfw-layout-Stack.fullscreen > div {
     position: absolute;
     left    : 0;
     top     : 0;
