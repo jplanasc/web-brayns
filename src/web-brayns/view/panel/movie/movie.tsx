@@ -149,6 +149,8 @@ export default class Movie extends React.Component<{}, IMovieState> {
             console.info("[MovieRender] params=", params);
             await Scene.request("export-frames-to-disk", params)
 
+
+
             await Dialog.alert("Look into GPFS, buddy!")
         }
         catch (ex) {

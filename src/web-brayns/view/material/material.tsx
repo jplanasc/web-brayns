@@ -89,7 +89,7 @@ export default class Material extends React.Component<IMaterialProps, IMaterialS
                         classes.push("selected");
                     }
                     return (<Touchable key={`S${index}`}
-                                    classNames={classes}
+                                    className={classes.join(" ")}
                                     onClick={() => this.handleShaderChange(index)}>
                                 <div style={{
                                    backgroundImage: `url(${url})`,

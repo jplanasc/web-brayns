@@ -12,3 +12,15 @@ div.webBrayns-view-inputPath > div.flex > * {
 div.webBrayns-view-inputPath > div.flex > *:last-child {
     flex: 0 0 auto;
 }
+
+div.webBrayns-view-inputPath div.loading {
+    transition: filter .3s;
+    filter: grayscale(100%);
+    pointer-events: none;
+}
+
+div.webBrayns-view-inputPath div.ready {
+    transition: filter .2s;
+    filter: grayscale(0);
+    pointer-events: all;
+}

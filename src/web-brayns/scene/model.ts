@@ -4,7 +4,7 @@ import Scene from './scene'
 import Geom from '../geometry'
 import State from '../state'
 
-import { IModel, IVector, IQuaternion } from '../types'
+import { IModel, IVector, IQuaternion, IMaterial } from '../types'
 
 
 export default class Model {
@@ -114,6 +114,10 @@ export default class Model {
         }
     }
 
+    async setMaterial(materialId: number, material: Partial<IMaterial>) {
+        await Scene.setMaterial(this.model.brayns.id, materialId, material)
+    }
+
     /**
      * Remove this model from the Scene.
      */
@@ -156,8 +160,8 @@ export default class Model {
     /**
      * Make to camera to look at this model.
      */
-    async focus(): Promise<boolean> {
-        await Scene.camera.lookAtBounds(this.model.brayns.bounds);
+    async focus(zoom: number=1): Promise<boolean> {
+        await Scene.camera.lookAtBounds(this.model.brayns.bounds, zoom);
         return true;
     }
 

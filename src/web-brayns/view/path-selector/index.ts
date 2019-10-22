@@ -1,1 +1,1 @@
-export { default } from './path-selector.container'
+export { default } from './path-selector'

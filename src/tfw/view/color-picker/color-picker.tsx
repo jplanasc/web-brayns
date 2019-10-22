@@ -26,12 +26,12 @@ export default class ColorPicker extends React.Component<IColorPickerProps, {}> 
                     const y = 2 * (evt.y / rect.height - .5)
                     const r = Math.min(1, Math.sqrt(x * x + y * y))
                     const a = Math.PI + Math.atan2(x, -y)
-                    console.info("x, y, r, a=", x, y, r, Math.floor(180 * a / Math.PI));
                     const hue = a / (2 * Math.PI)
                     const color = new Color(that.props.color)
                     color.rgb2hsl()
                     color.H = hue
                     color.S = r
+                    if (color.L < 0.001) color.L = 0.5
                     color.hsl2rgb()
                     that.props.onColorChange(color.stringify())
                 }
