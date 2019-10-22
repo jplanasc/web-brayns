@@ -7,7 +7,6 @@ div.tfw-view-InputColor {
 }
 div.tfw-view-InputColor.wide {
     display: block;
-    width: 100%;
 }
 div.tfw-view-InputColor > div.summary > div {
     display: flex;

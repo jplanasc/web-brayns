@@ -10,7 +10,7 @@ div.webBrayns-view-PathList > div {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
+    align-items: stretch;
     width: 100%;
 }
 
@@ -28,12 +28,45 @@ div.webBrayns-view-PathList div.folder-button > div.tfw-view-touchable {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    font-size: 80%;
 }
 
 div.webBrayns-view-PathList div.folder-button > div > div.label {
-    margin: 0 1rem;
+    margin: 0 .5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: bold;
+    font-weight: normal;
+    flex: 1 1 auto;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.size {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 80%;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.size > span {
+    padding: 3px 6px;
+    border-radius: 6px;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.size > span.kb {
+    background: white;
+    color: #000;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.size > span.mb {
+    background: yellow;
+    color: #000;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.size > span.gb {
+    background: orange;
+    color: #000;
+}
+
+div.webBrayns-view-PathList div.folder-button > div > div.size > span.tb {
+    background: red;
+    color: #fff;
 }

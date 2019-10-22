@@ -63,7 +63,7 @@ export default class KeyFrames extends React.Component<IKeyFramesProps, {}> {
                     classes.push(kf.index === currentFrameIndex ? "thm-bgSL" : "thm-bg2")
 
                     return (<div>
-                        <Touchable classNames={classes}
+                        <Touchable className={classes.join(" ")}
                                    onClick={() => onKeyFrameClick(kf)}
                                    key={`index-${index}`}>
                             <img src={kf.previewURL}/>

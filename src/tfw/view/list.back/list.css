@@ -3,6 +3,7 @@ div.tfw-view-list {
   overflow       : auto;
   padding        : 0;
   margin         : 1rem;
+  box-shadow     : 0 4px 8px #000;
   min-width      : 280px;
   max-height     : 100vh;
   /* To prevent a bug in Google Chrome */

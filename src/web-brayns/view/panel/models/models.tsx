@@ -37,7 +37,10 @@ export default class Model extends React.Component<{}, {}> {
 
     handleAddObject = async () => {
         let options: ISphereOptions = { x: 0, y: 0, z: 0, r: 0, color: [0,0,0] }
-        const view = <SphereView onUpdate={v => options = v}/>
+        const view = <SphereView onUpdate={v => {
+            options = v
+            console.info("options=", options);
+        }}/>
         const dialog = Dialog.show({
             title: "Add object",
             content: view,
@@ -54,8 +57,12 @@ export default class Model extends React.Component<{}, {}> {
                                 translation: [options.x, options.y, options.z]
                             }
                         })
-                    console.info("model=", model);
-                    // @TODO  Setting material...
+                    await model.setMaterial(0, {
+                        diffuseColor: options.color,
+                        shadingMode: "diffuse",
+                        glossiness: 0.5,
+                    })
+                    model.focus(0.05)
                 }}/>
         })
 

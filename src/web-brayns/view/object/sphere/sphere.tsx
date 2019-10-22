@@ -63,7 +63,7 @@ export default class Sphere extends React.Component<TSphereProps, TSphereState> 
                     label="Sphere color"
                     value={color}
                     wide={true}
-                    onChange={color => this.setState({ color })}/>
+                    onChange={color => this.update({ color })}/>
             </div>
         </div>)
     }

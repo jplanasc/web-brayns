@@ -65,7 +65,7 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
         } else {
             classNames.push(model.selected ? "thm-bgSD" : "thm-bg0");
         }
-        return (<Touchable classNames={classNames}
+        return (<Touchable className={classNames.join(" ")}
                            onClick={this.handleToggleSelection}
                            title={model.brayns.path}>
                 <div className="name">
