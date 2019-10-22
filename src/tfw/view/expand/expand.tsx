@@ -22,7 +22,7 @@ export default class Expand extends React.Component<IExpandProps, {}> {
         }
 
         return (<div className={classes.join(' ')}>
-            <Touchable classNames={["head"]} onClick={this.handleValueChange}>
+            <Touchable className="head" onClick={this.handleValueChange}>
                 <div className="icons">
                     <Icon content="plus-o" size={24}/>
                     <Icon content="minus-o" size={24}/>
