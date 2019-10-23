@@ -1,10 +1,44 @@
 import Scene from '../scene'
 import FS from './fs'
+import Wait from '../view/wait'
 
 export default {
-    cancelFramesExport,
-    getExportFramesProgress,
-    makeMovieFromFrames
+    waitForSimpleMovieMaking
+}
+
+interface IWaitForSimpleMovieMakingInput {
+    outputDirectoryPath: string,
+    format: "jpg" | "jpeg" | "png",
+    quality: number,
+    // Samples per pixel.
+    samples: number,
+    // Frames per second.
+    fps: number,
+    animationInformation: number[],
+    cameraInformation: number[]
+}
+
+/**
+ * Start the movie making process and return `true` in case of success,
+ * or `false` if the process has been cancelled or if it had failed.
+ */
+async function waitForSimpleMovieMaking(params: IWaitForSimpleMovieMakingInput): Promise<boolean> {
+    return new Promise(async (resolve) => {
+        await Scene.request(
+            "export-frames-to-disk", {
+                path: params.outputDirectoryPath,
+                format: params.format,
+                quality: params.quality,
+                ssp: params.samples,
+                startFrame: 0,
+                animationInformation: params.animationInformation,
+                cameraInformation: params.cameraInformation
+            }
+        )
+
+        const onCancel = @TODO!
+        const wait = <Wait onCancel={onCancel}/>
+    })
 }
 
 

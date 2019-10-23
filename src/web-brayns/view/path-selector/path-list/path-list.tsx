@@ -7,10 +7,9 @@ import List from '../../../../tfw/view/list'
 import "./path-list.css"
 
 interface IPathListProps {
-    // Must be the real path, not a file!
-    path: string,
     files: { name: string, size: number }[],
     dirs: string[],
+    foldersOnly: boolean,
     // Complete path.
     onFileClick: (path: string) => void,
     // Complete path.
@@ -50,7 +49,7 @@ export default class PathList extends React.Component<IPathListProps, {}> {
     }
 
     render() {
-        const { files, dirs } = this.props;
+        const { files, dirs, foldersOnly } = this.props;
 
         console.info("files=", files);
 
@@ -62,13 +61,16 @@ export default class PathList extends React.Component<IPathListProps, {}> {
                       items={dirs.sort()}
                       mapper={this.renderDir}/>
             </div>
-            <div>
-                <h1>{`Files (${files.length})`}</h1>
-                <List itemHeight={28}
-                    height="60vh"
-                    items={files.sort(byName)}
-                    mapper={this.renderFile}/>
-            </div>
+            {
+                foldersOnly ||
+                <div>
+                    <h1>{`Files (${files.length})`}</h1>
+                    <List itemHeight={28}
+                        height="60vh"
+                        items={files.sort(byName)}
+                        mapper={this.renderFile}/>
+                </div>
+            }
         </div>)
     }
 }

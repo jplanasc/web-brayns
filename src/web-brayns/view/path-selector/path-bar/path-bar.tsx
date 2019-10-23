@@ -5,17 +5,17 @@ import Touchable from '../../../../tfw/view/touchable'
 import "./path-bar.css"
 
 interface IPathBarProps {
-    path: string,
+    dir: string,
     root: string,
     onClick: (path: string) => void
 }
 
 export default class PathBar extends React.Component<IPathBarProps, {}> {
     render() {
-        const { path, root } = this.props;
+        const { dir, root } = this.props;
         const pieces = [
             root,
-            ...path.substr(root.length).split("/")
+            ...dir.substr(root.length).split("/")
         ].filter((item: string) => item.length > 0);
         const lastIndex = pieces.length - 1;
         const buttons = [];
@@ -36,7 +36,7 @@ export default class PathBar extends React.Component<IPathBarProps, {}> {
         }
 
         return (<div className="webBrayns-view-PathBar">
-            <header>{path}</header>
+            <header>Click on a path button to get back in the folders hierarchy.</header>
             <div>{buttons}</div>
         </div>)
     }

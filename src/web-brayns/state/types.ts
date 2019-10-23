@@ -16,11 +16,11 @@ export interface ISlicerState {
 
 export interface ISnapshot {
     filename: string,
-    sizeKey: string,
     width: number,
     height: number,
-    samplesKey: string,
     samples: number
+    //sizeKey: string,
+    //samplesKey: string,
 }
 
 export interface IDialogs {

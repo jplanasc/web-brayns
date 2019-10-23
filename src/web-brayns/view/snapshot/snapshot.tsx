@@ -23,14 +23,20 @@ export const SAMPLINGS: {[key: string]: number} = {
 }
 
 
-interface IProps extends ISnapshot {
-    onFilenameChange: (filename: string) => void,
-    onSizeKeyChange: (key: string) => void,
-    onWidthChange: (width: number) => void,
-    onHeightChange: (width: number) => void,
-    onSamplesKeyChange: (key: string) => void,
-    onSamplesChange: (samples: number) => void,
-    onLandscapeChange: (value: boolean) => void
+interface IProps {
+    initValue: ISnapshot,
+    hidePathInput: boolean,
+    onChange: (snapshot: ISnapshot) => void
+}
+
+interface IState {
+    filename: string,
+    widthText: string,
+    heightText: string,
+    samplesText: string,
+    sizeKey: string,
+    samplesKey: string,
+    landscape: boolean
 }
 
 function res(name: string): string {
@@ -40,62 +46,107 @@ function res(name: string): string {
     return `(${w} x ${h})`
 }
 
-export default class Snapshot extends React.Component<IProps, {}> {
+export default class Snapshot extends React.Component<IProps, IState> {
     constructor( props: IProps ) {
         super( props );
+        const v = props.initValue
+        this.state = {
+            filename: v.filename,
+            widthText: `${v.width}`,
+            heightText: `${v.height}`,
+            samplesText: `${v.samples}`,
+            sizeKey: "custom",
+            samplesKey: "custom",
+            landscape: v.width > v.height
+        }
     }
 
-    handleWidthChange = (width: string) => {
-        const value = parseInt(width, 10);
-        if (isNaN(value)) return;
-        this.props.onWidthChange(value);
-    }
-
-    handleHeightChange = (height: string) => {
-        const value = parseInt(height, 10);
-        if (isNaN(value)) return;
-        this.props.onHeightChange(value);
-    }
-
-    handleSizeKeyChange = (size: string) => {
-        this.props.onSizeKeyChange(size);
-        const resolution = RESOLUTIONS[size];
-        if (!resolution) return '';
-        const [w,h] = resolution;
-        this.props.onWidthChange(w)
-        this.props.onHeightChange(h)
-    }
-
-    handleSamplesChange = (samples: string) => {
-        const value = parseInt(samples, 10);
-        if (isNaN(value)) return;
-        this.props.onSamplesChange(value);
-    }
-
-    handleSamplesKeyChange = (key: string) => {
-        this.props.onSamplesKeyChange(key);
-        const samples = SAMPLINGS[key]
-        if (!samples) return
-        this.props.onSamplesChange(samples)
+    private fire = () => {
+        const { filename, widthText, heightText, samplesText } = this.state
+        this.props.onChange({
+            filename,
+            width: parseInt(widthText, 10),
+            height: parseInt(heightText, 10),
+            samples: parseInt(samplesText, 10)
+        })
     }
 
     handleFilenameChange = (filename: string) => {
-        this.props.onFilenameChange(filename);
+        this.setState({ filename })
+        this.fire()
     }
 
-    handleLandscapeChange = (value: boolean) => {
-        this.props.onLandscapeChange(value)
+    handleWidthChange = (widthText: string) => {
+        this.setState({ widthText })
+        const value = parseInt(widthText, 10);
+        if (isNaN(value)) return;
+        this.fire()
+    }
+
+    handleHeightChange = (heightText: string) => {
+        this.setState({ heightText })
+        const value = parseInt(heightText, 10);
+        if (isNaN(value)) return;
+        this.fire()
+    }
+
+    handleSamplesChange = (samplesText: string) => {
+        this.setState({ samplesText })
+        const value = parseInt(samplesText, 10);
+        if (isNaN(value)) return;
+        this.fire()
+    }
+
+    handleSizeKeyChange = (sizeKey: string) => {
+        this.setState({ sizeKey })
+        const resolution = RESOLUTIONS[sizeKey]
+        if (!resolution) return
+        const [w,h] = resolution
+        this.setState({
+            widthText: `${w}`,
+            heightText: `${h}`
+        }, this.fire)
+    }
+
+    handleSamplesKeyChange = (samplesKey: string) => {
+        this.setState({ samplesKey })
+        const samples = SAMPLINGS[samplesKey]
+        if (!samples) return
+        this.setState(
+            { samplesText: `${samples}` },
+            this.fire
+        )
+    }
+
+    handleLandscapeChange = (landscape: boolean) => {
+        this.setState({ landscape })
+        const width = parseInt(this.state.widthText, 10)
+        const height = parseInt(this.state.heightText, 10)
+        if ((landscape && height > width) || (!landscape && width > height)) {
+            this.setState(
+                {
+                    widthText: `${height}`,
+                    heightText: `${width}`
+                },
+                this.fire
+            )
+        }
     }
 
     render() {
-        const p = this.props;
+        const {
+            filename, widthText, heightText, samplesText, landscape, sizeKey, samplesKey
+        } = this.state
 
         return (<div className="webBrayns-dialog-screenshot">
-            <Input wide={true}
-                   label="File name"
-                   value={`${p.filename}`}
-                   onChange={this.handleFilenameChange}/>
-            <Combo value={p.sizeKey} wide={true} onChange={this.handleSizeKeyChange}>
+            {
+                !this.props.hidePathInput &&
+                <Input wide={true}
+                       label="File name"
+                       value={`${filename}`}
+                       onChange={this.handleFilenameChange}/>
+            }
+            <Combo value={sizeKey} wide={true} onChange={this.handleSizeKeyChange}>
                 <div key="ultraHD">Ultra HD <em>{res("ultraHD")}</em></div>
                 <div key="fullHD">Full HD <em>{res("fullHD")}</em></div>
                 <div key="presentation">Presentation <em>{res("presentation")}</em></div>
@@ -103,17 +154,18 @@ export default class Snapshot extends React.Component<IProps, {}> {
                 <div key="custom">Custom...</div>
             </Combo>
             <Flex>
-                <Input label="Width" value={`${p.width}`}
-                       enabled={p.sizeKey === 'custom'}
+                <Input label="Width" value={`${widthText}`}
+                       enabled={sizeKey === 'custom'}
                        onChange={this.handleWidthChange}/>
-                <Input label="Height" value={`${p.height}`}
-                       enabled={p.sizeKey === 'custom'}
+                <Input label="Height" value={`${heightText}`}
+                       enabled={sizeKey === 'custom'}
                        onChange={this.handleHeightChange}/>
                 <Checkbox label="landscape"
-                          value={this.props.landscape}
+                          value={landscape}
                           onChange={this.handleLandscapeChange}/>
             </Flex>
-            <Combo value={p.samplesKey} wide={true} onChange={this.handleSamplesKeyChange}>
+            <Combo value={samplesKey} wide={true}
+                   onChange={this.handleSamplesKeyChange}>
                 <div key="quick">Quick and dirty</div>
                 <div key="low">Low quality</div>
                 <div key="medium">Medium quality</div>
@@ -123,8 +175,8 @@ export default class Snapshot extends React.Component<IProps, {}> {
             </Combo>
             <Input wide={true}
                    label="Sampling"
-                   value={`${p.samples}`}
-                   enabled={p.samplesKey === 'custom'}
+                   value={`${samplesText}`}
+                   enabled={samplesKey === 'custom'}
                    onChange={this.handleSamplesChange}/>
         </div>)
     }

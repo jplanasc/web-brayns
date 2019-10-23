@@ -10,3 +10,7 @@ div.webBrayns-view-loader-Circuit > footer {
 div.webBrayns-view-loader-Circuit em {
     opacity: .5;
 }
+
+div.webBrayns-view-loader-Circuit div.hint {
+    padding: 1rem;
+}
