@@ -155,19 +155,31 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
                     validator={Validator.isFloat}
                     onValidation={densityValid => this.setState({ densityValid })}
                     onChange={density => this.setState({ density })}/>
-                <Combo label="Report"
-                    value={report}
-                    onChange={this.handleReportChange}>{
-                    reports.map((name: string) => {
-                        if (name.length === 0) {
-                            return <div key=""><em>Don't load any simulation</em></div>
-                        }
-                        return <div key={name}>{name}</div>
-                    })
-                }</Combo>
+                {
+                    reports.length > 1 &&
+                    <Combo label="Report"
+                        value={report}
+                        onChange={this.handleReportChange}>{
+                        reports.map((name: string) => {
+                            if (name.length === 0) {
+                                return <div key=""><em>Don't load any simulation</em></div>
+                            }
+                            return <div key={name}>{name}</div>
+                        })
+                    }</Combo>
+                }
+                {
+                    reports.length > 1 &&
                 <Input label="Targets (comma separated list)"
                     value={targets}
                     onChange={targets => this.setState({ targets })}/>
+                }
+                {
+                    reports.length < 2 &&
+                    <div className="hint thm-bg0">
+                        <em>This circuit has no simulation data.</em>
+                    </div>
+                }
             </div>
             <br/>
             <div>

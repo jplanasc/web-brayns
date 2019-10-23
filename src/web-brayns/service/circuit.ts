@@ -1,4 +1,4 @@
-import Python from './python'
+import FS from './fs'
 
 export interface IReport {
     name: string,
@@ -17,7 +17,9 @@ export default {
 
 
 async function parseCircuitFromFile(path: string): Promise<ICircuitSection[]> {
-    const result = await Python.exec("file-read", { path })
+    const result = await FS.getContent( path )
+
+    console.info("result=", result);
     if (typeof result !== 'string') {
         throw result
     }
@@ -53,7 +55,7 @@ function parseCircuitFromText(circuitContent: string): ICircuitSection[] {
 
         const { key, val } = parseProp(trimedLine)
         if (key.length === 0) continue
-        
+
         if (outside) {
             currentSection = { type: key, name: val, properties: {} }
             circuit.push(currentSection)

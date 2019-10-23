@@ -12,6 +12,8 @@ import Expand from '../../../../tfw/view/expand'
 import ImageFactory from '../../../../tfw/factory/image'
 import Snapshot from '../../snapshot'
 import KeyFrames from './key-frames'
+import InputDir from '../../../dialog/directory'
+import InputSnapshot from '../../../dialog/snapshot'
 import { IKeyFrame, IVector } from '../../../types'
 
 import castInteger from '../../../../tfw/converter/integer'
@@ -126,6 +128,12 @@ export default class Movie extends React.Component<{}, IMovieState> {
     }
 
     handleRender = async () => {
+        const outputFolder = await InputDir.show({
+            title: "Movie output folder",
+            storageKey: "movie"
+        })
+        if (!outputFolder) return
+
         const { width, height } = this.state
         await Scene.renderer.push({
             canvas: Scene.renderer.createCanvas(width, height),
@@ -137,7 +145,7 @@ export default class Movie extends React.Component<{}, IMovieState> {
             await Scene.renderer.setViewPort(width, height)
 
             const params = {
-                path: this.state.folder,
+                path: outputFolder,
                 format: 'jpeg',
                 quality: 100,
                 // Samples per pixel
@@ -343,11 +351,24 @@ export default class Movie extends React.Component<{}, IMovieState> {
         })
     }
 
+    private handleVideoParametersClick = async () => {
+        const options = await InputSnapshot.show({
+            hidePathInput: true,
+            title: "Video output parameters for this movie"
+        })
+        if (!options) return
+        this.setState({
+            width: options.width,
+            height: options.height,
+            samples: options.samples
+        })
+    }
+
     render() {
         const upd = this.update
         const hasKeyFrames = this.state.keyFrames.length > 0
         const hasMoreThanOneKeyFrame = this.state.keyFrames.length > 1
-        const { currentFrameIndex } = this.state
+        const { currentFrameIndex, width, height, samples } = this.state
         const { min, max } = this.getFramesBounds()
 
         return (<div className="webBrayns-view-panel-Movie">
@@ -375,22 +396,18 @@ export default class Movie extends React.Component<{}, IMovieState> {
                     icon="undo"
                     onClick={this.handleUndo}/>
             }
-            <Expand label="Video parameters"
-                    value={this.state.expandOutputOptions}
-                    onValueChange={expandOutputOptions => upd({ expandOutputOptions })}>
-                <Snapshot filename={this.state.folder}
-                          sizeKey={this.state.sizeKey}
-                          width={this.state.width}
-                          height={this.state.height}
-                          samplesKey={this.state.samplesKey}
-                          samples={this.state.samples}
-                          onWidthChange={width => upd({ width })}
-                          onHeightChange={height => upd({ height })}
-                          onSamplesChange={samples => upd({ samples })}
-                          onSizeKeyChange={sizeKey => upd({ sizeKey })}
-                          onSamplesKeyChange={samplesKey => upd({ samplesKey })}
-                          onFilenameChange={folder => upd({ folder })}/>
-            </Expand>
+            <div className="movie-params">
+                <h1>Video output parameters</h1>
+                <div className="flex">
+                    <div>
+                        <b>{width}</b><span> x </span><b>{height}</b>
+                    </div>
+                    <div>
+                        <b>{samples}</b><span>&nbsp; samples</span>
+                    </div>
+                    <Button icon="edit" small={true} onClick={this.handleVideoParametersClick}/>
+                </div>
+            </div>
             <footer className="thm-bg1">
                 <div>
                     <Button icon="import" label="Load" />

@@ -1,20 +1,17 @@
 import React from "react"
 
-import Storage from '../../../storage'
 import State from '../../../state'
 import Geom from '../../../geometry'
 import Color from '../../../../tfw/color'
-import Icon from '../../../../tfw/view/icon'
 import Checkbox from '../../../../tfw/view/checkbox'
 import Throttler from '../../../../tfw/throttler'
 import OrientationView from '../../orientation'
 import LocationView from '../../location'
 import ScaleView from '../../scale'
-import SnapshotView from '../../snapshot/snapshot.container'
+import SnapshotView from '../../snapshot/snapshot'
 import ClipPlaneObject from '../../../object/clip-plane'
-import ModelObject from '../../../scene/model'
 
-import { IBounds, IModel } from '../../../types'
+import { IModel } from '../../../types'
 
 import "./clip.css"
 

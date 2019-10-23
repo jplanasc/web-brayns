@@ -2,7 +2,6 @@ import React from "react"
 
 import PathBar from './path-bar'
 import PathList from './path-list'
-import FS from '../../service/fs'
 import castString from '../../../tfw/converter/string'
 
 import "./path-selector.css"
@@ -15,50 +14,43 @@ interface IBookmark {
 
 interface IPathSelectorProps {
     dir: string,
-    // If path is not a folder, it is different from `dir`.
-    path: string,
     //The path cannot be outside the root.
     root: string,
     files: { name: string, size: number }[],
     dirs: string[],
     onFolderClick: (path: string) => void,
     onFileClick: (path: string) => void,
-    className?: string
+    className?: string,
+    foldersOnly: boolean
     // bookmarks: IBookmark[],
     // onAddBookmarkClick: (path: string) => void,
     // onRemoveBookmarkClick: (path: string) => void
 }
 
 export default class PathSelector extends React.Component<IPathSelectorProps, {}> {
-    handleFileClick = async (name: string) => {
-        const fullPath = await FS.getDirName(this.props.path)
-        console.info("path, fullPath=", this.props.path, fullPath);
-        this.props.onFileClick(concatPath(fullPath, name))
+    handleFileClick = async (fileName: string) => {
+        this.props.onFileClick(concatPath(this.props.dir, fileName))
     }
 
-    handleBarClick = async (name: string) => {
-        this.props.onFolderClick(name)
+    handleBarClick = async (folderPath: string) => {
+        this.props.onFolderClick(folderPath)
     }
 
-    handleFolderClick = async (name: string) => {
-        const fullPath = await FS.getDirName(this.props.path)
-        const finalPath = concatPath(fullPath, name)
-        console.info({
-            path: this.props.path, fullPath, name, finalPath
-        })
+    handleFolderClick = async (folderName: string) => {
+        const finalPath = concatPath(this.props.dir, folderName)
         this.props.onFolderClick(finalPath)
     }
 
     render() {
-        const { dir, path, root, files, dirs } = this.props;
+        const { dir, root, files, dirs, foldersOnly } = this.props;
         const className = "webBrayns-view-PathSelector "
             + castString(this.props.className, '')
 
         return (<div className={className}>
-            <PathBar path={path} root={root} onClick={this.handleBarClick}/>
+            <PathBar dir={dir} root={root} onClick={this.handleBarClick}/>
             <PathList files={files}
                       dirs={dirs}
-                      path={dir}
+                      foldersOnly={foldersOnly}
                       onFileClick={this.handleFileClick}
                       onFolderClick={this.handleFolderClick}/>
         </div>)

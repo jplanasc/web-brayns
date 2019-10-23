@@ -36,6 +36,9 @@ function concat(...parts: string[]) {
 async function exists(path: string): Promise<boolean> {
     const result: any = await Scene.request("fs-exists", { path })
     if (result) {
+        // If the path is outside the sandbox, we return that it does not exist.
+        if (result.error === 1) return false
+
         catchError(result)
         if (result.type === 'file' || result.type === 'dir') {
             return true
@@ -73,7 +76,7 @@ async function getContent(path: string): Promise<string> {
  * Otherwise, return the owning folder.
  */
 async function getDirName(path: string) {
-    if (isDir(path)) return path
+    if (await isDir(path)) return path
     const pieces = path.split('/')
     pieces.pop()
     return pieces.join('/')
