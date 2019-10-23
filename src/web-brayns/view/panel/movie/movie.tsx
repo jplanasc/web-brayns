@@ -8,12 +8,11 @@ import Dialog from '../../../../tfw/factory/dialog'
 import Icon from '../../../../tfw/view/icon'
 import Input from '../../../../tfw/view/input'
 import Button from '../../../../tfw/view/button'
-import Expand from '../../../../tfw/view/expand'
 import ImageFactory from '../../../../tfw/factory/image'
-import Snapshot from '../../snapshot'
 import KeyFrames from './key-frames'
 import InputDir from '../../../dialog/directory'
 import InputSnapshot from '../../../dialog/snapshot'
+import MovieService from '../../../service/movie'
 import { IKeyFrame, IVector } from '../../../types'
 
 import castInteger from '../../../../tfw/converter/integer'
@@ -145,16 +144,17 @@ export default class Movie extends React.Component<{}, IMovieState> {
             await Scene.renderer.setViewPort(width, height)
 
             const params = {
-                path: outputFolder,
+                outputDirectoryPath: outputFolder,
                 format: 'jpeg',
                 quality: 100,
                 // Samples per pixel
-                spp: this.state.samples,
-                startFrame: 0,
+                samples: this.state.samples,
+                fps: this.state.fps,
                 animationInformation: this.computeAnimationInformation(),
                 cameraInformation: this.computeCameraInformation()
             }
             console.info("[MovieRender] params=", params);
+            MovieService.waitForSimpleMovieMaking(params)
             await Scene.request("export-frames-to-disk", params)
 
 

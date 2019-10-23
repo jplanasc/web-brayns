@@ -8,7 +8,7 @@ export default {
 
 interface IWaitForSimpleMovieMakingInput {
     outputDirectoryPath: string,
-    format: "jpg" | "jpeg" | "png",
+    format: format,
     quality: number,
     // Samples per pixel.
     samples: number,
@@ -35,9 +35,12 @@ async function waitForSimpleMovieMaking(params: IWaitForSimpleMovieMakingInput):
                 cameraInformation: params.cameraInformation
             }
         )
-
+/*
         const onCancel = @TODO!
         const wait = <Wait onCancel={onCancel}/>
+        */
+
+       resolve(true)
     })
 }
 
