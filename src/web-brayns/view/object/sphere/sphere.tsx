@@ -4,6 +4,7 @@ import Color from "../../../../tfw/color"
 import Input from "../../../../tfw/view/input"
 import InputColor from "../../../../tfw/view/input-color"
 import { ISphereOptions } from './types'
+import Storage from '../../../storage'
 
 import "./sphere.css"
 
@@ -21,13 +22,13 @@ interface TSphereState {
 export default class Sphere extends React.Component<TSphereProps, TSphereState> {
     constructor( props: TSphereProps ) {
         super(props)
-        this.state = {
+        this.state = Storage.get("view/object/sphere/state", {
             x: "0",
             y: "0",
             z: "0",
             r: "1",
             color: "#1E90FF"
-        }
+        })
     }
 
     componentDidMount() {
@@ -43,6 +44,7 @@ export default class Sphere extends React.Component<TSphereProps, TSphereState> 
             const color = new Color(this.state.color)
             if (isNaN(x) || isNaN(y) || isNaN(z) || isNaN(r)) return
             if (r < 0.000001) return
+            Storage.set("view/object/sphere/state", this.state)
             this.props.onUpdate({
                 x, y, z, r,
                 color: [color.R, color.G, color.B, color.A]
