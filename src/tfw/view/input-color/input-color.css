@@ -8,13 +8,18 @@ div.tfw-view-InputColor {
 div.tfw-view-InputColor.wide {
     display: block;
 }
-div.tfw-view-InputColor > div.summary > div {
+div.tfw-view-InputColor > div.summary > div.tfw-view-Slider {
+    flex: 1 1 auto;
+    min-width: 110px;
+}
+
+div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
 }
-div.tfw-view-InputColor > div.summary > div > div {
+div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > div {
     max-height: 2rem;
     min-height: 2rem;
     display: flex;
@@ -22,7 +27,7 @@ div.tfw-view-InputColor > div.summary > div > div {
     align-items: center;
     flex: 0 0 auto;
 }
-div.tfw-view-InputColor > div.summary > div > input {
+div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > input {
     line-height: 2rem;
     font-size: 1rem;
     font-family: monospace;
@@ -37,7 +42,7 @@ div.tfw-view-InputColor > div.summary > div > input {
     flex: 1 1 auto;
     text-transform: uppercase;
 }
-div.tfw-view-InputColor > div.summary > div > input.invalid {
+div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > input.invalid {
     font-weight: normal;
     text-decoration: line-through;
 }

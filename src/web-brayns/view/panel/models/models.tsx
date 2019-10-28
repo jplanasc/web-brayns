@@ -11,7 +11,9 @@ import { ISphereOptions } from '../../object/sphere/types'
 import InputPath from '../../../view/input-path'
 import ModelList from '../../../view/model-list/container'
 import LoaderService from '../../../service/loader'
+import ObjectService from '../../../service/object'
 import OkCancel from "../../../../tfw/view/ok-cancel"
+import ModelObject from "../../../scene/model"
 
 import LowPolySphere from '../../../object/mesh/low-poly-sphere.ply'
 
@@ -50,7 +52,7 @@ export default class Model extends React.Component<{}, IState> {
     }
 
     handleAddObject = async () => {
-        let options: ISphereOptions = { x: 0, y: 0, z: 0, r: 0, color: [0,0,0] }
+        let options: ISphereOptions = { x: 0, y: 0, z: 0, r: 0, color: [0,0,0,0] }
         const view = <SphereView onUpdate={v => {
             options = v
             console.info("options=", options);
@@ -61,22 +63,13 @@ export default class Model extends React.Component<{}, IState> {
             footer: <OkCancel onCancel={() => dialog.hide()}
                 onOK={async () => {
                     dialog.hide()
-                    const ply = await Util.loadTextFromURL(LowPolySphere)
-                    console.log(ply)
-                    const model = await LoaderService.loadFromString(
-                        "sphere.ply", ply, {
-                            path: "@object/sphere",
-                            transformation: {
-                                scale: [options.r, options.r, options.r],
-                                translation: [options.x, options.y, options.z]
-                            }
-                        })
-                    await model.setMaterial(0, {
-                        diffuseColor: options.color,
-                        shadingMode: "diffuse",
-                        glossiness: 0.5,
-                    })
-                    model.focus(0.05)
+                    const model = await ObjectService.createSphere(
+                        options.x, options.y, options.z,
+                        options.r, options.color
+                    )
+                    State.dispatch(State.Models.add(model))
+                    const m = new ModelObject(model)
+                    m.focus(0.05)
                 }}/>
         })
     }
@@ -108,7 +101,7 @@ export default class Model extends React.Component<{}, IState> {
         return (<div className="webBrayns-view-panel-Models">
             <header>
                 <Button icon="import" label="Load a Model" onClick={this.handleLoadMesh}/>
-                <Button icon="add" flat={true}
+                <Button icon="add" flat={true} enabled={true}
                     label="Add an Object" onClick={this.handleAddObject}/>
             </header>
             <ModelList onLoad={this.handleLoadMesh}/>
