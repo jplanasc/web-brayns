@@ -106,7 +106,7 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
                     </Combo>
                 </header>
             }
-            <List itemHeight={100}
+            <List itemHeight={80}
                   items={filteredModels}
                   width="100%"
                   mapper={mapper}/>
