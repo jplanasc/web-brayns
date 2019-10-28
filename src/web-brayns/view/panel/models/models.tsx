@@ -1,5 +1,6 @@
 import React from "react"
 
+import { IBraynsModel, IModel } from '../../../types'
 import State from '../../../state'
 import Scene from '../../../scene'
 import Util from '../../../../tfw/util'
@@ -16,7 +17,18 @@ import LowPolySphere from '../../../object/mesh/low-poly-sphere.ply'
 
 import "./models.css"
 
-export default class Model extends React.Component<{}, {}> {
+interface IState {
+    refreshing: boolean
+}
+
+export default class Model extends React.Component<{}, IState> {
+    constructor(props: {}) {
+        super(props)
+        this.state = {
+            refreshing: false
+        }
+    }
+
     handleClip = () => {
         State.dispatch(State.Navigation.setPanel("clip"));
     }
@@ -30,7 +42,9 @@ export default class Model extends React.Component<{}, {}> {
         }
         const dialog = Dialog.show({
             closeOnEscape: true,
-            content: <InputPath onLoadClick={onClick}/>,
+            content: <InputPath
+                        storageKey="models"
+                        onLoadClick={onClick}/>,
             footer: <Button flat={true} label="Cancel" icon="close" onClick={() => { dialog.hide() }}/>
         })
     }
@@ -65,10 +79,32 @@ export default class Model extends React.Component<{}, {}> {
                     model.focus(0.05)
                 }}/>
         })
+    }
 
+    private handleRefesh = async () => {
+        this.setState({ refreshing: true })
+        try {
+            const scene = (await Scene.Api.getScene()) as { models: IBraynsModel[] }
+            const models: IModel[] = scene.models.map((params: IBraynsModel) => ({
+                brayns: params,
+                parent: -1,
+                deleted: false,
+                selected: false,
+                technical: false,
+                materialIds: []
+            }))
+            State.dispatch(State.Models.reset(models))
+        } catch(ex) {
+            console.error(ex)
+        }
+        finally {
+            this.setState({ refreshing: false })
+        }
     }
 
     render() {
+        const { refreshing } = this.state
+
         return (<div className="webBrayns-view-panel-Models">
             <header>
                 <Button icon="import" label="Load a Model" onClick={this.handleLoadMesh}/>
@@ -76,6 +112,12 @@ export default class Model extends React.Component<{}, {}> {
                     label="Add an Object" onClick={this.handleAddObject}/>
             </header>
             <ModelList onLoad={this.handleLoadMesh}/>
+            <footer className="thm-bg2">
+                <Button flat={true} wide={true} icon="refresh"
+                    small={true}
+                    label="Refresh list" wait={refreshing}
+                    onClick={this.handleRefesh}/>
+            </footer>
         </div>)
     }
 }

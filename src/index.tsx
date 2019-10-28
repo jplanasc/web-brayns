@@ -31,13 +31,13 @@ async function start() {
 
     try {
         const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
-        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
         const planes = await Scene.Api.getClipPlanes()
         const notNullplanes: {id: number, plane: [number,number,number,number]}[] =
             planes.filter( p => p !== null )
         const planeIds = notNullplanes.map( p => p.id )
         Scene.Api.removeClipPlanes(planeIds);
 
+        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
         const models = scene.models.map((params: IBraynsModel) => ({
             brayns: params,
             parent: -1,

@@ -8,7 +8,7 @@ export default {
 
 interface IWaitForSimpleMovieMakingInput {
     outputDirectoryPath: string,
-    format: format,
+    format: string,
     quality: number,
     // Samples per pixel.
     samples: number,
