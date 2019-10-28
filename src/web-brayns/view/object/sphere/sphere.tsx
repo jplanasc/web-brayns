@@ -28,21 +28,25 @@ export default class Sphere extends React.Component<TSphereProps, TSphereState> 
             r: "1",
             color: "#1E90FF"
         }
+    }
+
+    componentDidMount() {
         this.update(this.state)
     }
 
     update = (state: Partial<TSphereState>) => {
-        this.setState({ ...this.state, ...state })
-        const x = parseFloat(this.state.x)
-        const y = parseFloat(this.state.y)
-        const z = parseFloat(this.state.z)
-        const r = parseFloat(this.state.r)
-        const color = new Color(this.state.color)
-        if (isNaN(x) || isNaN(y) || isNaN(z) || isNaN(r)) return
-        if (r < 0.000001) return
-        this.props.onUpdate({
-            x, y, z, r,
-            color: [color.R, color.G, color.B]
+        this.setState({ ...this.state, ...state }, () => {
+            const x = parseFloat(this.state.x)
+            const y = parseFloat(this.state.y)
+            const z = parseFloat(this.state.z)
+            const r = parseFloat(this.state.r)
+            const color = new Color(this.state.color)
+            if (isNaN(x) || isNaN(y) || isNaN(z) || isNaN(r)) return
+            if (r < 0.000001) return
+            this.props.onUpdate({
+                x, y, z, r,
+                color: [color.R, color.G, color.B, color.A]
+            })
         })
     }
 
@@ -63,6 +67,7 @@ export default class Sphere extends React.Component<TSphereProps, TSphereState> 
                     label="Sphere color"
                     value={color}
                     wide={true}
+                    alpha={true}
                     onChange={color => this.update({ color })}/>
             </div>
         </div>)

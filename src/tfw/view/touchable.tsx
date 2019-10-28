@@ -39,7 +39,7 @@ export default class Touchable extends React.Component<ITouchableProps, {}> {
     render() {
         const p = this.props;
         const enabled = castBoolean(p.enabled, true);
-        const classes = ["tfw-view-touchable"]
+        const classes = ["tfw-view-Touchable"]
             .concat(castString(p.className, "").split(" "));
         if( enabled ) classes.push("enabled");
         return <div ref={this.ref}

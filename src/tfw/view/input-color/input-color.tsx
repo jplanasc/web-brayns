@@ -2,6 +2,7 @@ import React from "react"
 import Icon from "../icon"
 import Label from "../label"
 import Color from "../../color"
+import Slider from "../slider"
 import Touchable from "../touchable"
 import ColorPicker from "../color-picker"
 import castBoolean from '../../../tfw/converter/boolean'
@@ -10,6 +11,8 @@ import "./input-color.css"
 
 interface IInputColorProps {
     value: string;
+    // Should we ask for alpha value?
+    alpha?: boolean;
     label?: string;
     wide?: boolean;
     onChange?: (value: string) => void;
@@ -58,15 +61,27 @@ export default class InputColor extends React.Component<IInputColorProps, IInput
             console.error(ex);
         }
     }
-    componentDidMount() {
+
+    private handleToggle = () => {
+        this.setState({ expanded: !this.state.expanded })
     }
 
-    handleToggle = () => {
-        this.setState({ expanded: !this.state.expanded })
+    private handleAlphaChange = (alpha: number) => {
+        const handler = this.props.onChange;
+        if (typeof handler !== 'function') return;
+        const color = new Color(this.props.value)
+        color.A = alpha / 100
+        try {
+            handler( color.stringify() )
+        } catch(ex) {
+            console.error("Error in handleAlphaChange(): ")
+            console.error(ex)
+        }
     }
 
     render() {
         const p = this.props;
+        const alpha = castBoolean(p.alpha, false)
         const wide = castBoolean(p.wide, false)
         const label = p.label;
         const color = new Color(p.value);
@@ -95,6 +110,12 @@ export default class InputColor extends React.Component<IInputColorProps, IInput
                             size="1.5rem"/>
                     </div>
                 </Touchable>
+                {
+                    alpha &&
+                    <Slider label="Opacity"
+                        value={Math.floor(color.A * 100)}
+                        onChange={this.handleAlphaChange}/>
+                }
             </div>
             {
                 this.state.expanded &&

@@ -3,5 +3,5 @@ export interface ISphereOptions {
     y: number,
     z: number,
     r: number,
-    color: [number, number, number]
+    color: [number, number, number, number]
 }
