@@ -17,7 +17,9 @@ interface ICreateSphereOutput {
 
 async function createSphere(x: number, y: number, z: number,
                             radius: number, color: [number, number, number, number]): Promise<IModel> {
+    const name = `@object/sphere/${JSON.stringify({x, y, z, radius, color})}`
     const sphere = await Scene.request("add-sphere", {
+        name,
         center: [x, y, z],
         radius: radius,
         color
@@ -37,8 +39,8 @@ async function createSphere(x: number, y: number, z: number,
                 min: [x - radius, y - radius, z - radius],
                 max: [x + radius, y + radius, z + radius]
             },
-            name: `Sphere (${x},${y},${z})`,
-            path: "@object/sphere",
+            name,
+            path: name,
             transformation: {
                 rotation: [0,0,0,1],
                 scale: [1,1,1],
