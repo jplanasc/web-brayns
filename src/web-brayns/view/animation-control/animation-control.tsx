@@ -4,6 +4,7 @@ import Debouncer from '../../../tfw/debouncer'
 import Button from '../../../tfw/view/button'
 import Slider from '../../../tfw/view/slider'
 import Combo from '../../../tfw/view/combo'
+import Input from '../../../tfw/view/input'
 import Icon from '../../../tfw/view/icon'
 import Util from '../../../tfw/util'
 import State from '../../state'
@@ -21,22 +22,40 @@ interface IAnimationControlProps {
 }
 
 interface IAnimationControlState {
+    // If true, display an input box to manually set the current frame index.
+    editFrameIndex: boolean,
+    current: string,
     speedKey: string  // "NORMAL" | "x2" | "x4" | "x8" | "x16" | "x32"
 }
 
 export default class AnimationControl extends React.Component<IAnimationControlProps, IAnimationControlState> {
     constructor( props: IAnimationControlProps ) {
         super( props );
-        this.state = { speedKey: speedToKey(props.delta || 1) }
+        this.state = {
+            editFrameIndex: false,
+            current: `${props.current}`,
+            speedKey: speedToKey(props.delta || 1)
+        }
+    }
+
+    handleInputChange = (value: string) => {
+        this.setState({ current: value })
+        const current = parseInt(value)
+        if (isNaN(current)) return
+        const params = { current }
+        State.dispatch(State.Animation.update(params))
+        this.setAnimationParameters(params)
     }
 
     handleCurrentChange = (current: number) => {
         const params = { current };
+        this.setState({ current: `${current}` })
         State.dispatch(State.Animation.update(params));
         this.setAnimationParameters(params);
     }
 
     setAnimationParameters = Debouncer((params: IAnimationControlProps) => {
+        this.setState({ current: `${params.current}`})
         Scene.Api.setAnimationParameters(params);
     }, 300)
 
@@ -81,10 +100,22 @@ export default class AnimationControl extends React.Component<IAnimationControlP
                 <Icon content="skip-next2" enabled={current < frame_count}
                     onClick={this.handleNext2Click}/>
             </div>
-            <div className="label">
-                <b>{p.current}</b>
-                <span className='hint'>{` / ${frame_count} (${p.unit})`}</span>
-            </div>
+            {
+                this.state.editFrameIndex ?
+                <div className='input'>
+                    <Input label="Frame #"
+                        value={`${this.state.current}`}
+                        onEnterPressed={() => this.setState({ editFrameIndex: false })}
+                        onChange={this.handleInputChange}/>
+                </div>
+                :
+                <div className="label"
+                     title="Click to edit"
+                     onClick={() => this.setState({ editFrameIndex: true })}>
+                    <b>{p.current}</b>
+                    <span className='hint'>{` / ${frame_count} (${p.unit})`}</span>
+                </div>
+            }
             <Slider min={0} max={frame_count}
                     value={p.current || 0}
                     step={1}

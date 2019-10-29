@@ -12,6 +12,7 @@ import ImageFactory from '../../../../tfw/factory/image'
 import KeyFrames from './key-frames'
 import InputDir from '../../../dialog/directory'
 import InputSnapshot from '../../../dialog/snapshot'
+import WaitService from '../../../service/wait'
 import MovieService from '../../../service/movie'
 import { IKeyFrame, IVector } from '../../../types'
 
@@ -134,16 +135,18 @@ export default class Movie extends React.Component<{}, IMovieState> {
         if (!outputFolder) return
 
         const { width, height } = this.state
-        await Scene.renderer.push({
-            canvas: Scene.renderer.createCanvas(width, height),
-            fps: 0,
-            resizable: false
-        })
 
         try {
+            await Scene.renderer.push({
+                canvas: Scene.renderer.createCanvas(width, height),
+                fps: 0,
+                resizable: false
+            })
             await Scene.renderer.setViewPort(width, height)
 
             const params = {
+                width,
+                height,
                 outputDirectoryPath: outputFolder,
                 format: 'jpeg',
                 quality: 100,
@@ -153,13 +156,7 @@ export default class Movie extends React.Component<{}, IMovieState> {
                 animationInformation: this.computeAnimationInformation(),
                 cameraInformation: this.computeCameraInformation()
             }
-            console.info("[MovieRender] params=", params);
-            MovieService.waitForSimpleMovieMaking(params)
-            await Scene.request("export-frames-to-disk", params)
-
-
-
-            await Dialog.alert("Look into GPFS, buddy!")
+            await MovieService.waitForSimpleMovieMaking(params)
         }
         catch (ex) {
             console.error("Rendering error!")
@@ -423,10 +420,12 @@ export default class Movie extends React.Component<{}, IMovieState> {
                     label="Frames per sec."
                     value={`${this.state.fps}`}
                     onChange={fps => upd({ fps })}/>
+                {/*
                 <Button label="Preview" icon="show"
                         flat={true}
                         enabled={hasMoreThanOneKeyFrame}
                         onClick={this.handleRender}/>
+                */}
                 <Button label="Render" icon="movie"
                         enabled={hasMoreThanOneKeyFrame}
                         onClick={this.handleRender}/>

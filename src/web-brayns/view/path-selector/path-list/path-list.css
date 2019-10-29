@@ -21,7 +21,7 @@ div.webBrayns-view-PathList div.folder-button {
     align-items: center;
 }
 
-div.webBrayns-view-PathList div.folder-button > div.tfw-view-touchable {
+div.webBrayns-view-PathList div.folder-button > div.tfw-view-Touchable {
     margin: 2px;
     display: flex;
     width: 100%;

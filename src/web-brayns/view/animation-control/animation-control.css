@@ -55,4 +55,5 @@ div.webBrayns-view-AnimationControl > div.label {
     margin: 0 1rem;
     line-height: 1.5;
     font-size: 70%;
+    cursor: pointer;
 }
