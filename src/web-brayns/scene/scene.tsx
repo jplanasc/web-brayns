@@ -65,6 +65,7 @@ const defaultObjectToExport = {
  * Try to connect to a Brayns service and fails if it takes too long.
  */
 async function connect(hostName: string): Promise<BraynsService> {
+    hostName = removeHostNamePrefix(hostName)
     console.info("hostName=", hostName);
     Scene.host = hostName;
     await ServiceHost.connect(Scene.brayns, hostName);
@@ -322,3 +323,21 @@ window.setInterval(async () => {
         0.5 * (bounds.max[2] + bounds.min[2])
     ]
 }, 2000)
+
+
+/**
+ * When copy/pasting the hostName, you can get an "http://" prefix.
+ * But this is not going to work with WebSocket protocol.
+ * That's why, we need to remove it.
+ */
+function removeHostNamePrefix(hostName: string): string {
+    hostName = hostName.trim()
+    const lowerCaseHostName = hostName.toLowerCase()
+    if (lowerCaseHostName.startsWith("http://")) {
+        return hostName.substr("http://".length)
+    }
+    if (lowerCaseHostName.startsWith("https://")) {
+        return hostName.substr("https://".length)
+    }
+    return hostName
+}

@@ -46,4 +46,4 @@ You will get something like this output:
 [INFO ] Rockets server running on r1i4n35:5000
 ```
 
-In this example, the host name you need is __r1i4n35:5000__.
+In this example, the host name you need is __r1i4n35.bbp.epfl.ch:5000__.
