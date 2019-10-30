@@ -12,6 +12,7 @@ import Models from "./models"
 import Navigation from './navigation'
 import Path from './path'
 import Slicer from './slicer'
+import Statistics from './statistics'
 import Wait from './wait'
 
 
@@ -24,6 +25,7 @@ const INITIAL_STATE: IAppState = {
     navigation: Navigation.INITIAL_STATE,
     path: Path.INITIAL_STATE,
     slicer: Slicer.INITIAL_STATE,
+    statistics: Statistics.INITIAL_STATE,
     wait: Wait.INITIAL_STATE
 };
 
@@ -37,6 +39,7 @@ function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction):
         navigation: Navigation.reducer(state.navigation, action),
         path: Path.reducer(state.path, action),
         slicer: Slicer.reducer(state.slicer, action),
+        statistics: Statistics.reducer(state.statistics, action),
         wait: Wait.reducer(state.wait, action)
     };
 }
@@ -51,5 +54,6 @@ export default {
     Navigation,
     Path,
     Slicer,
+    Statistics,
     Wait
 };

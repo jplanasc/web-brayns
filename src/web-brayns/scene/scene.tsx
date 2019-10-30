@@ -85,8 +85,15 @@ async function connect(hostName: string): Promise<BraynsService> {
 
     const animation = await Api.getAnimationParameters();
     State.dispatch(State.Animation.update(animation));
+
     Scene.brayns.subscribe("set-animation-parameters", animation => {
         State.dispatch(State.Animation.update(animation))
+    })
+    Scene.brayns.subscribe("set-statistics", stats => {
+        State.dispatch(State.Statistics.update({
+            fps: stats.fps,
+            sceneSizeInBytes: stats.scene_size_in_bytes
+        }))
     })
 
     Scene.brayns.binaryListeners.add(Scene.renderer.handleImage)
