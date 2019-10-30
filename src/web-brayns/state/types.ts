@@ -36,6 +36,11 @@ export interface IAnimation {
     unit?: string;
 }
 
+export interface IStatistics {
+    fps: number,
+    sceneSizeInBytes: number
+}
+
 export interface IPathState {
     path: string,
     root: string,
@@ -70,6 +75,7 @@ export interface IAppState {
     navigation: INavigationState,
     path: IPathState,
     slicer: ISlicerState,
+    statistics: IStatistics,
     wait: IWait
 }
 

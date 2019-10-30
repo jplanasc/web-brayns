@@ -1,6 +1,8 @@
+import React from 'react'
 import Scene from '../scene'
 import FS from './fs'
 import WaitService from '../service/wait'
+import Dialog from '../../tfw/factory/dialog'
 
 
 export default {
@@ -27,7 +29,10 @@ interface IWaitForSimpleMovieMakingInput {
  */
 async function waitForSimpleMovieMaking(params: IWaitForSimpleMovieMakingInput): Promise<boolean> {
     return new Promise(async (resolve) => {
-        const onCancel = () => {
+        const onCancel = async () => {
+            wait.label = "Cancelled!"
+            wait.progress = 1
+            await cancelFramesExport()
             resolve(false)
         }
         const wait = new WaitService(onCancel)
@@ -48,29 +53,38 @@ async function waitForSimpleMovieMaking(params: IWaitForSimpleMovieMakingInput):
             )
 
             const onWatch = async () => {
-                const progress: any =
-                    await Scene.request("get-export-frames-progress")
+                const progress: IGetExportFramesProgressReturn = await getExportFramesProgress()
+                console.info("progress=", progress);
                 if (progress) {
-                    if (progress.done === true) {
-                        console.log("### E")
+                    if (progress.done === true
+                            // There is a little bug in Brayns right now:
+                            // If the frames rendering is already over,
+                            // get-export-frames-progress will return {}.
+                            || typeof progress.frameNumber === 'undefined') {
+                        const movieFilename = `${params.outputDirectoryPath}/movie.mp4`
                         wait.label = "Rendering final video"
                         await Scene.request("make-movie", {
-                            dimension: [params.width, params.height],
+                            dimensions: [params.width, params.height],
                             framesFolderPath: params.outputDirectoryPath,
                             framesFileExtension: params.format,
                             fpsRate: params.fps,
-                            outputMoviePath: params.outputDirectoryPath,
+                            outputMoviePath: movieFilename,
                             eraseFrames: true
                         })
-                        console.log("### F")
                         wait.progress = 1
                         wait.hide()
+                        Dialog.alert(<div>
+                            <div>Your movie is available here:</div>
+                            <code>{movieFilename}</code>
+                        </div>)
                         return
                     }
-                    wait.label = `Rendering frame ${progress.frameNumber} / ${framesCount}`
+                    wait.label = `Rendering frame ${progress.frameNumber + 1} / ${framesCount}`
                     wait.progress = progress.frameNumber / (framesCount + 0.1)
                 }
-                window.setTimeout(onWatch, 1000)
+                if (wait.progress !== 1) {
+                    window.setTimeout(onWatch, 1000)
+                }
             }
 
             window.setTimeout(onWatch)
