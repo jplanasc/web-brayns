@@ -40,7 +40,7 @@ async function exists(path: string): Promise<boolean> {
         if (result.error === 1) return false
 
         catchError(result)
-        if (result.type === 'file' || result.type === 'dir') {
+        if (result.type === 'file' || result.type === 'directory') {
             return true
         }
         return false

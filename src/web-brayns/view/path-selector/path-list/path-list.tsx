@@ -61,16 +61,13 @@ export default class PathList extends React.Component<IPathListProps, {}> {
                       items={dirs.sort()}
                       mapper={this.renderDir}/>
             </div>
-            {
-                foldersOnly ||
-                <div>
-                    <h1>{`Files (${files.length})`}</h1>
-                    <List itemHeight={28}
-                        height="60vh"
-                        items={files.sort(byName)}
-                        mapper={this.renderFile}/>
-                </div>
-            }
+            <div className={foldersOnly ? 'disabled' : ''}>
+                <h1>{`Files (${files.length})`}</h1>
+                <List itemHeight={28}
+                    height="60vh"
+                    items={files.sort(byName)}
+                    mapper={this.renderFile}/>
+            </div>
         </div>)
     }
 }

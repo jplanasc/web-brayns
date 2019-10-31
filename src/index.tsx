@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
 
 import { IBraynsModel } from './web-brayns/types'
-import PathService from "./web-brayns/service/path"
 import ServiceHost from "./web-brayns/service/host"
 import Scene from "./web-brayns/scene"
 import Dialog from "./tfw/factory/dialog"
@@ -17,17 +16,6 @@ Theme.apply("default");
 
 async function start() {
     const hostName = await ServiceHost.getHostName(false);
-    try {
-        await PathService.browse()
-    }
-    catch(err) {
-        console.error(err)
-        await Dialog.alert(<div>
-            <p><b>Cannot reach GPFS!</b></p>
-            <code style={{opacity: .5}}>{err.text}</code>
-        </div>)
-        location.reload()
-    }
 
     try {
         const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
