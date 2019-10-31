@@ -5,6 +5,7 @@ import Dialog from "../../tfw/factory/dialog"
 import Button from "../../tfw/view/button"
 import InputHostName from "../view/input-host-name"
 import BraynsService from "../service/brayns"
+import AllocationService from '../service/allocation'
 import Help from '../help'
 
 // Timeout connection to Brayns service.
@@ -18,9 +19,19 @@ export default { getHostName, connect }
  * Retrieve Brayns' host name from querystring of from user input.
  */
 async function getHostName(ignoreQueryString: boolean): Promise<string> {
+    const urlArgs = UrlArgs.parse();
+
+    if (urlArgs.host === 'auto') {
+        console.log("Allocation...")
+        const sessionId = await AllocationService.getSessionId()
+        console.info("sessionId=", sessionId);
+        const hostname = await AllocationService.startBraynsServiceAndGetHostname(sessionId)
+        console.info("hostname=", hostname);
+        return hostname
+    }
+
     return new Promise(async resolve => {
         if (!ignoreQueryString) {
-            const urlArgs = UrlArgs.parse();
             const hostFromQueryString = urlArgs.host;
             if (typeof hostFromQueryString === 'string') {
                 resolve(hostFromQueryString);

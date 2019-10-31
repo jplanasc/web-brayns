@@ -33,7 +33,7 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
     constructor( props: IInputPathProps ) {
         super( props );
         this.state = {
-            path: Storage.get(this.storageKey, ''),
+            path: '',
             dir: '',
             root: '',
             files: [],
@@ -49,12 +49,18 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
 
     async componentDidMount() {
         try {
-            console.log("foldersOnly = ", this.props.foldersOnly)
             const root = await FS.getRoot()
-            this.setState({ root })
-            const { path } = this.state
-            const fixedPath = (await FS.exists(path)) ? path : root
-            this.handleChange(fixedPath)
+            console.info("root=", root);
+            const path = Storage.get(this.storageKey, root)
+            console.info("path=", path);
+            const exists = await FS.exists(path)
+            console.info("exists=", exists);
+            const fixedPath = exists ? path : root
+            console.info("fixedPath=", fixedPath);
+            this.setState(
+                { root, path: fixedPath },
+                () => this.handleChange(fixedPath)
+            )
         }
         catch(ex) {
             console.error("[view/input-path/componentDidMount()]", ex)
@@ -68,7 +74,6 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
         if (foldersOnly) {
             // Current path must be an existing directory.
             const isValidPath = await FS.isDir(path)
-            console.info("isValidPath=", isValidPath);
             this.setState({ isValidPath })
         } else {
             // Current path must be an existing file.
@@ -103,6 +108,10 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
         }
     }
 
+    handleFileChange = (path: string) => {
+        this.setState({ path }, this.handleFileClick)
+    }
+
     handleFileClick = () => {
         Storage.set(this.storageKey, this.state.path);
         this.props.onLoadClick(this.state.path)
@@ -134,7 +143,7 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
                 dirs={dirs}
                 foldersOnly={foldersOnly}
                 onFolderClick={this.handleChange}
-                onFileClick={this.handleChange}/>
+                onFileClick={this.handleFileChange}/>
         </div>
     }
 }

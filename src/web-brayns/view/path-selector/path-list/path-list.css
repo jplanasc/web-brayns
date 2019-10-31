@@ -6,6 +6,11 @@ div.webBrayns-view-PathList {
     align-items: flex-start;
 }
 
+div.webBrayns-view-PathList > div.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 div.webBrayns-view-PathList > div {
     display: flex;
     flex-direction: column;

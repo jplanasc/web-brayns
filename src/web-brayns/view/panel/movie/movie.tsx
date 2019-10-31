@@ -4,7 +4,6 @@ import Geom from '../../../geometry'
 import Scene from '../../../scene'
 import State from '../../../state'
 import Storage from '../../../storage'
-import Dialog from '../../../../tfw/factory/dialog'
 import Icon from '../../../../tfw/view/icon'
 import Input from '../../../../tfw/view/input'
 import Button from '../../../../tfw/view/button'
@@ -12,7 +11,6 @@ import ImageFactory from '../../../../tfw/factory/image'
 import KeyFrames from './key-frames'
 import InputDir from '../../../dialog/directory'
 import InputSnapshot from '../../../dialog/snapshot'
-import WaitService from '../../../service/wait'
 import MovieService from '../../../service/movie'
 import { IKeyFrame, IVector } from '../../../types'
 
@@ -152,7 +150,7 @@ export default class Movie extends React.Component<{}, IMovieState> {
                 quality: 100,
                 // Samples per pixel
                 samples: this.state.samples,
-                fps: this.state.fps,
+                fps: castInteger(this.state.fps, 30),
                 animationInformation: this.computeAnimationInformation(),
                 cameraInformation: this.computeCameraInformation()
             }
