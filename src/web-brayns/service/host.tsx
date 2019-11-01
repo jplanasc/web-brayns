@@ -6,6 +6,7 @@ import Button from "../../tfw/view/button"
 import InputHostName from "../view/input-host-name"
 import BraynsService from "../service/brayns"
 import AllocationService from '../service/allocation'
+import Wait from '../view/wait/wait'
 import Help from '../help'
 
 // Timeout connection to Brayns service.
@@ -22,12 +23,38 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
     const urlArgs = UrlArgs.parse();
 
     if (urlArgs.host === 'auto') {
-        console.log("Allocation...")
-        const sessionId = await AllocationService.getSessionId()
-        console.info("sessionId=", sessionId);
-        const hostname = await AllocationService.startBraynsServiceAndGetHostname(sessionId)
-        console.info("hostname=", hostname);
-        return hostname
+        const dialog = Dialog.show({
+            content: <Wait cancellable={false}
+                           progress={0}                           
+                           label="Contacting Brayns..."/>,
+            footer: null
+        })
+        try {
+            const sessionId = await AllocationService.getSessionId()
+            console.info("sessionId=", sessionId);
+            const hostname = await AllocationService.startBraynsServiceAndGetHostname(sessionId)
+            console.info("hostname=", hostname);
+            for (let loop=0 ; loop<10 ; loop++) {
+                const status = await AllocationService.getStatus(sessionId)
+                if (status.code === 5) {
+                    window.addEventListener('beforeunload', async (evt) => {
+                        evt.preventDefault()
+                        await AllocationService.closeSession(sessionId)
+                        evt.returnValue = "You're about to close your Brayns' session"
+                        return evt.returnValue
+                    })
+                    return hostname
+                }
+                await AllocationService.sleep(1000)
+            }
+            throw "Timeout!"
+        }
+        catch(ex) {
+            throw ex
+        }
+        finally {
+            dialog.hide()
+        }
     }
 
     return new Promise(async resolve => {

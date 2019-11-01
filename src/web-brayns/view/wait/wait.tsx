@@ -1,8 +1,8 @@
 import React from "react"
-import { connect } from 'react-redux'
 
 import { IAppState } from "../../types"
 
+import castBoolean from '../../../tfw/converter/boolean'
 import Icon from '../../../tfw/view/icon'
 import Button from '../../../tfw/view/button'
 
@@ -12,48 +12,41 @@ interface IWaitProps {
     label: string,
     // Number between 0 and 1.
     progress: number,
-    onCancel: () => void
+    cancellable?: boolean,
+    onCancel?: () => void
 }
 
-class Wait extends React.Component<IWaitProps, {}> {
-    constructor( props: IWaitProps ) {
-        super( props );
+export default class Wait extends React.Component<IWaitProps, {}> {
+    private handleCancel = () => {
+        const handler = this.props.onCancel
+        if (typeof handler === 'function') {
+            handler()
+        }
     }
-
+    
     render() {
+        const cancellable = castBoolean(this.props.cancellable, true)
+
         return (<div className="webBrayns-view-Wait thm-bg1">
             <div>
                 <Icon content="wait" animate={true}/>
                 <div>{this.props.label}</div>
                 {
-                    this.props.progress > 0 && 
+                    this.props.progress > 0 &&
                     <div>{`${Math.ceil(100 * this.props.progress)}%`}</div>
                 }
             </div>
-            <hr/>
-            <div>
-                <Button flat={true}
-                    small={true}
-                    icon="cancel"
-                    label="Cancel"
-                    onClick={this.props.onCancel}/>
-            </div>
+            {cancellable && <hr/>}
+            {
+                cancellable &&
+                <div>
+                    <Button flat={true}
+                        small={true}
+                        icon="cancel"
+                        label="Cancel"
+                        onClick={this.handleCancel}/>
+                </div>
+            }
         </div>)
     }
 }
-
-
-function mapStateToProps(state: IAppState) {
-    return {
-        label: state.wait.label,
-        progress: state.wait.progress
-    };
-}
-
-function mapDispatchToProps(dispatch: any) {
-    return {
-        // onClick: ...
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Wait);
