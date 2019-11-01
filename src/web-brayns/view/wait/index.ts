@@ -1,1 +1,1 @@
-export { default } from './wait'
+export { default } from './wait.container'

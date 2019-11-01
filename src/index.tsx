@@ -15,47 +15,54 @@ import "./tfw/font/josefin.css"
 Theme.apply("default");
 
 async function start() {
-    const hostName = await ServiceHost.getHostName(false);
-
     try {
-        const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
-        const planes = await Scene.Api.getClipPlanes()
-        const notNullplanes: {id: number, plane: [number,number,number,number]}[] =
-            planes.filter( p => p !== null )
-        const planeIds = notNullplanes.map( p => p.id )
-        Scene.Api.removeClipPlanes(planeIds);
+        const hostName = await ServiceHost.getHostName(false);
 
-        const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
-        const models = scene.models.map((params: IBraynsModel) => ({
-            brayns: params,
-            parent: -1,
-            deleted: false,
-            selected: false,
-            technical: false
-        }))
-        State.dispatch(State.Models.reset(models))
-        State.dispatch(State.CurrentModel.reset(models[0]))
+        try {
+            const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
+            const planes = await Scene.Api.getClipPlanes()
+            const notNullplanes: {id: number, plane: [number,number,number,number]}[] =
+                planes.filter( p => p !== null )
+            const planeIds = notNullplanes.map( p => p.id )
+            Scene.Api.removeClipPlanes(planeIds);
 
-        // Entry point for our app
-        const stream = await figureOutStreamType()
-        console.info("Stream type:", stream.toUpperCase())
-        const root = document.getElementById('root') as HTMLElement;
-        ReactDOM.render(<Provider store={State.store}>
-                <App brayns={client} stream={stream}/>
-            </Provider>, root);
+            const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
+            const models = scene.models.map((params: IBraynsModel) => ({
+                brayns: params,
+                parent: -1,
+                deleted: false,
+                selected: false,
+                technical: false
+            }))
+            State.dispatch(State.Models.reset(models))
+            State.dispatch(State.CurrentModel.reset(models[0]))
 
-        const splash = document.getElementById('splash-screen');
-        if (splash) {
-            splash.classList.add("vanish");
-            window.setTimeout(() => document.body.removeChild(splash), 600);
+            // Entry point for our app
+            const stream = await figureOutStreamType()
+            console.info("Stream type:", stream.toUpperCase())
+            const root = document.getElementById('root') as HTMLElement;
+            ReactDOM.render(<Provider store={State.store}>
+                    <App brayns={client} stream={stream}/>
+                </Provider>, root);
+
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.classList.add("vanish");
+                window.setTimeout(() => document.body.removeChild(splash), 600);
+            }
+        }
+        catch(ex) {
+            console.error("Unable to connect Brayns: ", ex)
+            await Dialog.alert(`Seems like Brayns is not reachable on ${hostName}!`);
+            location.reload();
         }
     }
     catch(ex) {
-        console.error("Unable to connect Brayns: ", ex)
-        await Dialog.alert(`Seems like Brayns is not reachable on ${hostName}!`);
-        location.reload();
+        await Dialog.alert(<div>
+            <h1>Unable to retrieve Brayns' hostname!</h1>
+            <p style={{whiteSpace: "pre-wrap"}}>{ex}</p>
+        </div>);
     }
-
 }
 
 

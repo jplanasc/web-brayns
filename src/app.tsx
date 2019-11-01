@@ -12,6 +12,7 @@ import Button from './tfw/view/button'
 import Dialog from './tfw/factory/dialog'
 import Panel from './web-brayns/view/panel'
 import { IModel } from './web-brayns/types'
+import UrlArgs from './tfw/url-args'
 
 import "./app.css"
 
@@ -31,6 +32,24 @@ export default class App extends React.Component<IAppProps, IAppState> {
     constructor( props: IAppProps ) {
         super( props );
         this.state = { data: new Blob(), panelVisible: true }
+    }
+
+    /**
+     * Parse querystring params.
+     */
+    componentWillMount() {
+        const args = UrlArgs.parse()
+        const load = args.load
+        if (typeof load === 'string') this.execLoad(load)
+    }
+
+    /**
+     * Querystring "load=path" trigger the load of a model.
+     */
+    private async execLoad(path: string) {
+        const model = await Scene.loadMeshFromPath(path);
+        if (!model) return
+        model.focus()        
     }
 
     private handleScreenShot = async () => {

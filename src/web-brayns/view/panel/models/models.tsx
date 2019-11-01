@@ -3,15 +3,12 @@ import React from "react"
 import { IBraynsModel, IModel } from '../../../types'
 import State from '../../../state'
 import Scene from '../../../scene'
-import Util from '../../../../tfw/util'
 import Dialog from '../../../../tfw/factory/dialog'
 import Button from '../../../../tfw/view/button'
-import WaitView from '../../../view/wait'
 import SphereView from '../../object/sphere'
 import { ISphereOptions } from '../../object/sphere/types'
 import InputPath from '../../../view/input-path'
 import ModelList from '../../../view/model-list/container'
-import LoaderService from '../../../service/loader'
 import ObjectService from '../../../service/object'
 import OkCancel from "../../../../tfw/view/ok-cancel"
 import ModelObject from "../../../scene/model"
