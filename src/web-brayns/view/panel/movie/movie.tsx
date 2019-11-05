@@ -5,6 +5,8 @@ import Scene from '../../../scene'
 import State from '../../../state'
 import Storage from '../../../storage'
 import Icon from '../../../../tfw/view/icon'
+import Flex from '../../../../tfw/layout/flex'
+import Combo from '../../../../tfw/view/combo'
 import Input from '../../../../tfw/view/input'
 import Button from '../../../../tfw/view/button'
 import ImageFactory from '../../../../tfw/factory/image'
@@ -12,6 +14,7 @@ import KeyFrames from './key-frames'
 import InputDir from '../../../dialog/directory'
 import InputSnapshot from '../../../dialog/snapshot'
 import MovieService from '../../../service/movie'
+import Format from './format'
 import { IKeyFrame, IVector } from '../../../types'
 
 import castInteger from '../../../../tfw/converter/integer'
@@ -43,7 +46,6 @@ export default class Movie extends React.Component<{}, IMovieState> {
         const state = Storage.get(ID, {})
 
         this.state = {
-            fps: 25,
             folder: '',
             sizeKey: 'presentation',
             width: 800,
@@ -52,6 +54,7 @@ export default class Movie extends React.Component<{}, IMovieState> {
             samples: 10,
             expandOutputOptions: true,
             ...state,
+            fps: 30,
             currentFrameIndex: 1,
             currentFrameIndexText: '1',
             keyFrames: state.keyFrames || []
@@ -83,26 +86,40 @@ export default class Movie extends React.Component<{}, IMovieState> {
         }
         // Sort keyframes by index and make the first one be indexed by 1.
         const keyFrames = this.state.keyFrames
-            .filter(kf => kf.index !== keyFrame.index)
+            .filter(kf => kf.time !== keyFrame.time)
         keyFrames.push(keyFrame)
         keyFrames.sort(compareIndex)
 
-        const base = keyFrames[0].index - 1
+        const base = keyFrames[0].time
+        const currentFrameIndex = this.time2frame(keyFrame.time)
         this.update({
             keyFrames: keyFrames.map(
-                (kf: IKeyFrame) => ({ ...kf, index: kf.index - base })),
-            currentFrameIndex: keyFrame.index,
-            currentFrameIndexText: `${keyFrame.index}`
+                (kf: IKeyFrame) => ({ ...kf, time: kf.time - base })),
+            currentFrameIndex,
+            currentFrameIndexText: `${currentFrameIndex}`
         })
     }
 
+    /**
+     * Convert time into a frame index depending of the frame rate (fps).
+     */
+     private time2frame(time: number): number {
+         const index = 1 + Math.floor(0.5 + time * this.state.fps)
+         return index
+     }
+
+     private frame2time(index: number): number {
+         const time = (index - 1) / this.state.fps
+         return time
+     }
+
     handleKeyFrameClick = async (keyFrame: IKeyFrame) => {
-        this.updateCurrentFrameIndex( keyFrame.index )
+        this.updateCurrentFrameIndex( this.time2frame(keyFrame.time) )
     }
 
     private async applyFrame(keyFrame: IKeyFrame) {
         console.info("Apply keyFrame=", {
-            index: keyFrame.index,
+            index: this.time2frame(keyFrame.time),
             simulationStep: keyFrame.simulationStep,
             cameraLocation: keyFrame.cameraLocation,
             cameraOrientation: keyFrame.cameraOrientation
@@ -121,7 +138,7 @@ export default class Movie extends React.Component<{}, IMovieState> {
     handleKeyFrameDelete = (keyFrame: IKeyFrame) => {
         this.pushToUndos()
         this.setState({
-            keyFrames: this.state.keyFrames.filter(kf => kf.index !== keyFrame.index)
+            keyFrames: this.state.keyFrames.filter(kf => kf.time !== keyFrame.time)
         })
     }
 
@@ -198,13 +215,13 @@ export default class Movie extends React.Component<{}, IMovieState> {
             const location = kf.cameraLocation
             const orientation = kf.cameraOrientation
             info.push(...this.convCam(
-                    {
-                        ...kf,
-                        cameraLocation: location,
-                        cameraOrientation: orientation
-                    },
-                    center
-                ))
+                {
+                    ...kf,
+                    cameraLocation: location,
+                    cameraOrientation: orientation
+                },
+                center
+            ))
         }
         return info
     }
@@ -250,20 +267,23 @@ export default class Movie extends React.Component<{}, IMovieState> {
      * Return a interpolated key frame.
      */
     private getFrame(index: number): IKeyFrame {
+        const time = this.frame2time(index)
         const { keyFrames } = this.state
         const { min, max } = this.getFramesBounds()
         if (index <= min) return keyFrames[0]
         if (index >= max) return keyFrames[keyFrames.length - 1]
 
         let kfA = keyFrames[0]
+
         for (const kf of keyFrames) {
-            if (kf.index === index) return kf
-            if (kf.index > index) {
+            const currentIndex = this.time2frame(kf.time)
+            if (currentIndex === index) return kf
+            if (currentIndex > index) {
                 const kfB = kf
-                const beta = (index - kfA.index) / (kfB.index - kfA.index)
+                const beta = (time - kfA.time) / (kfB.time - kfA.time)
                 const alpha = 1 - beta
                 return {
-                    index,
+                    time,
                     previewURL: '',
                     simulationStep: Math.floor(alpha * kfA.simulationStep + beta * kfB.simulationStep),
                     cameraLocation: Geom.mixVectors(
@@ -285,8 +305,8 @@ export default class Movie extends React.Component<{}, IMovieState> {
         const firstKeyFrame = keyFrames[0]
         const lastKeyFrame = keyFrames[keyFrames.length - 1]
         return {
-            min: firstKeyFrame.index,
-            max: lastKeyFrame.index
+            min: this.time2frame(firstKeyFrame.time),
+            max: this.time2frame(lastKeyFrame.time)
         }
     }
 
@@ -300,28 +320,34 @@ export default class Movie extends React.Component<{}, IMovieState> {
         })
     }
 
-    private handlePrev2Click = () => {
+    private FloathandlePrevKeyFrameClick = () => {
         let { currentFrameIndex, keyFrames } = this.state
-        if (keyFrames.length === 0) return
+        if (keyFrames.length < 2) return
+        const time = this.frame2time(currentFrameIndex)
 
-        const nextKeyFrameIndex = keyFrames.findIndex(kf => kf.index > currentFrameIndex)
+        const nextKeyFrameIndex = keyFrames.findIndex(kf => kf.time >= time)
+        console.info("nextKeyFrameIndex=", nextKeyFrameIndex);
         if (nextKeyFrameIndex <= 0) {
-            currentFrameIndex = keyFrames[keyFrames.length - 1].index
+            currentFrameIndex = this.time2frame(keyFrames[keyFrames.length - 1].time)
         } else {
-            currentFrameIndex = keyFrames[nextKeyFrameIndex - 1].index
+            const prevKeyFrameIndex = (nextKeyFrameIndex + keyFrames.length - 1) % keyFrames.length
+            console.info("prevKeyFrameIndex=", prevKeyFrameIndex);
+            currentFrameIndex = this.time2frame(keyFrames[prevKeyFrameIndex].time)
         }
+        console.info("currentFrameIndex=", currentFrameIndex);
         this.updateCurrentFrameIndex( currentFrameIndex )
     }
 
-    private handleNext2Click = () => {
+    private handleNextKeyFrameClick = () => {
         let { currentFrameIndex, keyFrames } = this.state
-        if (keyFrames.length === 0) return
+        if (keyFrames.length < 2) return
+        const time = this.frame2time(currentFrameIndex)
 
-        const nextKeyFrameIndex = keyFrames.findIndex(kf => kf.index > currentFrameIndex)
+        const nextKeyFrameIndex = keyFrames.findIndex(kf => kf.time > time)
         if (nextKeyFrameIndex <= 0) {
-            currentFrameIndex = keyFrames[0].index
+            currentFrameIndex = this.time2frame(keyFrames[0].time)
         } else {
-            currentFrameIndex = keyFrames[nextKeyFrameIndex].index
+            currentFrameIndex = this.time2frame(keyFrames[nextKeyFrameIndex].time)
         }
         this.updateCurrentFrameIndex( currentFrameIndex )
     }
@@ -368,19 +394,22 @@ export default class Movie extends React.Component<{}, IMovieState> {
 
         return (<div className="webBrayns-view-panel-Movie">
             <header className="thm-bgPL">
-                <Icon content="skip-prev2" onClick={this.handlePrev2Click}/>
-                <Icon content="skip-prev" enabled={currentFrameIndex > min}
-                    onClick={this.handlePrevClick}/>
+                <Flex>
+                    <Icon content="skip-prev2" onClick={this.FloathandlePrevKeyFrameClick}/>
+                    <Icon content="skip-prev" enabled={currentFrameIndex > min}
+                        onClick={this.handlePrevClick}/>
+                    <div><code>{Format.time(this.frame2time(this.state.currentFrameIndex))}</code></div>
+                    <Icon content="skip-next" enabled={currentFrameIndex < max}
+                        onClick={this.handleNextClick}/>
+                    <Icon content="skip-next2" onClick={this.handleNextKeyFrameClick}/>
+                </Flex>
                 <Input value={`${this.state.currentFrameIndexText}`}
                     size={4}
                     onChange={this.handleCurrentFrameIndexChange}/>
-                <Icon content="skip-next" enabled={currentFrameIndex < max}
-                    onClick={this.handleNextClick}/>
-                <Icon content="skip-next2" onClick={this.handleNext2Click}/>
             </header>
             <h1>Key frames list</h1>
             <KeyFrames keyFrames={this.state.keyFrames}
-                       currentFrameIndex={this.state.currentFrameIndex}
+                       currentFrameTime={this.frame2time(this.state.currentFrameIndex)}
                        onKeyFrameClick={this.handleKeyFrameClick}
                        onKeyFrameDelete={this.handleKeyFrameDelete}
                        onKeyFramesAdd={this.handleKeyFramesAdd}/>
@@ -414,10 +443,12 @@ export default class Movie extends React.Component<{}, IMovieState> {
                 }
             </footer>
             <footer className="thm-bg1">
-                <Input
-                    label="Frames per sec."
-                    value={`${this.state.fps}`}
-                    onChange={fps => upd({ fps })}/>
+                <Combo label="Frame Rate"
+                       value={`${this.state.fps}`}
+                       onChange={fps => upd({ fps })}>
+                    <div key="30">30 FPS</div>
+                    <div key="60">60 FPS</div>
+                </Combo>
                 {/*
                 <Button label="Preview" icon="show"
                         flat={true}
@@ -434,10 +465,10 @@ export default class Movie extends React.Component<{}, IMovieState> {
 
 
 /**
- * Compare by increasing indexes.
+ * Compare by increasing times.
  */
 function compareIndex(a: IKeyFrame, b: IKeyFrame) {
-    return a.index - b.index
+    return a.time - b.time
 }
 
 

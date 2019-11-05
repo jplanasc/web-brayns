@@ -1,48 +1,27 @@
 import React from "react"
 
 import Button from '../../../../../../tfw/view/button'
-import Input from '../../../../../../tfw/view/input'
-import OkCancel from '../../../../../../tfw/view/ok-cancel'
 import InputFactory from '../../../../../../tfw/factory/input'
 import Dialog from '../../../../../../tfw/factory/dialog'
 
 import "./new-frame.css"
 
 interface INewFrameProps {
-    onNewFrame: (frameIndex: number) => void,
-    min?: number,
-    max?: number
+    time: number,
+    onNewFrame: (frameIndex: number) => void
 }
 
 export default class NewFrame extends React.Component<INewFrameProps, {}> {
     handleClick = async () => {
-        const { min, max, onNewFrame } = this.props
-        let value = (min || 0) + 1
-        if (typeof min === 'number' && typeof max === 'number') {
-            value = Math.ceil((min + max) / 2)
-        }
+        const { time, onNewFrame } = this.props
 
-        let label = "Keyframe Index"
-        if (typeof min === 'number') {
-            label = `${min} ≤ ` + label
-        }
-        if (typeof max === 'number') {
-            label = label + ` ≤ ${max}`
-        }
+        let label = "Keyframe Time (in sec.)"
 
-        const frameIndex = await InputFactory.integer({ label, value })
-        if (frameIndex !== null) {
-            if (typeof min === 'number' && frameIndex < min) {
-                onNewFrame(min + 1)
-            }
-            else if (typeof max === 'number' && frameIndex > max) {
-                onNewFrame(max - 1)
-            }
-            else {
-                onNewFrame(frameIndex)
-            }
+        const frameTime = await InputFactory.integer({ label, value: time })
+        if (frameTime !== null) {
+            onNewFrame(frameTime)
         } else {
-            Dialog.alert("Please type a integer as frame index!")
+            Dialog.alert("Please type a integer as keyframe time!")
         }
     }
 
@@ -51,7 +30,7 @@ export default class NewFrame extends React.Component<INewFrameProps, {}> {
             <Button onClick={this.handleClick}
                     small={true} icon="plus"
                     flat={true} wide={true}
-                    label="Create a new key frame here"/>
+                    label="Create a new keyframe"/>
         </div>)
     }
 }
