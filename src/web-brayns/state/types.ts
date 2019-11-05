@@ -58,8 +58,8 @@ export interface IWait {
 }
 
 export interface IKeyFrame {
-    // Frame's index, starting at 0.
-    index: number,
+    // Frame's time in seconds, starting at 0.
+    time: number,
     cameraLocation: IVector,
     cameraOrientation: IQuaternion,
     simulationStep: number,
