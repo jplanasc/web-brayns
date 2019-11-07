@@ -3,8 +3,10 @@
 Open a terminal (`Ctrl-Alt-T`) and execute this command:
 
 ```
-/gpfs/bbp.cscs.ch/home/petitjea/scripts/brayns.sh
+/gpfs/bbp.cscs.ch/home/petitjea/scripts/brayns.sh proj42
 ```
+_You can replace `proj42` by another account._
+
 
 You will get something like this output:
 
