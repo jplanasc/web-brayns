@@ -23,7 +23,7 @@ export default class Wait extends React.Component<IWaitProps, {}> {
             handler()
         }
     }
-    
+
     render() {
         const cancellable = castBoolean(this.props.cancellable, true)
 
@@ -33,7 +33,7 @@ export default class Wait extends React.Component<IWaitProps, {}> {
                 <div>{this.props.label}</div>
                 {
                     this.props.progress > 0 &&
-                    <div>{`${Math.ceil(100 * this.props.progress)}%`}</div>
+                    <div>{`${(100 * this.props.progress).toFixed(1)} %`}</div>
                 }
             </div>
             {cancellable && <hr/>}

@@ -48,7 +48,7 @@ div.webBrayns-view-AnimationControl > div.flex {
     background: transparent;
 }
 
-div.webBrayns-view-AnimationControl > div.label {
+div.webBrayns-view-AnimationControl div.label {
     text-align: center;
     width: 5rem;
     overflow: hidden;

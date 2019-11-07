@@ -94,41 +94,43 @@ export default class AnimationControl extends React.Component<IAnimationControlP
                     onClick={this.handlePrev2Click}/>
                 <Icon content="skip-prev" enabled={current > 1}
                     onClick={this.handlePrevClick}/>
-                <Button icon="play" small={true}/>
+                {
+                    this.state.editFrameIndex ?
+                    <div className='input'>
+                        <Input label="Frame #"
+                            value={`${this.state.current}`}
+                            onEnterPressed={() => this.setState({ editFrameIndex: false })}
+                            onChange={this.handleInputChange}/>
+                    </div>
+                    :
+                    <div className="label"
+                         title="Click to edit"
+                         onClick={() => this.setState({ editFrameIndex: true })}>
+                        <b>{p.current}</b>
+                        <span className='hint'> / </span><br/>
+                        <span className='hint'>{`${frame_count} (${p.unit})`}</span>
+                    </div>
+                }
                 <Icon content="skip-next" enabled={current < frame_count}
                     onClick={this.handleNextClick}/>
                 <Icon content="skip-next2" enabled={current < frame_count}
                     onClick={this.handleNext2Click}/>
             </div>
-            {
-                this.state.editFrameIndex ?
-                <div className='input'>
-                    <Input label="Frame #"
-                        value={`${this.state.current}`}
-                        onEnterPressed={() => this.setState({ editFrameIndex: false })}
-                        onChange={this.handleInputChange}/>
-                </div>
-                :
-                <div className="label"
-                     title="Click to edit"
-                     onClick={() => this.setState({ editFrameIndex: true })}>
-                    <b>{p.current}</b>
-                    <span className='hint'>{` / ${frame_count} (${p.unit})`}</span>
-                </div>
-            }
             <Slider min={0} max={frame_count}
                     value={p.current || 0}
                     step={1}
                     text={`${percent} %`}
                     onChange={this.handleCurrentChange} />
-            <Combo value={this.state.speedKey} label="Speed" onChange={this.handleSpeedChange}>
-                <div key="NORMAL">x1</div>
-                <div key="x2">x2</div>
-                <div key="x4">x4</div>
-                <div key="x8">x8</div>
-                <div key="x16">x16</div>
-                <div key="x32">x32</div>
-            </Combo>
+            {/*
+                <Combo value={this.state.speedKey} label="Speed" onChange={this.handleSpeedChange}>
+                    <div key="NORMAL">x1</div>
+                    <div key="x2">x2</div>
+                    <div key="x4">x4</div>
+                    <div key="x8">x8</div>
+                    <div key="x16">x16</div>
+                    <div key="x32">x32</div>
+                </Combo>
+            */}
         </div>)
     }
 }
