@@ -3,6 +3,7 @@ import React from "react"
 import Touchable from '../../../../tfw/view/touchable'
 import Icon from '../../../../tfw/view/icon'
 import List from '../../../../tfw/view/list'
+import Size from '../../size'
 
 import "./path-list.css"
 
@@ -42,7 +43,7 @@ export default class PathList extends React.Component<IPathListProps, {}> {
                      onClick={() => onFileClick(name)}>
                 <Icon content="file" size="18px"/>
                 <div className="label" title={name}>{name}</div>
-                <div className="size">{getHumanReadableSize(size)}</div>
+                <div className="size"><Size bytes={size}/></div>
             </Touchable>
         </div>
 
@@ -70,23 +71,6 @@ export default class PathList extends React.Component<IPathListProps, {}> {
             </div>
         </div>)
     }
-}
-
-
-function getHumanReadableSize(size: number, unit: string=''): JSX.Element {
-    if (unit.length > 0) {
-        return <span className={unit.toLowerCase()}>{`${size} ${unit}`}</span>
-    }
-
-    if (size < 1024) return getHumanReadableSize(Math.floor(size * 1000) * 0.001, 'Kb')
-    size = Math.floor(size / 1024)
-    if (size < 1024) return getHumanReadableSize(size, 'Kb')
-    size = Math.floor(size / 1024)
-    if (size < 1024) return getHumanReadableSize(size, 'Mb')
-    size = Math.floor(size / 1024)
-    if (size < 1024) return getHumanReadableSize(size, 'Gb')
-    size = Math.floor(size / 1024)
-    return getHumanReadableSize(size, 'Tb')
 }
 
 

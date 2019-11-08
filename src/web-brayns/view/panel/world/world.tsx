@@ -4,6 +4,8 @@ import Scene from '../../../scene'
 import Debouncer from "../../../../tfw/debouncer"
 import Color from "../../../../tfw/color"
 import InputColor from "../../../../tfw/view/input-color"
+import Size from '../../size'
+import castInteger from "../../../../tfw/converter/integer"
 
 import "./world.css"
 
@@ -62,7 +64,7 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
             </div>
             <footer className="thm-bg2">
                 <div><em>FPS</em>: <b>{Math.floor(0.5 + this.props.fps)}</b></div>
-                <div><em>Memory</em>: <b>{this.props.sceneSizeInBytes}</b></div>
+                <div><em>Mem.</em>: <b><Size bytes={this.props.sceneSizeInBytes}/></b></div>
             </footer>
         </div>)
     }

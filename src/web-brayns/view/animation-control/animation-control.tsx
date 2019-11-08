@@ -1,9 +1,7 @@
 import React from "react"
 
 import Debouncer from '../../../tfw/debouncer'
-import Button from '../../../tfw/view/button'
 import Slider from '../../../tfw/view/slider'
-import Combo from '../../../tfw/view/combo'
 import Input from '../../../tfw/view/input'
 import Icon from '../../../tfw/view/icon'
 import Util from '../../../tfw/util'

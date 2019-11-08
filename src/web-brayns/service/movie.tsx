@@ -1,3 +1,8 @@
+/**
+ * We can add overlays for JIRA BVWS-306:
+ * http://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
+ */
+
 import React from 'react'
 import Scene from '../scene'
 import FS from './fs'
