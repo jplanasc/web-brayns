@@ -50,28 +50,3 @@ div.webBrayns-view-PathList div.folder-button > div > div.size {
     white-space: nowrap;
     font-size: 80%;
 }
-
-div.webBrayns-view-PathList div.folder-button > div > div.size > span {
-    padding: 3px 6px;
-    border-radius: 6px;
-}
-
-div.webBrayns-view-PathList div.folder-button > div > div.size > span.kb {
-    background: white;
-    color: #000;
-}
-
-div.webBrayns-view-PathList div.folder-button > div > div.size > span.mb {
-    background: yellow;
-    color: #000;
-}
-
-div.webBrayns-view-PathList div.folder-button > div > div.size > span.gb {
-    background: orange;
-    color: #000;
-}
-
-div.webBrayns-view-PathList div.folder-button > div > div.size > span.tb {
-    background: red;
-    color: #fff;
-}

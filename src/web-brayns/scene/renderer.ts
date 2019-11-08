@@ -40,7 +40,7 @@ export default class Renderer {
             canvas.height = rect.height
             console.log("RESIZE")
             this.setViewPort(canvas.width, canvas.height)
-        }, 200)
+        }, 300)
     }
 
     createCanvas(width: number, height: number): HTMLCanvasElement {

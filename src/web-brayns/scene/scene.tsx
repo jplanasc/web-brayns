@@ -77,6 +77,18 @@ async function connect(hostName: string): Promise<BraynsService> {
     const videostreamAvailable = await isVideoStreamingAvailable()
     console.info("videostreamAvailable=", videostreamAvailable);
 
+    await Api.setCamera({ current: "perspective" })
+    await Api.setCameraParams({
+        aperture_radius: 0,
+        enable_clipping_planes: true,
+        focus_distance: 0,
+        fovy: 45
+    })
+
+    await Api.setApplicationParameters({
+        image_stream_fps: 15,
+        jpeg_compression: 80
+    })
     const camera = await request('get-camera');
     const cameraParams = await request('get-camera-params');
     console.info("camera, cameraParams=", camera, cameraParams);

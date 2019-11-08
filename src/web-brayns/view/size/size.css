@@ -1,0 +1,24 @@
+span.webBrayns-view-Size {
+    padding: 3px 6px;
+    border-radius: 6px;
+}
+
+span.webBrayns-view-Size.kb {
+    background: white;
+    color: #000;
+}
+
+span.webBrayns-view-Size.mb {
+    background: yellow;
+    color: #000;
+}
+
+span.webBrayns-view-Size.gb {
+    background: orange;
+    color: #000;
+}
+
+span.webBrayns-view-Size.tb {
+    background: red;
+    color: #fff;
+}
