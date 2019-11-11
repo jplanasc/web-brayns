@@ -29,9 +29,21 @@ export default class Renderer {
     private contextStack: IContext[] = []
     private width = 0
     private height = 0
+    private isRendering = true
 
-    constructor() {
+    async initialize() {
+        try {
+            // Ask not to be overflood by JPEGs.
+            await Scene.request("image-streaming-mode", { type: "quanta" })
+        }
+        catch (ex) {
+            console.error(ex)
+        }
+        Scene.brayns.binaryListeners.add(this.handleImage)
+        this.on()
         window.setInterval(() => {
+            this.askNextFrame()
+
             const { canvas, width, height, resizable } = this
             if (!canvas || !resizable) return
             const rect = canvas.getBoundingClientRect()
@@ -40,7 +52,7 @@ export default class Renderer {
             canvas.height = rect.height
             console.log("RESIZE")
             this.setViewPort(canvas.width, canvas.height)
-        }, 300)
+        }, 500)
     }
 
     createCanvas(width: number, height: number): HTMLCanvasElement {
@@ -155,6 +167,7 @@ export default class Renderer {
      * Turning the rendering OFF.
      */
     async off() {
+        this.isRendering = false
         return await Scene.request("set-application-parameters", {
             "image_stream_fps": 0
         })
@@ -164,12 +177,16 @@ export default class Renderer {
      * Turning the rendering ON.
      */
     async on() {
-        return await Scene.request("set-application-parameters", {
+        this.askNextFrame()
+        const request = await Scene.request("set-application-parameters", {
             "image_stream_fps": this.fps
         })
+        this.isRendering = true
+        return request
     }
 
     async setViewPort(width: number, height: number) {
+        if (!this.isRendering) return
         console.info("setViewPort(width, height)=", width, height);
         this.width = width
         this.height = height
@@ -187,7 +204,13 @@ export default class Renderer {
         });
     }
 
+    askNextFrame = Throttler(async () => {
+        return await Scene.request("trigger-jpeg-stream")
+    }, 50)
+
     handleImage = Throttler(async (data: ArrayBuffer) => {
+        this.askNextFrame()
+
         const canvas = this.canvas;
         if (!canvas) return
         const ctx = this.ctx

@@ -108,7 +108,7 @@ async function connect(hostName: string): Promise<BraynsService> {
         }))
     })
 
-    Scene.brayns.binaryListeners.add(Scene.renderer.handleImage)
+    await Scene.renderer.initialize()    
 
     return Scene.brayns;
 }

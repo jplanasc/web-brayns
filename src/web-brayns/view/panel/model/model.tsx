@@ -6,6 +6,7 @@ import State from '../../../state'
 import Scene from '../../../scene'
 import Model from '../../../scene/model'
 import MaterialDialog from '../../../dialog/material'
+import TransferFunction, { ITransferFunction } from '../../transfer-function'
 
 import "./model.css"
 
@@ -14,19 +15,33 @@ interface IModelProps {
 }
 
 interface IModelState {
-    materialIds: number[]
+    materialIds: number[],
+    transferFunction: ITransferFunction
 }
 
 export default class ModelPanel extends React.Component<IModelProps, IModelState> {
     constructor( props: IModelProps ) {
         super( props );
-        this.state = { materialIds: [] }
+        this.state = {
+            materialIds: [],
+            transferFunction: {
+                range: [-100, 0],
+                opacity_curve: [
+                    [0,1], [1,1]
+                ],
+                colors: [
+                    [0,1,0],
+                    [1,1,0],
+                    [1,0,0]
+                ]
+            }
+        }
     }
 
     componentDidMount = async () => {
+        //const tf = await Scene.request("")
         const model = new Model(this.props.model)
         const materialIds = await model.getMaterialIds()
-        console.info("materialIds=", materialIds);
         this.setState({ materialIds })
     }
 
@@ -47,11 +62,14 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
         }
     }
 
+    private handleTransferFunctionChange = (transferFunction: ITransferFunction) => {
+        this.setState({ transferFunction })
+    }
+
     render() {
         const { model } = this.props;
         const materialIds = this.state.materialIds;
         const { name, id, path, bounds, transformation } = model.brayns;
-
 
         return (<div className="webBrayns-view-panel-Model">
             <header className="thm-bgPL thm-ele-nav">
@@ -59,15 +77,8 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                 <div>{`#${id}`}</div>
             </header>
             <div>
-                <p><em>Path: </em>{path}</p>
-                <p>
-                    <em>Location: </em>
-                    <code>{JSON.stringify(transformation.translation, null, '  ')}</code>
-                </p>
-                <div>
-                    <em>Bounds: </em>
-                    <pre>{JSON.stringify(bounds, null, '  ')}</pre>
-                </div>
+                <TransferFunction value={this.state.transferFunction}
+                                  onChange={this.handleTransferFunctionChange}/>
                 <hr/>
                 <div>{
                     materialIds.map((id: number) => (
