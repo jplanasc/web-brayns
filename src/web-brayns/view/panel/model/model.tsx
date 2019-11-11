@@ -27,13 +27,16 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
             transferFunction: {
                 range: [-100, 0],
                 opacity_curve: [
-                    [0,1], [1,1]
+                    [0,1], [.2,0], [.7,.8], [1,0]
                 ],
-                colors: [
-                    [0,1,0],
-                    [1,1,0],
-                    [1,0,0]
-                ]
+                colormap: {
+                    name: "custom",
+                    colors: [
+                        [0,1,0],
+                        [1,1,0],
+                        [1,0,0]
+                    ]
+                }
             }
         }
     }
