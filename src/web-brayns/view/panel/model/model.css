@@ -1,3 +1,7 @@
+div.webBrayns-view-panel-Model {
+    text-align: center;
+}
+
 div.webBrayns-view-panel-Model > header {
     display: flex;
     flex-direction: row;
