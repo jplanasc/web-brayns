@@ -73,7 +73,7 @@ async function waitForSimpleMovieMaking(params: IWaitForSimpleMovieMakingInput):
                     await getExportFramesProgress()
                 console.info("progress=", progress);
                 if (progress) {
-                    const percent = progress.frameNumber / (framesCount + 0.1)
+                    const percent = progress.progress
                     const time = Date.now()
                     if (initTime === 0) {
                         initTime = time
@@ -82,7 +82,7 @@ async function waitForSimpleMovieMaking(params: IWaitForSimpleMovieMakingInput):
                         wait.label = `Estimated time: ${estimateTime(initTime, time, initProgress, percent)}`
                     }
                     wait.progress = percent
-                    if (progress.done) break
+                    if (progress.progress >= 1) break
                 }
                 await Async.sleep(1000)
             }
@@ -138,8 +138,7 @@ async function cancelFramesExport() {
 
 
 interface IGetExportFramesProgressReturn {
-    frameNumber: number,
-    done: boolean
+    progress: number
 }
 
 async function getExportFramesProgress(): Promise<IGetExportFramesProgressReturn> {

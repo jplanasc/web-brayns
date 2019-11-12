@@ -1,0 +1,15 @@
+div.webBrayns-view-Anterograde {
+    text-align: left;
+}
+
+div.webBrayns-view-Anterograde > div.colors {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+div.webBrayns-view-Anterograde > div.indented {
+    margin: 0 0 .5rem 1.5rem;
+}

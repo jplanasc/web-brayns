@@ -22,7 +22,7 @@ interface IInputProps {
     type?: "text" | "password" | "submit" | "color" | "date"
     | "datetime-local" | "email" | "month" | "number" | "range"
     | "search" | "tel" | "time" | "url" | "week";
-    validator?: (value: string) => boolean | RegExp;
+    validator?: ((value: string) => boolean) | RegExp;
     onValidation?: (validation: boolean) => void;
     valid?: boolean,
     onChange?: IStringSlot,
@@ -66,9 +66,34 @@ export default class Input extends React.Component<IInputProps, {}> {
     onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         //if (!this.checkValidity(event.target.value)) return;
         const { onChange } = this.props;
+        this.validate()
         if (typeof onChange === 'function') {
             event.preventDefault();
             onChange(event.target.value);
+        }
+    }
+
+    private validate() {
+        const { validator, onValidation } = this.props
+        if (typeof onValidation !== 'function') return
+
+        const input = this.input.current;
+        if (!input) return;
+
+        const value = input.value
+
+        if (typeof validator === 'function') {
+            const isValid = validator(value)
+            onValidation(isValid)
+            return
+        }
+
+        if (validator && validator instanceof RegExp) {
+            validator.lastIndex = 0
+            const isValid = validator.test(value)
+            console.log(`"${value}" =>`, isValid)
+            onValidation(isValid)
+            return
         }
     }
 

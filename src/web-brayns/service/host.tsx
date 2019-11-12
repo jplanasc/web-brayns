@@ -25,7 +25,7 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
     if (urlArgs.host === 'auto') {
         const dialog = Dialog.show({
             content: <Wait cancellable={false}
-                           progress={0}                           
+                           progress={0}
                            label="Contacting Brayns..."/>,
             footer: null
         })

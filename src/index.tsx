@@ -58,6 +58,7 @@ async function start() {
         }
     }
     catch(ex) {
+        console.error(ex)
         await Dialog.alert(<div>
             <h1>Unable to retrieve Brayns' hostname!</h1>
             <p style={{whiteSpace: "pre-wrap"}}>{ex}</p>
