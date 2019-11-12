@@ -115,6 +115,8 @@ export default class TransferFunction extends React.Component<TTransferFunctionS
         const ctx = canvas.getContext("2d")
         if (!ctx) return
 
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
         const tf = this.props.value
         const w = canvas.clientWidth - 2 * MARGIN
         const h = canvas.clientHeight - 2 * MARGIN

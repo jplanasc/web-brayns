@@ -5,6 +5,7 @@
 }
 .tfw-view-Expand.expand {
     height: auto;
+    padding-bottom: .5rem;
 }
 
 .tfw-view-Expand > .head {

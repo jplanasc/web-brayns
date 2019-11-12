@@ -12,12 +12,13 @@ div.tfw-view-InputColor > div.summary > div.tfw-view-Slider {
     flex: 1 1 auto;
     min-width: 110px;
 }
-
 div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
+    background-repeat: repeat;
+    background-image: url(./background.jpg);
 }
 div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > div {
     max-height: 2rem;

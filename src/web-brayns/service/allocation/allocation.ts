@@ -126,7 +126,7 @@ async function getSessionId() {
                 configuration_id: "brayns_generic"
             })
         }
-        console.info("params=", params);
+        console.info("[getSessionId] params=", params);
         const response = await fetch(`${RRM_URL}`, params)
         const text = await response.text()
         console.info("text=", text);

@@ -33,6 +33,7 @@ div.tfw-view-input input {
 }
 
 div.tfw-view-input.invalid input {
+    text-decoration-line: underline;
     text-decoration-style: wavy;
     text-decoration-color: red;
     text-decoration-color: var(--thm-bgSD);

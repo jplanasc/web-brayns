@@ -18,7 +18,7 @@ export default class Expand extends React.Component<IExpandProps, {}> {
     render() {
         const classes = ["tfw-view-Expand"]
         if (this.props.value) {
-            classes.push("expand")
+            classes.push("expand", "thm-bg2")
         }
 
         return (<div className={classes.join(' ')}>

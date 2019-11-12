@@ -108,7 +108,7 @@ async function connect(hostName: string): Promise<BraynsService> {
         }))
     })
 
-    await Scene.renderer.initialize()    
+    await Scene.renderer.initialize()
 
     return Scene.brayns;
 }
@@ -260,7 +260,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
 async function setMaterial(modelId: number, materialId: number,
                            material: Partial<IMaterial>) {
     await request("set-material-extra-attributes", { modelId })
-        const finalMaterial = {
+    const finalMaterial = {
         glossiness: 1,
         emission: 0,
         opacity: 1,
@@ -269,7 +269,7 @@ async function setMaterial(modelId: number, materialId: number,
         specularExponent: 20,
         reflectionIndex: 0,
         refractionIndex: 1,
-        clipped: false,
+        clippingMode: 0,
         simulationDataCast: true,
         ...material,
         modelId, materialId,

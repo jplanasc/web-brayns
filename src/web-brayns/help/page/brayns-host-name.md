@@ -16,3 +16,7 @@ You will get something like this output:
 
 In this example, the host name you need is  
 __`r1i4n35`__.`bbp.epfl.ch`:`5000`
+
+----
+
+If you have permissions issues, please [check](https://groups.epfl.ch/cgi-bin/groups/listapp) if you are part of the group you need.
