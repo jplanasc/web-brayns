@@ -1,4 +1,38 @@
-import FS from './fs'
+/**
+ * Circuits queryings.
+ */
+import FS from '../fs'
+import Python from '../python'
+import castInteger from '../../../tfw/converter/integer'
+import castString from '../../../tfw/converter/string'
+
+export default {
+    listGIDs, getAfferentGIDs, getEfferentGIDs,
+    parseCircuitFromFile, parseCircuitFromText
+}
+
+async function listGIDs(circuitPath: string, targets: string[]): Promise<number[]> {
+    const result = await Python.exec("circuit/listGIDs", {
+        circuitPath, targets
+    })
+    return result.map(castInteger)
+}
+
+async function getAfferentGIDs(circuitPath: string, sourcesGIDs: (number|BigInt)[]): Promise<number[]> {
+    const result = await Python.exec("circuit/getAfferentGIDs", {
+        circuitPath, sourcesGIDs
+    })
+    return result.map(castInteger)
+}
+
+async function getEfferentGIDs(circuitPath: string, sourcesGIDs: (number|BigInt)[]): Promise<number[]> {
+    const result = await Python.exec("circuit/getEfferentGIDs", {
+        circuitPath, sourcesGIDs
+    })
+    return result.map(castInteger)
+}
+
+
 
 export interface IReport {
     name: string,
@@ -9,10 +43,6 @@ export interface ICircuitSection {
     type: string,
     name: string,
     properties: { [key: string]: string }
-}
-
-export default {
-    parseCircuitFromFile, parseCircuitFromText
 }
 
 

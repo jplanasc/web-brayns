@@ -171,8 +171,6 @@ async function loadFromString(
     // We have to applyTransfo because the scale can change the location.
     modelInstance.locate(model.brayns.transformation.translation)
     await modelInstance.applyTransfo()
-    const materialIds = await modelInstance.getMaterialIds();
-    model.materialIds = materialIds;
     State.dispatch(State.Models.add(model));
     State.dispatch(State.CurrentModel.reset(model));
     return new Model(model);

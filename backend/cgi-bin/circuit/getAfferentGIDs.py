@@ -1,15 +1,24 @@
-# How to create a new Python service?
-
-Assume you want to create a service called __foobar__.
-Then you need to create a Python file called `/backend/cgi-bin/foobar.py`
-with this skeleton:
-
-```python
 #!/usr/bin/env python3
 
+from bluepy.v2 import Circuit
+
+def ensureString(arr, name):
+    return arr[name]
+
+
+def ensureIntegerArray(arr, name):
+    return arr[name]
+
+
 def exec(input, hostname):
-    # Put all you code right here.
-    return input
+    path = ensureString(input, "circuitPath")
+    sourcesGIDs = ensureIntegerArray(input, "sourcesGIDs")
+    circuit = Circuit(path)
+    ids = []
+    for sourceGID in sourcesGIDs:
+        for id in circuit.connectome.afferent_gids(sourceGID):
+            ids.append(str(id))
+    return ids
 
 
 
@@ -31,14 +40,13 @@ else:
     input = fields["i"].value
     params = None
     try:
-        params = json.loads(input, hostname)
+        params = json.loads(input)
     except Exception as e:
         print("Invalid JSON param!")
         print(e)
     try:
-        output = exec(params)
+        output = exec(params, hostname)
         print(json.dumps(output, separators=(',', ':')))
     except Exception as e:
         print("Unexpected Exception!")
         print(e)
-```

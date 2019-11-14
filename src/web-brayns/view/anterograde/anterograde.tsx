@@ -5,19 +5,9 @@ import Combo from "../../../tfw/view/combo"
 import Input from "../../../tfw/view/input"
 import InputColor from "../../../tfw/view/input-color"
 import Storage from '../../storage'
+import { IAnterograde } from './types'
 import "./anterograde.css"
 
-
-type TColor = [number, number, number, number]
-
-export interface IAnterograde {
-    synapseType: string, // "afferent" | "efferent" | "projection"
-    projection: string,
-    cellGIDs: number[],
-    sourceCellColor: TColor,
-    connectedCellsColor: TColor,
-    nonConnectedCellsColor: TColor
-}
 
 interface TAnterogradeProps {
     wait: boolean,
@@ -53,6 +43,10 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
     }
 
     handleAction = () => {
+        Storage.set(
+            "web-brayns/view/anterograde/state",
+            this.state
+        )
         const sourceCellColor = new Color(this.state.sourceCellColor)
         const connectedCellsColor = new Color(this.state.connectedCellsColor)
         const nonConnectedCellsColor = new Color(this.state.nonConnectedCellsColor)
@@ -115,7 +109,7 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
                             value={connectedCellsColor}
                             onChange={connectedCellsColor => this.setState({ connectedCellsColor })}/>
                 <InputColor label="Other cells"
-                            alpha={true}
+                            alpha={true} wide={true}
                             value={nonConnectedCellsColor}
                             onChange={nonConnectedCellsColor => this.setState({ nonConnectedCellsColor })}/>
             </div>
