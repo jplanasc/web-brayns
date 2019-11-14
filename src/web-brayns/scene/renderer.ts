@@ -42,8 +42,6 @@ export default class Renderer {
         Scene.brayns.binaryListeners.add(this.handleImage)
         this.on()
         window.setInterval(() => {
-            this.askNextFrame()
-
             const { canvas, width, height, resizable } = this
             if (!canvas || !resizable) return
             const rect = canvas.getBoundingClientRect()
@@ -227,7 +225,10 @@ export default class Renderer {
 
         const onPaint  = this.onPaint
         if (typeof onPaint === 'function') {
-            window.requestAnimationFrame(() => onPaint(canvas))
+            window.requestAnimationFrame(() => {
+                onPaint(canvas)
+                this.askNextFrame()
+            })
         }
     }, 30)
 }
