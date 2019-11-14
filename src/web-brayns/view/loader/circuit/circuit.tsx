@@ -45,7 +45,7 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
                 axon: false,
                 dendrite: true,
                 apicalDendrite: true,
-                circuitColorScheme: "By layer"
+                circuitColorScheme: "By id"
             }),
             densityValid: true,
             report: "",
@@ -102,7 +102,7 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
                 "021_report_type": "Voltages from file",
                 "022_user_data_type": "Undefined",
                 "023_synchronous_mode": true,
-                "030_circuit_color_scheme": circuitColorScheme || "None",
+                "030_circuit_color_scheme": circuitColorScheme || "By id",
                 "040_mesh_folder": "",
                 "041_mesh_filename_pattern": "mesh_{gid}.obj",
                 "042_mesh_transformation": false,
@@ -185,8 +185,8 @@ export default class Circuit extends React.Component<ICircuitProps, ICircuitStat
             <div>
                 <Combo label="Colors" value={circuitColorScheme}
                        onChange={circuitColorScheme => this.setState({ circuitColorScheme })}>
-                   <div key="By id">By Cell ID</div>
-                   <div key="By layer">By Layer</div>
+                    <div key="By id">By Cell ID</div>
+                    <div key="By layer">By Layer</div>
                     <div key="By mtype">By Morphology Type</div>
                     <div key="By etype">By Electrical Type</div>
                 </Combo>

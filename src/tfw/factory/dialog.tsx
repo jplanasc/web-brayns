@@ -25,6 +25,8 @@ export default {
     * @return Promise<boolean> Confirmed or not?
     */
     confirm,
+    // See alert(...)
+    error,
     show,
     wait
 };
@@ -132,6 +134,31 @@ function alert(content: string | React.ReactElement<any>,
             }
             catch( ex ) {
                 console.error("Error in the resolution of tfw/factory/dialog/alert!", ex)
+                reject( ex );
+            }
+            finally {
+                dialog.hide();
+            }
+        }
+        dialog.footer = (<Button
+            icon="close"
+            label={_('close')}
+            flat={true}
+            onClick={close} />);
+        dialog.show();
+    });
+}
+
+function error(content: string | React.ReactElement<any>,
+               onClose: (() => void) | undefined = undefined): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const dialog = new Dialog({ onClose: resolve, content, maxWidth: 420 });
+        const close = () => {
+            try {
+                resolve();
+            }
+            catch( ex ) {
+                console.error("Error in the resolution of tfw/factory/dialog/error!", ex)
                 reject( ex );
             }
             finally {

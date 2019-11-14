@@ -4,16 +4,8 @@ import Debouncer from "../../../tfw/debouncer"
 import BackgroundURL from "./background.jpg"
 import Color from '../../../tfw/color'
 import Gesture from '../../../tfw/gesture'
+import { ITransferFunction } from './types'
 import "./transfer-function.css"
-
-export interface ITransferFunction {
-    range: [number, number],
-    opacity_curve: [number, number][],
-    colormap: {
-        name: string,
-        colors: [number, number, number][]
-    }
-}
 
 interface TTransferFunctionStateProps {
     onChange: (value: ITransferFunction) => void,

@@ -1,18 +1,29 @@
 div.tfw-view-InputColor {
-    display: inline-block;
+    display: inline-flex;
+    flex-wrap: nowrap;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     margin: .5rem;
 }
 div.tfw-view-InputColor.wide {
-    display: block;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+div.tfw-view-InputColor > div.tfw-view-Slider {
+    flex: 1 1 100%;
+}
+div.tfw-view-InputColor > div.summary {
+    flex: 0 0 auto;
 }
 div.tfw-view-InputColor > div.summary > div.tfw-view-Slider {
     flex: 1 1 auto;
     min-width: 110px;
 }
-div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable {
+div.tfw-view-InputColor > div.summary > div.main-color {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -20,7 +31,7 @@ div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable {
     background-repeat: repeat;
     background-image: url(./background.jpg);
 }
-div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > div {
+div.tfw-view-InputColor > div.summary > div.main-color > div {
     max-height: 2rem;
     min-height: 2rem;
     display: flex;
@@ -28,22 +39,22 @@ div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > div {
     align-items: center;
     flex: 0 0 auto;
 }
-div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > input {
+div.tfw-view-InputColor > div.summary > div.main-color > input {
     line-height: 2rem;
-    font-size: 1rem;
+    font-size: .9rem;
     font-family: monospace;
-    font-weight: bold;
+    font-weight: lighter;
     padding: 0 .5rem;
     border: 0;
     outline: 0;
-    width: 6rem;
+    width: 5.8rem;
     min-width: 6rem;
     max-height: 2rem;
     min-height: 2rem;
     flex: 1 1 auto;
     text-transform: uppercase;
 }
-div.tfw-view-InputColor > div.summary > div.tfw-view-Touchable > input.invalid {
+div.tfw-view-InputColor > div.summary > div.main-color > input.invalid {
     font-weight: normal;
     text-decoration: line-through;
 }

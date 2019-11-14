@@ -1,4 +1,6 @@
-export default function castInteger(v: any, defaultValue = 0): number {
+const MAX_JS_INT = "9007199254740991"
+
+export default function castInteger(v: any, defaultValue = 0): number|BigInt {
     const defVal = Math.floor(.5 + defaultValue);
 
     switch (typeof v) {
@@ -19,6 +21,11 @@ export default function castInteger(v: any, defaultValue = 0): number {
             if (text.startsWith("0o")) {
                 const hexa = parseInt(text.substr(2), 8);
                 return isNaN(hexa) ? defVal : hexa;
+            }
+            if (text.length > MAX_JS_INT.length ||
+                (text.length === MAX_JS_INT.length && text > MAX_JS_INT)) {
+                // Dealing with integers greater than 2^53 - 1.
+                return BigInt(text)
             }
             const num = parseFloat(text);
             if (isNaN(num)) return defVal;

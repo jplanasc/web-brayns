@@ -28,7 +28,7 @@
         "docker:deploy": "npm run docker && oc login && oc project bbp-ou-visualization && oc import-image web-brayns",
         "start": "./scripts/start.sh",
         "start-client": "react-app-rewired start",
-        "start-cgi": "cd backend && chmod a+x cgi-bin/*.py cgi-bin/phaneron/*.py && python3 -m http.server --cgi 3666 2>&1 > ../cgi-bin.out",
+        "start-cgi": "cd backend && chmod -R a+x cgi-bin/*.py && . ~/Code/virtual/python3/bin/activate && python3 -m http.server --cgi 3666",
         "build": "react-app-rewired build",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build",
