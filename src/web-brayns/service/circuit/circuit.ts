@@ -7,15 +7,29 @@ import castInteger from '../../../tfw/converter/integer'
 import castString from '../../../tfw/converter/string'
 
 export default {
-    listGIDs, getAfferentGIDs, getEfferentGIDs,
+    listGIDs, listTargets,
+    getAfferentGIDs, getEfferentGIDs,
     parseCircuitFromFile, parseCircuitFromText
 }
 
+/**
+ * Return a list of cells IDs given a list of targets.
+ */
 async function listGIDs(circuitPath: string, targets: string[]): Promise<number[]> {
     const result = await Python.exec("circuit/listGIDs", {
         circuitPath, targets
     })
     return result.map(castInteger)
+}
+
+/**
+ * Return a list of targets provided by this circuit.
+ */
+async function listTargets(circuitPath: string): Promise<string[]> {
+    const result = await Python.exec("circuit/listTargets", {
+        circuitPath
+    })
+    return result.map(castString)
 }
 
 async function getAfferentGIDs(circuitPath: string, sourcesGIDs: (number|BigInt)[]): Promise<number[]> {
