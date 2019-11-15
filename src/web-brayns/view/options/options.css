@@ -1,0 +1,25 @@
+div.webBrayns-view-Options > div.add {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+div.webBrayns-view-Options > div.add > * {
+    flex: 0 0 auto;
+}
+
+div.webBrayns-view-Options > div.add > div.tfw-view-Combo {
+    flex: 1 1 auto;
+}
+
+div.webBrayns-view-Options > div.remove > div {
+    display: inline-block;
+    font-size: 80%;
+    font-weight: lighter;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: 1px;
+    background: var(--thm-bgPL);
+    color: var(--thm-fgPL);
+}

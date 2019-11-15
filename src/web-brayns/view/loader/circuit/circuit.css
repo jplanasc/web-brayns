@@ -14,3 +14,19 @@ div.webBrayns-view-loader-Circuit em {
 div.webBrayns-view-loader-Circuit div.hint {
     padding: 1rem;
 }
+
+div.webBrayns-view-loader-Circuit div.wait {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+div.webBrayns-view-loader-Circuit div.wait > div {
+    flex: 1 1 auto;
+}
+
+div.webBrayns-view-loader-Circuit div.wait > div:first-child {
+    flex: 0 0 auto;
+}
