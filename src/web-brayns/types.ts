@@ -40,24 +40,3 @@ export interface IPanningEvent extends IScreenPoint {
     // 4: middle
     button: number
 }
-
-export interface IMaterial {
-    diffuseColor: [number,number,number],
-    specularColor: [number,number,number],
-    specularEnponent: number,
-    /**
-     * "none"
-     * "diffuse"
-     * "diffuse-alpha"
-     * "cartoon"
-     * "electron"
-     * "electron-alpha"
-     */
-    shadingMode: string,
-    glossiness: number,
-    opacity: number,
-    reflectionIndex: number,
-    refractionIndex: number,
-    intensity: number,
-    emission: number
-}

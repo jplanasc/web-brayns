@@ -31,8 +31,6 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
     handleToggleSelection = async () => {
         const handle = this.props.onToggleSelection;
         if (typeof handle === 'function') handle(this.props.model);
-        const model = new Model(this.props.model);
-        await model.focus();
     }
 
     handleVisible = async (visible: boolean) => {
@@ -57,6 +55,11 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
         )
     }
 
+    handleFocus = async () => {
+        const model = new Model(this.props.model)
+        await model.focus()
+    }
+
     render() {
         const { model } = this.props;
         const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
@@ -79,6 +82,11 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
                             enabled={true}
                             small={true}
                             icon="more"/>
+                        <Button
+                            onClick={this.handleFocus}
+                            enabled={true}
+                            small={true}
+                            icon="gps"/>
                     </div>
                     <Checkbox label="Visible" value={this.state.visible} onChange={this.handleVisible}/>
                     <Button enabled={true} small={true}

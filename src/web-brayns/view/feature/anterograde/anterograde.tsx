@@ -1,10 +1,10 @@
 import React from "react"
-import Color from '../../../tfw/color'
-import Button from "../../../tfw/view/button"
-import Combo from "../../../tfw/view/combo"
-import Input from "../../../tfw/view/input"
-import InputColor from "../../../tfw/view/input-color"
-import Storage from '../../storage'
+import Color from '../../../../tfw/color'
+import Button from "../../../../tfw/view/button"
+import Combo from "../../../../tfw/view/combo"
+import Input from "../../../../tfw/view/input"
+import InputColor from "../../../../tfw/view/input-color"
+import Storage from '../../../storage'
 import { IAnterograde } from './types'
 import "./anterograde.css"
 
