@@ -3,8 +3,9 @@
 import Scene from './scene'
 import Geom from '../geometry'
 import State from '../state'
+import Material, { IMaterial } from '../service/material'
 
-import { IModel, IVector, IQuaternion, IMaterial } from '../types'
+import { IModel, IVector, IQuaternion } from '../types'
 
 
 export default class Model {
@@ -115,8 +116,11 @@ export default class Model {
         }
     }
 
-    async setMaterial(materialId: number, material: Partial<IMaterial>) {
-        await Scene.setMaterial(this.model.brayns.id, materialId, material)
+    async setMaterial(material: IMaterial) {
+        await Material.setMaterials({
+            ...material,
+            modelId: this.model.brayns.id
+        })
     }
 
     /**

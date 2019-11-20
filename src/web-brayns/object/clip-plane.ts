@@ -2,6 +2,7 @@ import Geom from '../geometry'
 import Scene from '../scene'
 import Model from '../scene/model'
 import Color from '../../tfw/color'
+import Material from '../service/material'
 
 import { IQuaternion, IVector } from '../types'
 
@@ -47,38 +48,50 @@ export default class ClipPlane {
      * For snapshots, we will put the camera in orthographic mode
      * and configure it in order to make the plane take the whole screen.
      */
-    async setCameraForSnapshot() {
+    async setCameraForSnapshot(orthographic: boolean) {
         const { depth, center, orientation, width, height } = this.state
         const normal = Geom.rotateWithQuaternion([0,0,1], orientation)
         const remoteness = Geom.scale(normal, depth * 3)
         const cameraCenter = Geom.addVectors(center, remoteness)
-        await Scene.camera.setOrthographic(
-            width*3, height*3, cameraCenter, orientation
-        )
+        if (orthographic) {
+            await Scene.camera.setOrthographic(
+                width*3, height*3, cameraCenter, orientation
+            )
+        } else {
+            await Scene.camera.setPerspective()
+            let distance = height
+            const canvas = Scene.renderer.canvas
+            if (!canvas) return
+            const scrW = canvas.clientWidth
+            const scrH = canvas.clientHeight
+            if (scrW > scrH) {
+                const scaleW = scrW / width
+                const scaleH = scrH / height
+                if (scaleW > scaleH) {
+                    distance = height * scrH / scrW
+                } else {
+                    distance = width
+                }
+            }
+            console.info({
+                width, height,
+                scrW, scrH, distance
+            });
+            distance += depth
+            await Scene.camera.setPosition(
+                Geom.addVectors(center, Geom.scale(normal, 0.5 * distance))
+            )
+        }
     }
 
     get activated(): boolean {
         return this.isActivated;
     }
 
-    async setActivated(activated: boolean) {
-        if (this.isActivated === activated) return;
-
-        if (activated === false) {
-            await Scene.Api.removeClipPlanes([
-                this.frontPlaneId, this.backPlaneId])
-            this.isActivated = false;
-            return;
-        }
-
-        const { frontPlane, backPlane } = this.computeClippingPlanes()
-
-        const frontPlaneDescriptor = await Scene.Api.addClipPlane(frontPlane)
-        this.frontPlaneId = frontPlaneDescriptor.id
-        const backPlaneDescriptor = await Scene.Api.addClipPlane(backPlane)
-        this.backPlaneId = backPlaneDescriptor.id
-
-        this.isActivated = true;
+    async setVisible(visible: boolean) {
+        const { model } = this
+        if (!model) return
+        model.setVisible(visible)
     }
 
     async setTransformation(transformation: ITransformation) {
@@ -100,17 +113,8 @@ export default class ClipPlane {
                 model.rotate(rotation)
                 state.orientation = rotation
             }
-            this.updateClippingPlanes()
+            //this.updateClippingPlanes()
             await model.applyTransfo()
-        }
-    }
-
-    updateClippingPlanes = async () => {
-        const { frontPlane, backPlane } = this.computeClippingPlanes()
-
-        if (this.isActivated) {
-            await Scene.Api.updateClipPlane({ id: this.frontPlaneId, plane: frontPlane })
-            await Scene.Api.updateClipPlane({ id: this.backPlaneId, plane: backPlane })
         }
     }
 
@@ -139,25 +143,20 @@ export default class ClipPlane {
     }
 
     async attach(): Promise<boolean> {
-        const { state } = this;
-        const model = await Scene.loadMeshFromPath(
-            PATH, {
-                technical: true,
-                brayns: {
-                    path: PATH,
-                    transformation: {
-                        rotation: state.orientation,
-                        scale: [ state.width, state.height, state.depth ],
-                        translation: state.center
-                    }
-                }
-            });
-        if (!model) return false;
+        try {
+            const loadedModel = await Scene.loadMeshFromPath(PATH)
+            console.info("loadedModel=", loadedModel);
+            if (!loadedModel) return false;
+            const model = loadedModel.model
+            this.model = new Model(model);
+            await this.setColor(Color.fromArrayRGB(this.state.color))
 
-        this.model = model;
-        await this.setColor(Color.fromArrayRGB(this.state.color))
-
-        return true;
+            return true;
+        }
+        catch(err) {
+            console.error("Unable to attach ClipPlaneObject!", err)
+            return false
+        }
     }
 
     async setColor(color: Color) {
@@ -169,19 +168,15 @@ export default class ClipPlane {
 
         const modelId: number = this.model.id;
 
-        await Scene.setMaterial(modelId, 0, {
+        console.info("modelId=", modelId);
+
+        await Material.setMaterials({
+            modelId,
+            materialIds: [],
             diffuseColor: diffuseColor,
             specularColor: specularColor,
-            shadingMode: "diffuse"
-            //intensity: 2,
-            //emission: 0
+            shadingMode: Material.SHADER.DIFFUSE
         })
-        /*Scene.setMaterial(modelId, 1, {
-            diffuseColor: [0.5, 0.5, 1.0],
-            specularColor: [0.75, 0.75, 1.0],
-            shadingMode: "diffuse-alpha",
-            opacity: 0.2
-        })*/
     }
 
     async detach() {

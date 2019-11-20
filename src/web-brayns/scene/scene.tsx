@@ -7,7 +7,7 @@ import { Provider } from 'react-redux'
 
 import Api from "./api"
 import Models from '../models'
-import { IBraynsModel, IModel, IVector, IMaterial } from '../types'
+import { IBraynsModel, IModel, IVector } from '../types'
 import State from '../state'
 import Dialog from '../../tfw/factory/dialog'
 import Wait from '../view/wait'
@@ -48,7 +48,6 @@ const defaultObjectToExport = {
     connect,
     loadMeshFromPath,
     request,
-    setMaterial,
     get brayns() { return Scene.brayns },
     get camera(): Camera { return Scene.camera || new Camera({}) },
     get host() { return Scene.host },
@@ -250,31 +249,6 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
             </div>)
         return null
     }
-}
-
-/**
- * materialshadingMode: "none", "diffuse", "electron", "cartoon", "electron-alpha", 'perlin' or 'diffuse-alpha'.
- */
-async function setMaterial(modelId: number, materialId: number,
-                           material: Partial<IMaterial>) {
-    await request("set-material-extra-attributes", { modelId })
-    const finalMaterial = {
-        glossiness: 1,
-        emission: 0,
-        opacity: 1,
-        diffuseColor: [1,1,1],
-        specularColor: [1,1,1],
-        specularExponent: 20,
-        reflectionIndex: 0,
-        refractionIndex: 1,
-        clippingMode: 0,
-        simulationDataCast: true,
-        ...material,
-        modelId, materialId,
-        shadingMode: convertShadingMode(material.shadingMode)
-    }
-    console.info("finalMaterial=", finalMaterial);
-    await request("set-material", finalMaterial)
 }
 
 /**

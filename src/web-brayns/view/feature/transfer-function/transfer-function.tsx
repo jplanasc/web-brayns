@@ -1,9 +1,9 @@
 import React from "react"
-import Input from "../../../tfw/view/input"
-import Debouncer from "../../../tfw/debouncer"
+import Input from "../../../../tfw/view/input"
+import Debouncer from "../../../../tfw/debouncer"
 import BackgroundURL from "./background.jpg"
-import Color from '../../../tfw/color'
-import Gesture from '../../../tfw/gesture'
+import Color from '../../../../tfw/color'
+import Gesture from '../../../../tfw/gesture'
 import { ITransferFunction } from './types'
 import "./transfer-function.css"
 
@@ -47,7 +47,6 @@ export default class TransferFunction extends React.Component<TTransferFunctionS
         this.refresh()
         const canvas = this.refCanvas.current
         if (!canvas) return
-        const that = this
         Gesture(canvas).on({
             down: (evt) => {
                 this.handleDown(this.convertCoords(evt.x, evt.y))
@@ -118,7 +117,7 @@ export default class TransferFunction extends React.Component<TTransferFunctionS
         // Checkboad background.
         const background = await this.background
         const pattern = ctx.createPattern(background, "repeat")
-        ctx.fillStyle = pattern
+        ctx.fillStyle = pattern || "#000"
         ctx.fillRect(MARGIN, MARGIN, w, h)
 
         // Color ramp.

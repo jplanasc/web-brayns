@@ -30,3 +30,12 @@ div.webBrayns-view-loader-Circuit div.wait > div {
 div.webBrayns-view-loader-Circuit div.wait > div:first-child {
     flex: 0 0 auto;
 }
+
+div.webBrayns-view-loader-Circuit div.error {
+    padding: .5rem;
+    margin: .5rem;
+    background: red;
+    color: #fff;
+    border: 1px solid var(--thm-white-7);
+    max-width: 300px;
+}

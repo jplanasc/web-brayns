@@ -2,15 +2,19 @@ import React from "react"
 import { IModel } from "../../../types"
 import Dialog from '../../../../tfw/factory/dialog'
 import Expand from '../../../../tfw/view/expand'
+import Button from '../../../../tfw/view/button'
 import State from '../../../state'
 import Scene from '../../../scene'
-import Model from '../../../scene/model'
+import InputDir from '../../../dialog/directory'
+import InputString from '../../../dialog/string'
 import MaterialDialog from '../../../dialog/material'
-import Anterograde from '../../anterograde'
-import { IAnterograde } from '../../anterograde/types'
-import TransferFunction from '../../transfer-function'
-import { ITransferFunction } from '../../transfer-function/types'
+import Anterograde from '../../feature/anterograde'
+import { IAnterograde } from '../../feature/anterograde/types'
+import TransferFunction from '../../feature/transfer-function'
+import { ITransferFunction } from '../../feature/transfer-function/types'
 import CircuitService from '../../../service/circuit'
+import MaterialService from '../../../service/material'
+import WaitService from '../../../service/wait'
 import Storage from '../../../storage'
 
 import "./model.css"
@@ -22,8 +26,7 @@ interface IModelProps {
 interface IModelState {
     wait: boolean,
     transferFunction: ITransferFunction,
-    isTransferFunctionExpanded: boolean,
-    isAnterogradeExpanded: boolean
+    expandedId: string
 }
 
 export default class ModelPanel extends React.Component<IModelProps, IModelState> {
@@ -47,8 +50,7 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                         ]
                     }
                 },
-                isAnterogradeExpanded: false,
-                isTransferFunctionExpanded: false
+                expandedId: ""
             }
         )
     }
@@ -75,7 +77,10 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
     }
 
     private handleAnterogradeAction = async (params: IAnterograde) => {
+        const wait = new WaitService(() => {})
         try {
+            wait.label = "Anterograde Highlight"
+            wait.progress = 0
             const modelId = this.props.model.brayns.id
             this.setState({ wait: true })
             //const ids = CircuitService.listGIDs()
@@ -88,32 +93,64 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                     .map((target: string) => target.trim())
                     .filter((target: string) => target.length > 0)
             }
-            if (targets.length === 0) {
-                targets.push("All")
-            }
-            console.info("targets=", targets);
 
             const circuitPath = this.props.model.brayns.path || ""
             let connectedCellsIds: (number|BigInt)[] = []
             if (params.synapseType === 'afferent') {
+                wait.label = "Loading afferent cells..."
+                wait.progress = .2
                 connectedCellsIds = await CircuitService.getAfferentGIDs(
                     circuitPath, params.cellGIDs
                 )
             }
             else if (params.synapseType === 'efferent') {
+                wait.label = "Loading efferent cells..."
+                wait.progress = .2
                 connectedCellsIds = await CircuitService.getEfferentGIDs(
                     circuitPath, params.cellGIDs
                 )
             }
             console.info("connectedCellsIds=", connectedCellsIds);
 
+            wait.label = "Setting non-connected cells colors..."
+            wait.progress = .4
+            await MaterialService.setMaterials({
+                modelId,
+                materialIds: [],
+                shadingMode: MaterialService.SHADER.DIFFUSE_TRANSPARENCY,
+                diffuseColor: params.nonConnectedCellsColor.slice(0, 3) as [number, number, number],
+                specularColor: params.nonConnectedCellsColor.slice(0, 3) as [number, number, number],
+                opacity: params.nonConnectedCellsColor[3]
+            })
+            wait.label = "Setting source cells colors..."
+            wait.progress = .6
+            await MaterialService.setMaterials({
+                modelId,
+                shadingMode: MaterialService.SHADER.ELECTRON,
+                materialIds: params.cellGIDs,
+                diffuseColor: params.sourceCellColor.slice() as [number, number, number],
+                specularColor: params.sourceCellColor.slice() as [number, number, number],
+                emission: 1
+            })
+            wait.label = "Setting connected cells colors..."
+            wait.progress = .6
+            await MaterialService.setMaterials({
+                modelId,
+                shadingMode: MaterialService.SHADER.ELECTRON,
+                materialIds: connectedCellsIds,
+                diffuseColor: params.connectedCellsColor.slice() as [number, number, number],
+                specularColor: params.connectedCellsColor.slice() as [number, number, number],
+                emission: 1
+            })
+            wait.progress = 1
+/*
             const result = await Scene.request(
                 "trace-anterograde", {
                     modelId,
                     targetCellGIDs: connectedCellsIds,
                     ...params
                 })
-            console.info("result=", result);
+            console.info("result=", result);*/
             this.setState({ wait: false })
         }
         catch (ex) {
@@ -127,11 +164,58 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                 </div>
             )
         }
+        finally {
+            wait.hide()
+        }
+    }
+
+    private handleExpand = (id: string, expanded: boolean) => {
+        this.setState({
+            expandedId: expanded ? id : ""
+        })
+    }
+
+    private handleSaveModelToCache = async () => {
+        const answer = await Dialog.confirm(
+            "Save to cache",
+            <div>
+                <p>Cache files are very quick to load, but they come with <b>drawbacks</b>:</p>
+                <ul>
+                    <li>
+                        Compatibility is not garanted!<br/>
+                        <p className="hint">
+                            Future versions of Brayns may not be able to read them anymore.
+                        </p>
+                    </li>
+                    <li>
+                        Some use cases could not work with cache files!
+                    </li>
+                </ul>
+            </div>
+        )
+        if (!answer) return
+        const outputFolder = await InputDir.show({
+            title: "Movie output folder",
+            storageKey: "movie"
+        })
+        if (!outputFolder) return
+        const name = await InputString.show({
+            storageKey: "model-name",
+            title: "Please choose a Filename"
+        })
+        if (!name) return
+        Dialog.wait(
+            "Saving to cache...",
+            Scene.request("save-model-to-cache", {
+                modelId: this.props.model.brayns.id,
+                path: `${outputFolder}/${name.split("/")[0]}.brayns`
+            })
+        )
     }
 
     render() {
         const { model } = this.props;
-        const { wait } = this.state;
+        const { wait, expandedId } = this.state;
         const { name, id } = model.brayns;
 
         return (<div className="webBrayns-view-panel-Model">
@@ -141,19 +225,37 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
             </header>
             <div>
                 <Expand label="Transfer Function"
-                        value={this.state.isTransferFunctionExpanded}
-                        onValueChange={isTransferFunctionExpanded => this.setState({ isTransferFunctionExpanded })}>
-                        <TransferFunction
-                            value={this.state.transferFunction}
-                            onChange={this.handleTransferFunctionChange}/>
+                        value={expandedId === 'TransferFunction'}
+                        onValueChange={v => this.handleExpand('TransferFunction', v)}>
+                    <TransferFunction
+                        value={this.state.transferFunction}
+                        onChange={this.handleTransferFunctionChange}/>
                 </Expand>
                 <Expand label="Anterograde Highlighting"
-                        value={this.state.isAnterogradeExpanded}
-                        onValueChange={isAnterogradeExpanded => this.setState({ isAnterogradeExpanded })}>
-                        <Anterograde
-                            wait={wait}
-                            onAction={this.handleAnterogradeAction}/>
+                        value={expandedId === 'Anterograde'}
+                        onValueChange={v => this.handleExpand('Anterograde', v)}>
+                    <Anterograde
+                        wait={wait}
+                        onAction={this.handleAnterogradeAction}/>
                 </Expand>
+                {
+                    this.props.model.brayns.metadata &&
+                    <Expand label="Metadata"
+                            value={expandedId === 'Metadata'}
+                            onValueChange={v => this.handleExpand('Metadata', v)}>{
+                        Object.keys(model.brayns.metadata)
+                            .map((key: string) => {
+                                const data = model.brayns.metadata[key]
+                                if (!data || typeof data !== 'string' || data.length === 0) {
+                                    return null
+                                }
+                                return <div className="metadata" key={key}>
+                                    <label>{key}</label>
+                                    <div>{model.brayns.metadata[key]}</div>
+                                </div>
+                            })
+                    }</Expand>
+                }
                 <div>{/*
                     materialIds.map((id: number) => (
                         <Button
@@ -164,6 +266,12 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                     ))
                 */}</div>
             </div>
+            <footer className="thm-bg0">
+                <Button
+                    label="Save model to temporaty cache"
+                    icon="export"
+                    onClick={this.handleSaveModelToCache}/>
+            </footer>
         </div>)
     }
 }

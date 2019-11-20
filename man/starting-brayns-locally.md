@@ -44,7 +44,7 @@ CMAKE_PREFIX_PATH=~/Installs \
              -DBRAYNS_NETWORKING_ENABLED=ON \
              -DBRAYNS_CIRCUITEXPLORER_ENABLED=ON \
              -DBRAYNS_OPENDECK_ENABLED=ON \
-             -DBRAYNS_OPTIX_ENABLED=ON \
+             -DBRAYNS_OPTIX_ENABLED=OFF \
              -DCMAKE_INSTALL_PREFIX=~/Installs \
              -G Ninja
 ninja install

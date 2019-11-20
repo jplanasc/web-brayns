@@ -2,9 +2,12 @@ import { IVector, IQuaternion, IBounds } from '../types'
 
 export default {
     addVectors,
+    axis2quaternion,
     copyQuaternion,
     copyVector,
     deg2rad,
+    flipQuaternion,
+    invert,
     makeQuaternionAsAxisRotation,
     makeQuaternionFromLatLngTilt,
     makeVector,
@@ -12,7 +15,9 @@ export default {
     mixVectors,
     multiplyQuaternions,
     normalize,
+    normalizeQuaternion,
     plane6to4,
+    quaternion2axis,
     rotateBounds,
     rotateWithQuaternion,
     scaleBounds,
@@ -30,6 +35,52 @@ function addVectors(a: IVector, b: IVector): IVector {
     ];
 }
 
+
+function flipQuaternion(q: IQuaternion): IQuaternion {
+    const axis = quaternion2axis(q)
+    return axis2quaternion([
+        invert(axis[0]),
+        invert(axis[1]),
+        invert(axis[2])
+    ])
+}
+
+/**
+ * Take a Quaternion and returns an orthonormal base.
+ */
+function quaternion2axis(q: IQuaternion): [IVector, IVector, IVector] {
+    // @see: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+    const [b, c, d, a] = q
+    const a2 = a*a
+    const b2 = b*b
+    const c2 = c*c
+    const d2 = d*d
+    const ab = 2*a*b
+    const ac = 2*a*c
+    const ad = 2*a*d
+    const bc = 2*b*c
+    const bd = 2*b*d
+    const cd = 2*c*d
+    return [
+        [a2 + b2 - c2 - d2, bc - ad,           bd + ac          ],
+        [bc + ad,           a2 - b2 + c2 - d2, cd - ab          ],
+        [bd - ac,           cd + ab,           a2 - b2 - c2 - d2]
+    ]
+}
+
+
+function axis2quaternion(axis: [IVector, IVector, IVector]): IQuaternion {
+    const [vx, vy, vz] = axis
+    const [a11, a21, a31] = vx
+    const [a12, a22, a32] = vy
+    const [a13, a23, a33] = vz
+    const r = 0.5 * Math.sqrt(1 + a11 + a22 + a33)
+    const factor = 1 / (4 * r)
+    const i = (a32 - a23) * factor
+    const j = (a13 - a31) * factor
+    const k = (a21 - a12) * factor
+    return [i, j, k, r]
+}
 
 function makeQuaternionAsAxisRotation(angle: number, axis: IVector): IQuaternion {
     const halfAngle = angle * 0.5;
@@ -85,18 +136,26 @@ function normalize(vector: IVector): IVector {
 }
 
 
+function normalizeQuaternion(quaternion: IQuaternion): IQuaternion {
+    const [x, y, z, w] = quaternion
+    const len2 = x * x + y * y + z * z + w * w
+    if (len2 < 0.000000001) return [0, 0, 0, 0]
+    const f = 1 / Math.sqrt(len2)
+    return [x * f, y * f, z * f, w * f]
+}
+
+
 /**
  * A plan can be defined by a point and a normal.
- * The normal points to the hemi-space that must be visible.
+ * The normal points to the hemi-space that must be discarded.
  *
  * This representation takes 6 floats.
  * You can also use a normal and a signed distance from the center,
  * which takes only 4 floats. This is how Brayns represent clipping planes.
  */
 function plane6to4(point: IVector, normal: IVector): [number, number, number, number] {
-    const invNorm = scale(normal, -1)
-    const d = scalarProduct(point, normalize(invNorm))
-    const plane = [-invNorm[0], -invNorm[1], -invNorm[2], d]
+    const d = scalarProduct(point, normalize(normal))
+    const plane = [-normal[0], -normal[1], -normal[2], d]
     return plane as [number, number, number, number]
 }
 
@@ -229,4 +288,9 @@ function mixQuaternions(q1: IQuaternion, q2: IQuaternion, alpha: number): IQuate
         c1 * q1[2] + c2 * q2[2],
         c1 * q1[3] + c2 * q2[3]
     ]
+}
+
+
+function invert(vect: IVector): IVector {
+    return [-vect[0], -vect[1], -vect[2]]
 }

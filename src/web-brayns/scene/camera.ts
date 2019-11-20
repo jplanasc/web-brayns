@@ -44,9 +44,9 @@ export default class Camera {
         return this.params.position.slice() as IVector;
     }
 
-    setPosition(position: IVector) {
+    async setPosition(position: IVector) {
         this.params.position = Geom.copyVector(position);
-        this.applyCamera();
+        await this.applyCamera();
     }
 
     get orientation(): IQuaternion {
@@ -72,6 +72,12 @@ export default class Camera {
         params.position = position
         params.orientation = orientation
         params.height = height  //Math.max(width, height)
+        return await this.applyCamera();
+    }
+
+    async setPerspective() {
+        const { params } = this
+        params.current = "perspective"
         return await this.applyCamera();
     }
 

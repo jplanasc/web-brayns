@@ -30,6 +30,9 @@ interface ICircuitState {
     reports: string[],
     targetsAvailable: string[],
     targetsSelected: Set<string>,
+    // When we get an error while trying to get the targets list,
+    // we will set `targetsError` accordingly.
+    targetsError: null | string,
     soma: boolean,
     axon: boolean,
     dendrite: boolean,
@@ -57,18 +60,27 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
             report: "",
             reports: [""],
             targetsAvailable: [],
-            targetsSelected: new Set()
+            targetsSelected: new Set(),
+            targetsError: null
         }
         this.circuit = CircuitProxy.create(props.path)
     }
 
     async componentDidMount() {
         try {
-            this.circuit.targetsPromise.then((targets: string[]) => {
+            this.circuit.targetsPromise
+            .then((targets: string[]) => {
                 const targetsSelected = new Set<string>()
                 this.setState({
                     targetsAvailable: targets.sort(),
-                    targetsSelected
+                    targetsSelected,
+                    targetsError: null
+                })
+            })
+            .catch(err => {
+                console.error(err)
+                this.setState({
+                    targetsError: `${err}`
                 })
             })
 
@@ -167,7 +179,7 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
         const { path, onCancel } = this.props
         const {
             density, densityValid, report, reports,
-            targetsAvailable, targetsSelected
+            targetsAvailable, targetsSelected, targetsError
         } = this.state
         const { soma, axon, dendrite, apicalDendrite, morphoSDF, circuitColorScheme } = this.state
 
@@ -182,6 +194,10 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     validator={Validator.isFloat}
                     onValidation={densityValid => this.setState({ densityValid })}
                     onChange={density => this.setState({ density })}/>
+                {
+                    targetsError &&
+                    <div className="error">{targetsError}</div>
+                }
                 {
                     reports.length > 1 &&
                     <Combo label="Report"
@@ -201,11 +217,15 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                         label="Targets to load"
                         options={targetsAvailable}
                         selection={targetsSelected}
-                        onChange={targetsSelected => this.setState({ targetsSelected })}/> :
-                    <div className="wait">
-                        <Icon content="wait" animate={true} />
-                        <div>Loading targets...</div>
-                    </div>
+                        onChange={targetsSelected => this.setState({ targetsSelected })}/>
+                    :
+                    (
+                        targetsError === null &&
+                        <div className="wait">
+                            <Icon content="wait" animate={true} />
+                            <div>Loading targets...</div>
+                        </div>
+                    )
                 }
             </div>
             <br/>

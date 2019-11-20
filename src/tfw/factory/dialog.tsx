@@ -187,7 +187,11 @@ function confirm( caption: string,
         const dialog = new Dialog({ title: caption, content });
         const close = (confirmed: boolean) => {
             dialog.hide();
-            resolve( confirmed );
+            // Wait a bit to prevent the click from going to the next window.
+            window.setTimeout(
+                () => resolve( confirmed ),
+                300
+            )
         };
         dialog.onClose = () => close(false);
         const btnCancel = (<Button
