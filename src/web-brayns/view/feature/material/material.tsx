@@ -45,7 +45,8 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
             materialIds: [],
             diffuseColor,
             specularColor: [.9, .9, .9],
-            shadingMode: this.state.shadingMode
+            shadingMode: this.state.shadingMode,
+            emission: this.state.shadingMode === MaterialService.SHADER.ELECTRON ? 0.5 : 0
         }
         this.props.onClick(material)
     }
@@ -71,7 +72,7 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
                     Inverted
                 </div>
             </Combo>
-            <label>Colors: </label>
+            <label>Colors will be picked randomly for each cell: </label>
             <ColorRamp colors={this.state.colors}
                        onChange={this.handleChange}/>
             <hr/>

@@ -7,7 +7,7 @@ div.webBrayns-view-ColorRamp {
 }
 
 div.webBrayns-view-ColorRamp div.color-step {
-    width: 64px;
+    width: 48px;
     height: 24px;
     display: flex;
     flex-direction: row;
@@ -23,5 +23,15 @@ div.webBrayns-view-ColorRamp div.block {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    margin: 0 8px;
+    margin: 0 2px;
+}
+
+div.webBrayns-view-ColorRamp div.add {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%;
+    margin: 0;
 }

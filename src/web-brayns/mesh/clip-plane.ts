@@ -2,9 +2,12 @@ import Geom from '../geometry'
 import Scene from '../scene'
 import Model from '../scene/model'
 import Color from '../../tfw/color'
+import Dialog from '../../tfw/factory/dialog'
 import Material from '../service/material'
-
+import LoaderService from '../service/loader'
 import { IQuaternion, IVector } from '../types'
+
+import CLIP_PLANE_URL from './clip-plane.ply'
 
 export interface IClipPlaneState {
     width: number,
@@ -26,13 +29,10 @@ const PATH = '/gpfs/bbp.cscs.ch/project/proj3/.tolokoban/clipping-plane.ply'
 
 export default class ClipPlane {
     private readonly state: IClipPlaneState;
-    private attached: boolean = false;
     private model: Model | null = null;
     private isActivated = false;
-    private frontPlaneId: number = -1;
-    private backPlaneId: number = -1;
 
-    constructor(private partialState: Partial<IClipPlaneState>) {
+    constructor(partialState: Partial<IClipPlaneState>) {
         this.state = {
             width: 32,
             height: 24,
@@ -113,7 +113,6 @@ export default class ClipPlane {
                 model.rotate(rotation)
                 state.orientation = rotation
             }
-            //this.updateClippingPlanes()
             await model.applyTransfo()
         }
     }
@@ -121,30 +120,12 @@ export default class ClipPlane {
     async setLocation(location: IVector) {
         return await this.setTransformation({ location })
     }
-    /**
-     * Clipping planes depend on the location and orientation
-     * of the object.
-     */
-    private computeClippingPlanes() {
-        const { depth, center, orientation } = this.state
-        const normal = Geom.rotateWithQuaternion([0,0,1], orientation)
-
-        const frontPlane = Geom.plane6to4(
-            Geom.addVectors(center, Geom.scale(normal, depth * 0.5 + EPSILON)),
-            Geom.scale(normal, -1)
-        )
-
-        const backPlane = Geom.plane6to4(
-            Geom.addVectors(center, Geom.scale(normal, -depth * 0.5 - EPSILON)),
-            normal
-        )
-
-        return { frontPlane, backPlane }
-    }
 
     async attach(): Promise<boolean> {
         try {
-            const loadedModel = await Scene.loadMeshFromPath(PATH)
+            //const loadedModel = await Scene.loadMeshFromPath(PATH)
+            const loadedModel = await LoaderService.loadFromURL(CLIP_PLANE_URL)
+
             console.info("loadedModel=", loadedModel);
             if (!loadedModel) return false;
             const model = loadedModel.model
@@ -182,6 +163,6 @@ export default class ClipPlane {
     async detach() {
         const { model } = this
         if (!model) return
-        await Scene.Api.removeModel([model.id])
+        await Dialog.wait("Removing clipping plane mesh...", model.remove())
     }
 }

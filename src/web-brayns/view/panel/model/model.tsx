@@ -253,8 +253,8 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                                     return null
                                 }
                                 return <div className="metadata" key={key}>
-                                    <label>{key}</label>
-                                    <div>{model.brayns.metadata[key]}</div>
+                                    <label>{data}</label>
+                                    <div>{key}</div>
                                 </div>
                             })
                     }</Expand>

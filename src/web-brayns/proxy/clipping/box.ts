@@ -1,5 +1,6 @@
 import ClippingService from '../../service/clipping'
 import Geom from '../../geometry'
+import Scene from '../../scene'
 import { IVector, IQuaternion } from '../../types'
 
 interface IBoxProps {
@@ -36,34 +37,69 @@ export default class Box {
     }
 
     async update(params: Partial<IBoxProps>) {
-        this.props = {
-            ...this.props,
-            ...params
-        }
-        if (this._activated) {
-            for (const plane of this._planes) {
-                await ClippingService.updatePlane(plane.id, plane.point, plane.normal)
+        console.log(">>> update")
+        try {
+            this.props = {
+                ...this.props,
+                ...params
             }
+
+            if (this._activated) {
+                await Scene.renderer.off()
+                await this.removeAllPlans()
+                this.computePlanes()
+                console.log("========================================")
+                for (const plane of this._planes) {
+                    const id = await ClippingService.addPlane(plane.point, plane.normal)
+                    plane.id = id
+                    console.log("ADD: ", plane.id)
+                }
+                /*
+                    Looks like updatePlane does not work...
+
+                for (const plane of this._planes) {
+                    console.log("UPDATE: ", plane)
+                    await ClippingService.updatePlane(plane.id, plane.point, plane.normal)
+                }*/
+                await Scene.renderer.on()
+            }
+        }
+        catch (ex) {
+            throw ex
+        }
+        finally {
+            console.log("<<< update")
+        }
+    }
+
+    private async removeAllPlans() {
+        const ids = this._planes
+            .map(plane => plane.id)
+            .filter(id => id > -1)
+        if (ids.length > 0) {
+            console.log("Removing planes: ", ids)
+            await ClippingService.removePlanes(ids)
         }
     }
 
     get activated() { return this._activated }
     async setActivated(activated: boolean) {
-        if (activated === this._activated) return
-        this._activated = activated
-        console.info("activated=", activated);
-        if (activated) {
-            this.computePlanes()
-            for (const plane of this._planes) {
-                const id = await ClippingService.addPlane(plane.point, plane.normal)
-                plane.id = id
+        console.log(">>> setActivated")
+        try {
+            if (activated === this._activated) return
+            this._activated = activated
+            console.info("activated=", activated);
+            if (activated) {
+                await this.update({})
+            } else {
+                await this.removeAllPlans()
             }
-        } else {
-            // Remove all planes
-            const ids = this._planes.map(plane => plane.id)
-            if (ids.length > 0) {
-                await ClippingService.removePlanes(ids)
-            }
+        }
+        catch (ex) {
+            throw ex
+        }
+        finally {
+            console.log("<<< setActivated")
         }
     }
 

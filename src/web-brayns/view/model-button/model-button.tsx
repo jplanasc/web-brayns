@@ -4,7 +4,6 @@ import { IModel } from '../../types'
 import Dialog from '../../../tfw/factory/dialog'
 import Button from '../../../tfw/view/button'
 import Checkbox from '../../../tfw/view/checkbox'
-import Scene from '../../scene'
 import State from '../../state'
 import Model from '../../scene/model'
 import Touchable from '../../../tfw/view/touchable'
@@ -43,8 +42,6 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
         const { model } = this.props;
         State.dispatch(State.CurrentModel.reset(model));
         State.dispatch(State.Navigation.setPanel("model"));
-        Scene.camera.saveState();
-        await Scene.camera.lookAtBounds(model.brayns.bounds);
     }
 
     handleRemove = async () => {
@@ -88,7 +85,8 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
                             small={true}
                             icon="gps"/>
                     </div>
-                    <Checkbox label="Visible" value={this.state.visible} onChange={this.handleVisible}/>
+                    <Checkbox label="Visible" value={this.state.visible}
+                              onChange={this.handleVisible}/>
                     <Button enabled={true} small={true}
                             icon="delete" warning={true}
                             onClick={this.handleRemove}/>
