@@ -26,7 +26,7 @@ export default class PathBar extends React.Component<IPathBarProps, {}> {
             if (i === lastIndex) {
                 // Last item is not a button, because it makes no sense to click on the folder
                 // you already are in.
-                buttons.push(<div>{piece}</div>)
+                buttons.push(<div key={`piece-${i}`}>{piece}</div>)
             } else {
                 const button = (<div key={path} className="thm-bgPL thm-ele-button">
                         <Touchable onClick={handler}><div>{piece}</div></Touchable>

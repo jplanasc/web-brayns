@@ -179,7 +179,7 @@ export default class Color {
     }
 
     /**
-     * @returns {integer} 0 if the color is dark and 1 if it is light.
+     * Returns 0 if the color is dark and 1 if it is light.
      */
     luminanceStep(): number {
         return this.luminance() < .6 ? 0 : 1;

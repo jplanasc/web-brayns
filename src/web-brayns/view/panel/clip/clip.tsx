@@ -3,6 +3,7 @@ import React from "react"
 import State from '../../../state'
 import Scene from '../../../scene'
 import Geom from '../../../geometry'
+import Dialog from '../../../../tfw/factory/dialog'
 import Color from '../../../../tfw/color'
 import Button from '../../../../tfw/view/button'
 import Checkbox from '../../../../tfw/view/checkbox'
@@ -194,9 +195,7 @@ console.info("this.state=", this.state);
                 z + depth
             ]
         }
-        console.info("bounds=", bounds);
-        Scene.camera.lookAtBounds(bounds)
-        //this.clipPlaneObject.setCameraForSnapshot(false)
+        Dialog.wait("Facing the clipping plane...", Scene.camera.lookAtBounds(bounds))
     }
 
     render() {

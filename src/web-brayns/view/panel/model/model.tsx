@@ -1,5 +1,5 @@
 import React from "react"
-import { IModel } from "../../../types"
+import { IModel, IMaterial } from "../../../types"
 import Dialog from '../../../../tfw/factory/dialog'
 import Expand from '../../../../tfw/view/expand'
 import Button from '../../../../tfw/view/button'
@@ -12,6 +12,7 @@ import Anterograde from '../../feature/anterograde'
 import { IAnterograde } from '../../feature/anterograde/types'
 import TransferFunction from '../../feature/transfer-function'
 import { ITransferFunction } from '../../feature/transfer-function/types'
+import MaterialFeature from '../../feature/material'
 import CircuitService from '../../../service/circuit'
 import MaterialService from '../../../service/material'
 import WaitService from '../../../service/wait'
@@ -58,18 +59,6 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
     handleBack = () => {
         State.dispatch(State.Navigation.setPanel("models"));
         Scene.camera.restoreState();
-    }
-
-    handleMaterial = async (materialId: number) => {
-        const material = await MaterialDialog.show();
-        if (!material) return;
-        try {
-            await Scene.setMaterial(this.props.model.brayns.id, materialId, material)
-            await Scene.Api.updateModel({ id: this.props.model.brayns.id })
-        }
-        catch (ex) {
-            console.error(ex);
-        }
     }
 
     private handleTransferFunctionChange = (transferFunction: ITransferFunction) => {
@@ -169,6 +158,14 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
         }
     }
 
+    private handleMaterial = async (material: IMaterial) => {
+        await Dialog.wait(
+            "Applying colors...",
+            MaterialService.setMaterials({
+                ...material, modelId: this.props.model.brayns.id
+            }))
+    }
+
     private handleExpand = (id: string, expanded: boolean) => {
         this.setState({
             expandedId: expanded ? id : ""
@@ -238,6 +235,12 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                         wait={wait}
                         onAction={this.handleAnterogradeAction}/>
                 </Expand>
+                <Expand label="Colors"
+                        value={expandedId === 'Colors'}
+                        onValueChange={v => this.handleExpand('Colors', v)}>
+                    <MaterialFeature
+                        onClick={this.handleMaterial}/>
+                </Expand>
                 {
                     this.props.model.brayns.metadata &&
                     <Expand label="Metadata"
@@ -256,15 +259,6 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                             })
                     }</Expand>
                 }
-                <div>{/*
-                    materialIds.map((id: number) => (
-                        <Button
-                            key={`${id}`}
-                            wide={true}
-                            onClick={() => this.handleMaterial(id)}
-                            label={`Set material #${id}`} />
-                    ))
-                */}</div>
             </div>
             <footer className="thm-bg0">
                 <Button
