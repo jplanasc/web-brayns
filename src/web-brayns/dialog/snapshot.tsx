@@ -16,7 +16,8 @@ interface IParams {
     filename: string,
     width: number,
     height: number,
-    samples: number
+    samples: number,
+    landscape: boolean
 }
 
 export default {
@@ -25,10 +26,11 @@ export default {
             const opt: IParams = {
                 hidePathInput: false,
                 storageKey: "default",
-                filename: '',
-                width: 800,
-                height: 600,
-                samples: 16,
+                filename: 'snapshot',
+                width: 1920,
+                height: 1080,
+                samples: 50,
+                landscape: false,
                 ...params
             }
             const key = opt.storageKey
@@ -37,6 +39,7 @@ export default {
                 width: opt.width,
                 height: opt.height,
                 samples: opt.samples,
+                landscape: opt.landscape,
                 ...castObject(Storage.get(key, {}))
             }
             const btnCancel = <Button
@@ -45,12 +48,26 @@ export default {
                                 icon="cancel"
                                 onClick={() => dialog.hide()}/>
             const btnOK = <Button
-                                label="OK"
-                                icon="ok"
-                                onClick={() => {
-                                    dialog.hide()
-                                    resolve(snapshot)
-                                }}/>
+                            label="OK"
+                            icon="ok"
+                            onClick={() => {
+                                const filename = snapshot.filename.trim()
+                                if (filename.length === 0) {
+                                    snapshot.filename = "snapshot"
+                                }
+                                const { width, height } = snapshot
+                                const min = Math.min(width, height)
+                                const max = Math.max(width, height)
+                                if (snapshot.landscape) {
+                                    snapshot.width = max
+                                    snapshot.height = min
+                                } else {
+                                    snapshot.width = min
+                                    snapshot.height = max
+                                }
+                                dialog.hide()
+                                resolve(snapshot)
+                            }}/>
 
             const dialog = Dialog.show({
                 title: opt.title,

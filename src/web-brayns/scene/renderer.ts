@@ -1,5 +1,6 @@
 import Scene from '../scene'
 import ImageFactory from '../../tfw/factory/image'
+import Debouncer from '../../tfw/debouncer'
 import Throttler from '../../tfw/throttler'
 import castBoolean from '../../tfw/converter/boolean'
 import castInteger from '../../tfw/converter/integer'
@@ -203,8 +204,17 @@ export default class Renderer {
     }
 
     askNextFrame = Throttler(async () => {
+        this.tryAgaintoAskNextFrame()
         return await Scene.request("trigger-jpeg-stream")
     }, 50)
+
+    /**
+     * If we miss a JPEG stream frame, we can try again after 5 seconds.
+     */
+    tryAgaintoAskNextFrame = Debouncer(async () => {
+        console.warn("Brayns doesn't send us any new frame for more than 15 seconds!")
+        this.askNextFrame()
+    }, 15000)
 
     handleImage = Throttler(async (data: ArrayBuffer) => {
         this.askNextFrame()

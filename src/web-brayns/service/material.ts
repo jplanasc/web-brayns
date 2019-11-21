@@ -16,7 +16,8 @@ export default {
 
 interface IMaterialBase {
     modelId: number,
-    diffuseColor: [number, number, number],
+    // Number of elements must be an integral multiple of 3.
+    diffuseColor: number[],
     specularColor?: [number, number, number],
     specularExponent?: number,
     reflectionIndex?: number,

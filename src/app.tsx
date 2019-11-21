@@ -32,12 +32,6 @@ export default class App extends React.Component<IAppProps, IAppState> {
     constructor( props: IAppProps ) {
         super( props );
         this.state = { data: new Blob(), panelVisible: true }
-    }
-
-    /**
-     * Parse querystring params.
-     */
-    componentWillMount() {
         const args = UrlArgs.parse()
         const load = args.load
         if (typeof load === 'string') this.execLoad(load)
@@ -49,15 +43,21 @@ export default class App extends React.Component<IAppProps, IAppState> {
     private async execLoad(path: string) {
         const model = await Scene.loadMeshFromPath(path);
         if (!model) return
-        model.focus()        
+        model.focus()
     }
 
     private handleScreenShot = async () => {
-        const options = await Snapshot.show();
+        const options = await Snapshot.show({});
         if (!options) return;  // Action cancelled.
-        const canvas = await Dialog.wait("Snapshoting in progress...", SnapshotService.getCanvas(options))
-        console.info("canvas=", canvas);
-        await Dialog.wait("Saving in progress...", SnapshotService.saveCanvasToFile(canvas, `${options.filename}.jpg`))
+        const canvas = await SnapshotService.snapshot(options) as HTMLCanvasElement
+        if (!canvas) return
+        await Dialog.wait("Saving in progress...", SnapshotService.saveCanvasToFile(
+            canvas, `${options.filename}.png`))
+
+        /*const canvas = await Dialog.wait(
+            "Snapshoting in progress...",
+            SnapshotService.getCanvas(options)
+        )*/
     }
 
     private handlePanelChange = (panel: string) => {

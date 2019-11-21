@@ -1,3 +1,4 @@
+export * from './service/types'
 export * from './models/types'
 export * from './geometry/types'
 export * from './state/types'

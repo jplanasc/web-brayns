@@ -17,15 +17,12 @@ div.webBrayns-view-panel-Model > footer {
 }
 
 div.webBrayns-view-panel-Model > div {
+    text-align: left;
     flex: 1 1 auto;
 }
 
 div.webBrayns-view-panel-Model > header > div:last-child {
     opacity: .6;
-}
-
-div.webBrayns-view-panel-Model div.metadata {
-    text-align: left;
 }
 
 div.webBrayns-view-panel-Model div.metadata > label {

@@ -1,8 +1,13 @@
+import React from "react"
+import { Provider } from 'react-redux'
+
 import SaveAsFile from 'save-as-file'
 
-import Scene from '../scene'
-import { API_snapshot_Param0 } from '../scene/api'
 import State from '../state'
+import Dialog from '../../tfw/factory/dialog'
+import Wait from '../view/wait'
+import Scene from '../scene'
+import { API_snapshot_Param0, API_snapshot_Return } from '../scene/api'
 import { ISnapshot } from '../types'
 import Debouncer from '../../tfw/debouncer'
 
@@ -28,19 +33,37 @@ export default {
         })
     },
 
-    async GARBAGE(options: ISnapshot) {
+    async snapshot(options: ISnapshot) {
         const params: API_snapshot_Param0 = {
             animation_parameters: State.store.getState().animation,
             samples_per_pixel: options.samples,
             size: [options.width, options.height],
-            format: "JPEG",
+            format: "PNG",
             camera: {
                 position: Scene.camera.position,
                 orientation: Scene.camera.orientation,
                 target: Scene.camera.target
             }
         }
-        const snapshot = await Scene.Api.snapshot(params);
+        const query = Scene.brayns.execAsync(
+            "snapshot", params
+        )
+
+        const wait = <Provider store={State.store}><Wait onCancel={() => {
+            query.cancel()
+            dialog.hide()
+        }}/></Provider>
+        const dialog = Dialog.show({ content: wait, footer: null })
+        query.progress.add(arg => {
+            State.store.dispatch(State.Wait.update(arg.label, arg.progress))
+        })
+
+        const result = await query.promise
+        dialog.hide()
+        if (result.status !== "ok") return null
+
+        const snapshot: API_snapshot_Return = result.message
+
         const dataURI = `data:;base64,${snapshot.data}`
         return new Promise( (resolve, reject) => {
             const img = new Image();
@@ -63,7 +86,7 @@ export default {
 
     async saveCanvasToFile(canvas: HTMLCanvasElement,
                            filename: string,
-                           mimetype: string = "image/jpeg") {
+                           mimetype: string = "image/png") {
         return new Promise((resolve, reject) => {
             canvas.toBlob(blob => {
                 if (!blob) {

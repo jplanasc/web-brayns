@@ -18,9 +18,8 @@ export interface ISnapshot {
     filename: string,
     width: number,
     height: number,
-    samples: number
-    //sizeKey: string,
-    //samplesKey: string,
+    samples: number,
+    landscape: boolean
 }
 
 export interface IDialogs {
