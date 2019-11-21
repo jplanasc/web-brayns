@@ -1,7 +1,7 @@
 import Scene from '../scene'
 import Model from '../scene/model'
 import Geom from '../geometry'
-import ClipPlane from '../object/clip-plane'
+import ClipPlane from '../mesh/clip-plane'
 
 export default { getAstrocytePath, test }
 

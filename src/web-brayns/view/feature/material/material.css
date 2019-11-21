@@ -1,1 +1,4 @@
-div.webBrayns-view-feature-Material {}
+div.webBrayns-view-feature-Material label {
+    opacity: .5;
+    font-size: 80%;
+}

@@ -7,7 +7,7 @@ import Model from '../scene/model'
 import Dialog from '../../tfw/factory/dialog'
 import CircuitLoaderView from '../view/loader/circuit'
 
-export default { getLoaderParams, loadFromFile, loadFromString }
+export default { getLoaderParams, loadFromFile, loadFromString, loadFromURL }
 
 const CIRCUIT = 'Circuit viewer with meshes use-case'
 
@@ -112,6 +112,18 @@ interface ILoadFromStringOptions {
           number,
           number
        ];
+    }
+}
+
+async function loadFromURL(url: string, options: ILoadFromStringOptions = {}) {
+    try {
+        const response = await fetch(url)
+        const content = await response.text()
+        return loadFromString(url, content, options)
+    }
+    catch (ex) {
+        console.error("Unable to load file from url:", url)
+        throw ex
     }
 }
 

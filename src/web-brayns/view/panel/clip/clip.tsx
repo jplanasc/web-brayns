@@ -13,7 +13,7 @@ import OrientationView from '../../orientation'
 import LocationView from '../../location'
 import ScaleView from '../../scale'
 import Storage from '../../../storage'
-import ClipPlaneObject from '../../../object/clip-plane'
+import ClipPlaneObject from '../../../mesh/clip-plane'
 import ClipBox from '../../../proxy/clipping/box'
 import { IModel } from '../../../types'
 
@@ -79,8 +79,8 @@ export default class Model extends React.Component<IClipProps, IClipState> {
             width: 32,
             height: 24,
             depth: 4,
-            activated: true,
-            visible: true,
+            activated: false,
+            visible: false,
             latitude: 0,
             longitude: 0,
             tilt: 0,
@@ -90,7 +90,7 @@ export default class Model extends React.Component<IClipProps, IClipState> {
             currentPlaneIndex: -1,
             ...previouslySavedState
         }
-console.info("this.state=", this.state);
+
         this.clipPlaneObject =
             new ClipPlaneObject({
                 color: [0,1,0],
@@ -105,7 +105,6 @@ console.info("this.state=", this.state);
     }
 
     async componentDidMount() {
-        //this.setCurrentPlaneIndex(0)
         this.clipPlaneObject.attach()
         this.updatePlanes()
     }
@@ -118,16 +117,9 @@ console.info("this.state=", this.state);
         const {
             x, y, z,
             width, height, depth,
-            latitude, longitude, tilt
+            latitude, longitude, tilt,
+            activated, visible
         } = this.state
-        const plane = this.clipPlaneObject
-        plane.setTransformation({
-            location: [ x, y, z ],
-            scale: [ width, height, depth],
-            rotation: Geom.makeQuaternionFromLatLngTilt(
-                latitude, longitude, tilt
-            )
-        })
         Storage.set(
             "web-brayns/view/panel/clip/clipPlanes",
             {
@@ -135,7 +127,22 @@ console.info("this.state=", this.state);
                 latitude, longitude, tilt
             }
         )
-        await this.clipBox.setActivated(this.state.activated)
+
+        const plane = this.clipPlaneObject
+        await plane.setVisible(visible)
+        if (visible) {
+            await plane.setTransformation({
+                location: [ x, y, z ],
+                scale: [ width, height, depth],
+                rotation: Geom.makeQuaternionFromLatLngTilt(
+                    latitude, longitude, tilt
+                )
+            })
+        }
+
+        console.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        await this.clipBox.setActivated(activated)
+        console.info("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
         const scale = this.state.visible ? 1.1 : 1
         await this.clipBox.update({
             x, y, z, latitude, longitude, tilt,
@@ -143,9 +150,11 @@ console.info("this.state=", this.state);
             height: scale * height + EPSILON,
             depth: scale * depth + EPSILON
         })
+        console.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
     }, 50)
 
     async componentWillUnmount() {
+        console.log("### componentWillUnmount ###")
         await this.clipBox.setActivated(false)
         await this.clipPlaneObject.detach()
     }
@@ -172,13 +181,19 @@ console.info("this.state=", this.state);
 
     handleActivatedChange = async (activated: boolean) => {
         this.setState({ activated })
-        await this.clipBox.setActivated(activated)
+        await Dialog.wait(
+            activated ? "Adding clipping planes..." : "Removing clipping planes...",
+            this.clipBox.setActivated(activated)
+        )
     }
 
     handleVisibleChange = async (visible: boolean) => {
         console.info("visible=", visible);
         this.setState({ visible })
-        await this.clipPlaneObject.setVisible(visible)
+        await Dialog.wait(
+            visible ? "Showing frame..." : "Hidding frame...",
+            this.clipPlaneObject.setVisible(visible)
+        )
     }
 
     private handleFaceThePlane = () => {

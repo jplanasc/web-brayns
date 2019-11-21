@@ -2,7 +2,6 @@ import React from "react"
 
 import Icon from "../../../tfw/view/icon"
 import Color from "../../../tfw/color"
-import Dialog from "../../../tfw/factory/dialog"
 import ColorInput from "../../dialog/color"
 
 import "./color-ramp.css"
@@ -81,11 +80,15 @@ export default class ColorRamp extends React.Component<TColorRampProps, TColorRa
             {
                 this.props.colors.map((colorArray: [number, number, number], index: number) => {
                     const color = Color.fromArrayRGB(colorArray)
-                    const pen = color.luminanceStep() === 0 ? "#000" : "#fff"
+                    const pen = color.luminanceStep() === 0 ? "#fff" : "#000"
                     return [
                         index > 0 &&
-                        <Icon content="add" size={16} onClick={() => this.add(index)}/>,
-                        <div className="block">
+                        <div className="add thm-bgP thm-ele-button"
+                             key={`add-${index}`}>
+                            <Icon content="add" size={20}
+                                onClick={() => this.add(index)}/>
+                        </div>,
+                        <div className="block" key={`block-${index}`}>
                             <Icon content="left" size={16}
                                   onClick={() => this.cloneLeft(index)}/>
                             <div className="color-step" style={{ background: color.stringify() }}>
