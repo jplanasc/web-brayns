@@ -2,6 +2,7 @@ import React from "react"
 
 import Button from "../../../../tfw/view/button"
 import Combo from "../../../../tfw/view/combo"
+import Slider from "../../../../tfw/view/slider"
 import { IMaterial } from '../../../types'
 import MaterialService from '../../../service/material'
 import ColorRamp from "../../color-ramp"
@@ -19,7 +20,8 @@ interface TMaterialProps {
 
 interface TMaterialState {
     colors: IColor[],
-    shadingMode: number
+    emission: number,
+    style: string
 }
 
 export default class Material extends React.Component<TMaterialProps, TMaterialState> {
@@ -28,7 +30,8 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
         this.state = Storage.get(
             STORAGE_KEY, {
                 colors: [],
-                shadingMode: MaterialService.SHADER.DIFFUSE
+                emission: 0,
+                style: "DIFFUSE"
             }
         )
     }
@@ -40,13 +43,24 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
     private handleApplyColors = () => {
         Storage.set( STORAGE_KEY, this.state )
         const diffuseColor = flatten(this.state.colors)
+        let shadingMode = MaterialService.SHADER.DIFFUSE
+        switch (this.state.style) {
+            case "NONE":
+                shadingMode = MaterialService.SHADER.NONE
+                break
+            case "INVERTED":
+                for (let i=0; i<diffuseColor.length; i++) {
+                    diffuseColor[i] = 1 - diffuseColor[i]
+                }
+                break
+        }
         const material: IMaterial = {
             modelId: -1,
             materialIds: [],
             diffuseColor,
             specularColor: [.9, .9, .9],
-            shadingMode: this.state.shadingMode,
-            emission: this.state.shadingMode === MaterialService.SHADER.ELECTRON ? 0.5 : 0
+            shadingMode,
+            emission: this.state.emission
         }
         this.props.onClick(material)
     }
@@ -56,22 +70,26 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
 
         return (<div className={classes.join(' ')}>
             <Combo  wide={true}
-                    label="Shading"
-                    value={`${this.state.shadingMode}`}
-                    onChange={shadingMode => this.setState({ shadingMode: parseInt(shadingMode, 10) })}>
-                <div key={`${MaterialService.SHADER.DIFFUSE}`}>
+                    label="Style"
+                    value={`${this.state.style}`}
+                    onChange={style => this.setState({ style })}>
+                <div key="DIFFUSE">
                     Lights and shadows
                 </div>
-                <div key={`${MaterialService.SHADER.NONE}`}>
+                <div key="NONE">
                     Flat surface
                 </div>
-                <div key={`${MaterialService.SHADER.CARTOON}`}>
+                {/*<div key="CARTOON">
                     Oil painting
-                </div>
-                <div key={`${MaterialService.SHADER.ELECTRON}`}>
-                    Inverted
+                </div>*/}
+                <div key="INVERTED">
+                    Inverted colors
                 </div>
             </Combo>
+            <Slider value={this.state.emission}
+                    label="Ligth burst"
+                    min={0} max={1} step={0.1}
+                    onChange={emission => this.setState({ emission })}/>
             <label>Colors will be picked randomly for each cell: </label>
             <ColorRamp colors={this.state.colors}
                        onChange={this.handleChange}/>
