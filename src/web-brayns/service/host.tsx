@@ -68,9 +68,11 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
 
         let hostName = "";
         let validated = false;
-        const onOk = () => {
+        const onOk = async () => {
             validated = true;
             dialog.hide();
+            const token = await AllocationService.startBraynsServiceAndGetHostname({})
+            console.info("token=", token);
             resolve(hostName);
         }
         const input = <div>
