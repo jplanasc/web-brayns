@@ -161,9 +161,14 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
     private handleMaterial = async (material: IMaterial) => {
         await Dialog.wait(
             "Applying colors...",
-            MaterialService.setMaterials({
-                ...material, modelId: this.props.model.brayns.id
-            }))
+            new Promise(async (resolve) => {
+                await MaterialService.setMaterials({
+                    ...material, modelId: this.props.model.brayns.id
+                })
+                await Scene.Api.updateModel({ id: this.props.model.brayns.id })
+                resolve(true)
+            })
+        )
     }
 
     private handleExpand = (id: string, expanded: boolean) => {
