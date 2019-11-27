@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
+import Package from '../package.json'
 
 import { IBraynsModel } from './web-brayns/types'
 import ServiceHost from "./web-brayns/service/host"
@@ -12,6 +13,8 @@ import State from './web-brayns/state'
 import Lights from './web-brayns/proxy/lights'
 
 import "./tfw/font/josefin.css"
+
+console.log("Version:", Package.version)
 
 Theme.apply("default");
 
