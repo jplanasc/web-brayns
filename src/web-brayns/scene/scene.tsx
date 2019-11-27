@@ -168,7 +168,7 @@ async function clear(): Promise<boolean> {
     const rendererParams: any = await request("get-renderer-params", {});
     if (rendererParams) {
         // A bit brighter.
-        rendererParams.pixel_alpha = 1;
+        rendererParams.pixel_alpha = 1.1;
         rendererParams.shadows = 1;
         rendererParams.soft_shadows = 0.5;
         await request("set-renderer-params", rendererParams);
@@ -176,7 +176,8 @@ async function clear(): Promise<boolean> {
 
     await Api.setRenderer({
         accumulation: true,
-        current: "advanced_simulation",
+        //current: "circuit_explorer_basic",
+        current: "circuit_explorer_advanced",
         head_light: true,
         max_accum_frames: 32,
         samples_per_pixel: 1,

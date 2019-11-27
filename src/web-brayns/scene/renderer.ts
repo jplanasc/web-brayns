@@ -68,6 +68,7 @@ export default class Renderer {
         })
 
         await Scene.request("set-renderer", {
+            "current": "circuit_explorer_basic",
             "samples_per_pixel": this.progressive ? 1 : this.samples,
             "max_accum_frames": this.samples
         })
@@ -203,9 +204,11 @@ export default class Renderer {
         });
     }
 
-    askNextFrame = Throttler(async () => {
-        this.tryAgaintoAskNextFrame()
-        return await Scene.request("trigger-jpeg-stream")
+    askNextFrame = Throttler(() => {
+        window.requestAnimationFrame(async () => {
+            this.tryAgaintoAskNextFrame()
+            await Scene.request("trigger-jpeg-stream")
+        })
     }, 50)
 
     /**
@@ -235,10 +238,8 @@ export default class Renderer {
 
         const onPaint  = this.onPaint
         if (typeof onPaint === 'function') {
-            window.requestAnimationFrame(() => {
-                onPaint(canvas)
-                this.askNextFrame()
-            })
+            onPaint(canvas)
+            this.askNextFrame()
         }
     }, 30)
 }

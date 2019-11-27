@@ -9,6 +9,7 @@ import Dialog from "./tfw/factory/dialog"
 import Theme from "./tfw/theme"
 import App from './app.container';
 import State from './web-brayns/state'
+import Lights from './web-brayns/proxy/lights'
 
 import "./tfw/font/josefin.css"
 
@@ -20,6 +21,7 @@ async function start() {
 
         try {
             const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
+            //await Lights.initialize()
             const planes = await Scene.Api.getClipPlanes()
             const notNullplanes: {id: number, plane: [number,number,number,number]}[] =
                 planes.filter( p => p !== null )

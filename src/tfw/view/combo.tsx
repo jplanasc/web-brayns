@@ -15,7 +15,7 @@ interface IComboProps {
     keys?: string[];
     wide?: boolean;
     onChange?: (value: string) => void;
-    children?: React.ReactElement<any>[];
+    children: React.ReactElement<any>[];
 }
 
 export default class Combo extends React.Component<IComboProps, {}> {

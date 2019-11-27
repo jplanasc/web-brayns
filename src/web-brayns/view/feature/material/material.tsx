@@ -43,24 +43,27 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
     private handleApplyColors = () => {
         Storage.set( STORAGE_KEY, this.state )
         const diffuseColor = flatten(this.state.colors)
-        let shadingMode = MaterialService.SHADER.DIFFUSE
-        switch (this.state.style) {
-            case "NONE":
-                shadingMode = MaterialService.SHADER.NONE
-                break
-            case "INVERTED":
-                for (let i=0; i<diffuseColor.length; i++) {
-                    diffuseColor[i] = 1 - diffuseColor[i]
-                }
-                break
-        }
         const material: IMaterial = {
             modelId: -1,
             materialIds: [],
             diffuseColor,
-            specularColor: [.9, .9, .9],
-            shadingMode,
+            specularColor: [0, 0, 0],
+            shadingMode: MaterialService.SHADER.DIFFUSE,
+            glossiness: 0,
             emission: this.state.emission
+        }
+        switch (this.state.style) {
+            case "METAL":
+                material.glossiness = 1
+                break
+            case "NONE":
+                material.shadingMode = MaterialService.SHADER.NONE
+                break
+            case "INVERTED":
+                for (let i=0; i<diffuseColor.length; i++) {
+                    material.diffuseColor[i] = 1 - material.diffuseColor[i]
+                }
+                break
         }
         this.props.onClick(material)
     }
@@ -79,9 +82,9 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
                 <div key="NONE">
                     Flat surface
                 </div>
-                {/*<div key="CARTOON">
-                    Oil painting
-                </div>*/}
+                <div key="METAL">
+                    Hard metal
+                </div>
                 <div key="INVERTED">
                     Inverted colors
                 </div>
