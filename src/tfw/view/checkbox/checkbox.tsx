@@ -1,9 +1,9 @@
 import * as React from "react";
-import Touchable from "../behavior/touchable"
+import Touchable from "../../behavior/touchable"
 import "./checkbox.css";
 
-import castString from "../converter/string"
-import castBoolean from "../converter/boolean"
+import castString from "../../converter/string"
+import castBoolean from "../../converter/boolean"
 
 
 interface IBooleanSlot {
@@ -20,7 +20,7 @@ interface ICheckboxProps {
 
 export default class Checkbox extends React.Component<ICheckboxProps, {}> {
     readonly touchable: Touchable;
-    readonly ref;
+    private readonly ref: React.RefObject<HTMLButtonElement> = React.createRef();
 
     constructor(props: ICheckboxProps) {
         super(props);

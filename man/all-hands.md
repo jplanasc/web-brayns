@@ -1,12 +1,10 @@
-So, Brayns is a powerful software that allows us to see big circuits.  
-But it used to be a bit scary.
+So, Brayns is a powerful software.
+But it has the reputation of being a little bit scary, isn't it?
 
-That's why, we will now focus on making it more **user-consumable**.
+This time is over!
+From now, we will focus on making it more **user-consumable**.
 
-And for that, we have created this new web interface.  
-It provides user-friendly features, like
-* this file browser,
-* a smarter circuit loader, ...
+And for that, we have created this new web interface.
 
 Use cases are first citizen of this application.
 

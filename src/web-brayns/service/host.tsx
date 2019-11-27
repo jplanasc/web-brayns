@@ -30,6 +30,11 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
             footer: null
         })
         try {
+          const token = await AllocationService.startBraynsServiceAndGetHostname({
+              allocationTimeInMinutes: 60
+          })
+          console.info("token=", token);
+/*
             const sessionId = await AllocationService.getSessionId()
             console.info("sessionId=", sessionId);
             const hostname = await AllocationService.startBraynsServiceAndGetHostname(sessionId)
@@ -48,6 +53,7 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
                 await AllocationService.sleep(1000)
             }
             throw "Timeout!"
+        */
         }
         catch(ex) {
             throw ex
@@ -71,8 +77,10 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
         const onOk = async () => {
             validated = true;
             dialog.hide();
+            /*
             const token = await AllocationService.startBraynsServiceAndGetHostname({})
             console.info("token=", token);
+            */
             resolve(hostName);
         }
         const input = <div>

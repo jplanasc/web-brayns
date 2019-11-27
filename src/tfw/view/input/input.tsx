@@ -1,10 +1,12 @@
 import * as React from "react"
-import "./input.css"
 import castInteger from "../../converter/integer"
 import castBoolean from "../../converter/boolean"
 import castString from "../../converter/string"
 import castUnit from "../../converter/unit"
+import Icon from "../icon"
 import Label from "../label"
+
+import "./input.css"
 
 interface IStringSlot {
     (value: string): void;
@@ -12,7 +14,9 @@ interface IStringSlot {
 
 interface IInputProps {
     value: string;
+    className?: string,
     label?: string;
+    name?: string;
     wide?: boolean;
     size?: number;
     focus?: boolean;
@@ -22,15 +26,31 @@ interface IInputProps {
     type?: "text" | "password" | "submit" | "color" | "date"
     | "datetime-local" | "email" | "month" | "number" | "range"
     | "search" | "tel" | "time" | "url" | "week";
-    validator?: ((value: string) => boolean) | RegExp;
+    validator?: ((value: string) => boolean | string) | RegExp;
     onValidation?: (validation: boolean) => void;
-    valid?: boolean,
     onChange?: IStringSlot,
     onEnterPressed?: (value: string) => void
 }
 
-export default class Input extends React.Component<IInputProps, {}> {
+interface IInputState {
+    valid: boolean,
+    error: string
+}
+
+export default class Input extends React.Component<IInputProps, IInputState> {
     private readonly input: React.RefObject<HTMLInputElement> = React.createRef();
+
+    constructor(props: IInputProps) {
+        super(props)
+        this.state = {
+            valid: true,
+            error: ''
+        }
+    }
+
+    componentDidMount() {
+        this.fireChange(this.props.value)
+    }
 
     handleKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
         if (evt.key === "Enter") {
@@ -64,80 +84,109 @@ export default class Input extends React.Component<IInputProps, {}> {
     }
 
     onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        //if (!this.checkValidity(event.target.value)) return;
-        const { onChange } = this.props;
-        this.validate()
+        event.preventDefault();
+        this.fireChange(event.target.value)
+    }
+
+    fireChange(value: string) {
+        const { onChange, validator } = this.props;
+
+        if (validator) {
+            try {
+                let f: (v: string) => (boolean | string) = () => true
+                if (typeof validator === 'function') {
+                    f = validator
+                } else if (typeof validator.test === 'function') {
+                    f = validator.test
+                }
+                const valid = f(value)
+                if (valid === true) {
+                    this.setState({ valid, error: '' })
+                    this.fireValidation(true)
+                }
+                else if (valid === false) {
+                    this.setState({ valid, error: '' })
+                    this.fireValidation(false)
+                }
+                else if (typeof valid === 'string') {
+                    if (valid.trim().length === 0) {
+                        this.setState({ valid: true, error: '' })
+                        this.fireValidation(true)
+                    } else {
+                        this.setState({ valid: false, error: valid.trim() })
+                        this.fireValidation(false)
+                    }
+                }
+            }
+            catch (ex) {
+                console.error('[tfw/view/input] Validator exception: ', ex)
+            }
+        }
         if (typeof onChange === 'function') {
-            event.preventDefault();
-            onChange(event.target.value);
+            onChange(value);
         }
     }
 
-    private validate() {
-        const { validator, onValidation } = this.props
-        if (typeof onValidation !== 'function') return
-
-        const input = this.input.current;
-        if (!input) return;
-
-        const value = input.value
-
-        if (typeof validator === 'function') {
-            const isValid = validator(value)
-            onValidation(isValid)
-            return
-        }
-
-        if (validator && validator instanceof RegExp) {
-            validator.lastIndex = 0
-            const isValid = validator.test(value)
-            console.log(`"${value}" =>`, isValid)
-            onValidation(isValid)
-            return
+    fireValidation(valid: boolean) {
+        const { onValidation } = this.props;
+        if (typeof onValidation === 'function') {
+            onValidation(valid)
         }
     }
 
     render() {
         const
+            { valid, error } = this.state,
             p = this.props,
             type = castString(p.type, "text"),
             label = castString(p.label, ""),
+            name = castString(p.name, label),
             value = castString(p.value, ""),
+            className = castString(p.className, ""),
             placeholder = castString(p.placeholder, ""),
-            valid = castBoolean(p.valid, true),
             wide = castBoolean(p.wide, false),
             focus = castBoolean(p.focus, false),
             enabled = castBoolean(p.enabled, true),
             size = Math.max(1, castInteger(p.size, 8)),
             width = castUnit(p.width, "auto"),
             id = nextId();
+
         const classes = ["tfw-view-input"]
         if (wide) classes.push("wide")
         if (!valid) classes.push("invalid")
-        /*
-        const header = (error ? <div className="error">{error}</div> :
-            (label ? (<Label htmlFor={id} label={label}/>) : null));
-        */
-        const inputClassName = "thm-ele-button "
+
+        const inputClassName = "input thm-ele-button "
             + (enabled ? 'thm-bg3' : 'thm-bg0');
         return (<div
-                    className={classes.join(" ")}
+                    className={classes.join(" ") + ' ' + className}
                     style={{ width, maxWidth: width }}>
             <Label htmlFor={id} label={label}/>
-            <input
-                ref={this.input}
-                autoFocus={focus}
-                className={inputClassName}
-                placeholder={placeholder}
-                disabled={!enabled}
-                type={type}
-                id={id}
-                size={size}
-                onFocus={this.onFocus}
-                onBlur={this.onBlur}
-                onChange={this.onChange}
-                onKeyDown={this.handleKeyDown}
-                value={value}/>
+            <div className={inputClassName}>
+                <input
+                    ref={this.input}
+                    autoFocus={focus}
+                    placeholder={placeholder}
+                    disabled={!enabled}
+                    type={type}
+                    id={id}
+                    name={name}
+                    size={size}
+                    onFocus={this.onFocus}
+                    onBlur={this.onBlur}
+                    onChange={this.onChange}
+                    onKeyDown={this.handleKeyDown}
+                    value={value}/>
+                {
+                    error.length > 0 &&
+                    <div className="thm-bgSD">
+                        <Icon content="warning" size={16}/>
+                    </div>
+                }
+            </div>
+            <div className='error-placeholder'>{
+                error.length > 0 &&
+                <div className="error">{error}</div>
+            }</div>
         </div>);
     }
 }
