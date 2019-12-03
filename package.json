@@ -28,7 +28,7 @@
         "docker": "npm run build && docker build -t tolokoban/web-brayns:latest . && docker login && docker push tolokoban/web-brayns:latest",
         "docker:deploy": "npm run docker && oc login && oc project bbp-ou-visualization && oc import-image web-brayns",
         "start": "./scripts/start.sh",
-        "start-client": "react-app-rewired start",
+        "start-client": "PORT=8080 react-app-rewired start",
         "start-cgi": "cd backend && chmod -R a+x cgi-bin/*.py && . ~/Code/virtual/python3/bin/activate && python3 -m http.server --cgi 3666",
         "build": "react-app-rewired build",
         "predeploy": "npm run build",

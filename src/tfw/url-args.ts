@@ -23,6 +23,12 @@ const UrlArgs = {
         });
 
         return args;
+    },
+
+    stringify(args: IMap): string {
+        return Object.keys(args).map(
+            key => `${key}=${encodeURIComponent(args[key])}`
+        ).join('&')
     }
 };
 
