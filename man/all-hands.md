@@ -1,13 +1,21 @@
-So, Brayns is a powerful software.
+Well, Brayns is a powerful software.
 But it has the reputation of being a little bit scary, isn't it?
 
 This time is over!
-From now, we will focus on making it more **user-consumable**.
+Because we are creating this new web interface, which will make it more **user-consumable**.
 
-And for that, we have created this new web interface.
+Use cases are first citizen in this application.
 
-Use cases are first citizen of this application.
+Here is an example called **Anterograde Highlighter**.  
+Just enter a list of cell's IDs and it will highlight the afferent or efferent neurons.  
 
-Here is an example called **Anterograde Highlight** that makes it easy to see connected neurons.
+All this without the need of writing a single line of Python code.
 
-And you can also make your own movies of simulations.
+----
+Another use case deals with circuit simulations.
+
+It is now easy to produce a movie from your simulation.
+
+For this, you will use what we have called **key frames**.
+
+Key frames will record the camera position and the simulation step.
