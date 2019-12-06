@@ -33,6 +33,7 @@
         "build": "react-app-rewired build",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build",
+        "tag": "npm version minor && git tag `node scripts/version.js` && git push gerrit master",
         "test": "react-app-rewired test",
         "test:dbg": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
         "eject": "react-scripts eject"
