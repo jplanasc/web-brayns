@@ -4,8 +4,8 @@
 import { JSO } from 'jso'
 import UrlArgs from '../../../tfw/url-args'
 
-//import Agent from './unicore'
-import Agent from './bbp-workflow'
+import Agent from './unicore'
+//import Agent from './bbp-workflow'
 
 const KEYCLOAK_URL = "https://bbpteam.epfl.ch/auth/realms/BBP/protocol/openid-connect/auth"
 //const KEYCLOAK_URL = "https://bbpteam.epfl.ch/auth"
