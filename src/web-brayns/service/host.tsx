@@ -23,47 +23,8 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
     const urlArgs = UrlArgs.parse();
 
     if (urlArgs.host === 'auto') {
-        const dialog = Dialog.show({
-            content: <Wait cancellable={false}
-                           progress={0}
-                           label="Contacting Brayns..."/>,
-            footer: null
-        })
-        try {
-            if (location.hash.length > 1) {
-                console.info("location.hash=", location.hash);
-            }
-            const token = await AllocationService.startBraynsServiceAndGetHostname({
-                allocationTimeInMinutes: 60
-            })
-            console.info("token=", token);
-/*
-            const sessionId = await AllocationService.getSessionId()
-            console.info("sessionId=", sessionId);
-            const hostname = await AllocationService.startBraynsServiceAndGetHostname(sessionId)
-            console.info("hostname=", hostname);
-            for (let loop=0 ; loop<10 ; loop++) {
-                const status = await AllocationService.getStatus(sessionId)
-                if (status.code === 5) {
-                    window.addEventListener('beforeunload', async (evt) => {
-                        evt.preventDefault()
-                        await AllocationService.closeSession(sessionId)
-                        evt.returnValue = "You're about to close your Brayns' session"
-                        return evt.returnValue
-                    })
-                    return hostname
-                }
-                await AllocationService.sleep(1000)
-            }
-            throw "Timeout!"
-        */
-        }
-        catch(ex) {
-            Dialog.error(`${ex}`, () => window.location.reload())
-        }
-        finally {
-            dialog.hide()
-        }
+        await getHostNameAuto()
+        return ""
     }
 
     return new Promise(async resolve => {
@@ -81,27 +42,34 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
             validated = true;
             dialog.hide();
             /*
-            const token = await AllocationService.startBraynsServiceAndGetHostname({})
+            const token = await AllocationService.startBraynsServiceAndRedirect({})
             console.info("token=", token);
             */
             resolve(hostName);
         }
         const input = <div>
-                <InputHostName
-                    onEnterPressed={onOk}
-                    onChange={(value: string) => hostName = value}/>
-                <br/>
-                <Button label="How to get Brayns' host name?"
-                        small={true} flat={true} icon="link"
-                        onClick={Help.showBraynsHostName}/>
-                <br/>
-            </div>
+            <InputHostName
+                onEnterPressed={onOk}
+                onChange={(value: string) => hostName = value} />
+            <Button label="Connect to Brayns Service"
+                wide={true}
+                onClick={onOk}
+                icon="plug" />
+            <hr/>
+            <Button label="How to get Brayns' host name?"
+                small={true} flat={true} icon="link"
+                onClick={Help.showBraynsHostName} />
+            <br />
+        </div>
         const dialog = Dialog.show({
             closeOnEscape: true,
             content: input,
-            footer: <Button label="Connect to Brayns Service"
-                            onClick={onOk}
-                            icon="plug"/>,
+            footer: <div style={{padding: "1rem"}}>
+                <Button label="Allocate new resource"
+                    warning={true}
+                    onClick={() => window.location.href = `${window.location.origin}/?host=auto` }
+                    icon="add" />
+            </div>,
             icon: "plug",
             title: "Connect to Brayns Service",
             onClose: async () => {
@@ -114,6 +82,26 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
     });
 }
 
+async function getHostNameAuto() {
+    const dialog = Dialog.show({
+        content: <Wait cancellable={false}
+            progress={0}
+            label="Allocating resources for Brayns..." />,
+        footer: null
+    })
+    try {
+        await AllocationService.startBraynsServiceAndRedirect({
+            allocationTimeInMinutes: 60
+        })
+    }
+    catch (ex) {
+        console.error(ex)
+        throw ex
+    }
+    finally {
+        dialog.hide()
+    }
+}
 
 /**
  * Try to connect to a Brayns service and fails if it take too long.
@@ -131,8 +119,8 @@ async function connect(client: BraynsService, hostName: string): Promise<BraynsS
                 resolve(client)
             }
         }
-        catch( ex ) {
-            reject( ex )
+        catch (ex) {
+            reject(ex)
         }
     })
 }

@@ -72,16 +72,6 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
         const classes = ['webBrayns-view-Anterograde']
 
         return (<div className={classes.join(' ')}>
-            <Input label="Source cells GIDs (comma separated)"
-                   wide={true}
-                   value={cellGIDs}
-                   onChange={cellGIDs => this.setState({ cellGIDs })}
-                   valid={isCellGIDsValid}
-                   validator={GIDS_LIST_VALIDATOR}
-                   onValidation={isCellGIDsValid => {
-                       console.log("### ", isCellGIDsValid)
-                       this.setState({ isCellGIDsValid })
-                   }}/>
             <Combo label="Synapse Type"
                    wide={true}
                    value={synapseType}
@@ -90,20 +80,35 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
                 <div key="efferent">Efferent</div>
                 <div key="projection">Projection</div>
             </Combo>
+            <div className="indented">
             {
                 synapseType === 'projection' &&
-                <div className="indented">
                     <Input label="Projection's name"
                        wide={true}
                        value={projection}
                        onChange={projection => this.setState({ projection })}/>
-                </div>
             }
+            {
+                synapseType !== 'projection' &&
+                    <Input label="Source cells GIDs (comma separated)"
+                       wide={true}
+                       value={cellGIDs}
+                       onChange={cellGIDs => this.setState({ cellGIDs })}
+                       validator={GIDS_LIST_VALIDATOR}
+                       onValidation={isCellGIDsValid => {
+                           console.log("### ", isCellGIDsValid)
+                           this.setState({ isCellGIDsValid })
+                       }}/>
+            }
+            </div>
             <div className="colors">
-                <InputColor label="Source cells"
-                            alpha={false}
-                            value={sourceCellColor}
-                            onChange={sourceCellColor => this.setState({ sourceCellColor })}/>
+                {
+                    synapseType !== 'projection' &&
+                    <InputColor label="Source cells"
+                                alpha={false}
+                                value={sourceCellColor}
+                                onChange={sourceCellColor => this.setState({ sourceCellColor })}/>
+                }
                 <InputColor label="Connected cells"
                             alpha={false}
                             value={connectedCellsColor}

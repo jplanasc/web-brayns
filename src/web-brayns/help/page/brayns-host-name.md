@@ -3,7 +3,7 @@
 Open a terminal (`Ctrl-Alt-T`) and execute this command:
 
 ```
-/gpfs/bbp.cscs.ch/home/petitjea/scripts/brayns.sh proj42
+/gpfs/bbp.cscs.ch/home/petitjea/scripts/allocate.sh proj42
 ```
 _You can replace `proj42` by another account._
 

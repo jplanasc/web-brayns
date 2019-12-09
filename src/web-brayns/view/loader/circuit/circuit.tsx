@@ -8,7 +8,7 @@ import Icon from '../../../../tfw/view/icon'
 import Dialog from '../../../../tfw/factory/dialog'
 import Checkbox from '../../../../tfw/view/checkbox'
 import Storage from '../../../storage'
-import CircuitProxy, { Circuit } from '../../../proxy/circuit'
+import CircuitProxy from '../../../proxy/circuit'
 import CircuitService from '../../../service/circuit'
 import Options from '../../options'
 import castString from '../../../../tfw/converter/string'
@@ -28,6 +28,7 @@ interface ICircuitState {
     report: string,
     // Available reports found in the BlueConfig file.
     reports: string[],
+    reportsError: string,
     targetsAvailable: string[],
     targetsSelected: Set<string>,
     // When we get an error while trying to get the targets list,
@@ -69,20 +70,30 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
     async componentDidMount() {
         try {
             this.circuit.targetsPromise
-            .then((targets: string[]) => {
-                const targetsSelected = new Set<string>()
-                this.setState({
-                    targetsAvailable: targets.sort(),
-                    targetsSelected,
-                    targetsError: null
+                .then((targets: string[]) => {
+                    const targetsSelected = new Set<string>()
+                    this.setState({
+                        targetsAvailable: targets.sort(),
+                        targetsSelected,
+                        targetsError: null
+                    })
                 })
-            })
-            .catch(err => {
-                console.error(err)
-                this.setState({
-                    targetsError: `${err}`
+                .catch((err: string) => {
+                    console.error(err)
+                    this.setState({
+                        targetsError: `${err}`
+                    })
                 })
-            })
+            this.circuit.reportsPromise
+                .then((reports: string[]) => {
+                    this.setState({ reports })
+                })
+                .catch((err: string) => {
+                    console.error(err)
+                    this.setState({
+                        reportsError: `${err}`
+                    })
+                })
 
             const circuit = await CircuitService.parseCircuitFromFile(this.props.path)
             const reportSections = circuit.filter(section => section.type.toLowerCase() === 'report')

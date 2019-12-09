@@ -6,10 +6,12 @@ import CircuitService from '../service/circuit'
 class Circuit {
     readonly path: string
     readonly targetsPromise: Promise<string[]>
+    readonly reportsPromise: Promise<string[]>
 
     constructor(path: string) {
         this.path = path
         this.targetsPromise = CircuitService.listTargets(path)
+        this.reportsPromise = CircuitService.listReports(path)
     }
 }
 

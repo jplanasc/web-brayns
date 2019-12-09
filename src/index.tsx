@@ -21,6 +21,12 @@ Theme.apply("default");
 async function start() {
     try {
         const hostName = await ServiceHost.getHostName(false);
+        console.info("hostName=", hostName);
+        if (hostName.length === 0) {
+            // No host name found. Maybe, we are waiting for a redirection after
+            // resource allocation.
+            return
+        }
 
         try {
             const client = await Dialog.wait("Contacting Brayns...", Scene.connect(hostName), false)
@@ -63,11 +69,16 @@ async function start() {
         }
     }
     catch(ex) {
-        console.error(ex)
-        await Dialog.alert(<div>
-            <h1>Unable to retrieve Brayns' hostname!</h1>
-            <p style={{whiteSpace: "pre-wrap"}}>{ex}</p>
-        </div>);
+        console.error("Unable to start!")
+        console.info(ex)
+        await Dialog.alert(
+            <div>
+                <h1>Unable to connect to Brayns' backend!</h1>
+                <pre style={{whiteSpace: "pre-wrap", opacity: .5}}>{`${ex}`}</pre>
+            </div>
+        );
+        console.info("window.location=", window.location);
+        window.location.href = window.location.origin
     }
 }
 

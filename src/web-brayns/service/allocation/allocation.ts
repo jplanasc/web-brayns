@@ -1,6 +1,3 @@
-/**
- *
- */
 import { JSO } from 'jso'
 import UrlArgs from '../../../tfw/url-args'
 
@@ -13,7 +10,7 @@ const CLIENT_ID = "webbrayns"
 const CLIENT_SECRET_KEY = "d47f9aa8-faee-4e85-a7b9-2bfe477666aa"
 
 export default {
-    startBraynsServiceAndGetHostname, sleep
+    startBraynsServiceAndRedirect, sleep
 }
 
 interface IParams {
@@ -21,7 +18,7 @@ interface IParams {
     onProgressMessage: (message: string) => void
 }
 
-async function startBraynsServiceAndGetHostname(opts: Partial<IParams>) {
+async function startBraynsServiceAndRedirect(opts: Partial<IParams>) {
     const params = {
         allocationTimeInMinutes: 60,
         ...opts
@@ -34,11 +31,14 @@ async function startBraynsServiceAndGetHostname(opts: Partial<IParams>) {
         const hostname = await Agent(token, params.allocationTimeInMinutes)
         const args = UrlArgs.parse()
         args['host'] = hostname
-        window.location.href = `?${UrlArgs.stringify(args)}`
+        console.info("args=", args);
+        const queryString = UrlArgs.stringify(args)
+        console.info("queryString=", queryString);
+        window.location.href = `?${queryString}`
     }
     catch (ex) {
-        console.error(`startBraynsServiceAndGetHostname(${JSON.stringify(params)})`, ex)
-        throw ex
+        console.error(`startBraynsServiceAndRedirect(${JSON.stringify(params)})`, ex)
+        throw Error(ex)
     }
 }
 
