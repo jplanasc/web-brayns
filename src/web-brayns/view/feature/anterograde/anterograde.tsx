@@ -63,15 +63,34 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
         })
     }
 
+    private isButtonEnabled(): boolean {
+        const { isCellGIDsValid, projection, synapseType } = this.state
+        if (synapseType === 'projection') {
+            if (projection.trim().length > 0) {
+                return true
+            }
+            return false
+        }
+        return isCellGIDsValid
+    }
+
     render() {
         const {
-            cellGIDs, isCellGIDsValid,
-            synapseType, projection,
+            cellGIDs, synapseType, projection,
             sourceCellColor, connectedCellsColor, nonConnectedCellsColor
         } = this.state
         const classes = ['webBrayns-view-Anterograde']
 
         return (<div className={classes.join(' ')}>
+            <Input label="Source cells GIDs (comma separated)"
+               wide={true}
+               value={cellGIDs}
+               onChange={cellGIDs => this.setState({ cellGIDs })}
+               validator={GIDS_LIST_VALIDATOR}
+               onValidation={isCellGIDsValid => {
+                   console.log("### ", isCellGIDsValid)
+                   this.setState({ isCellGIDsValid })
+               }}/>
             <Combo label="Synapse Type"
                    wide={true}
                    value={synapseType}
@@ -87,18 +106,6 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
                        wide={true}
                        value={projection}
                        onChange={projection => this.setState({ projection })}/>
-            }
-            {
-                synapseType !== 'projection' &&
-                    <Input label="Source cells GIDs (comma separated)"
-                       wide={true}
-                       value={cellGIDs}
-                       onChange={cellGIDs => this.setState({ cellGIDs })}
-                       validator={GIDS_LIST_VALIDATOR}
-                       onValidation={isCellGIDsValid => {
-                           console.log("### ", isCellGIDsValid)
-                           this.setState({ isCellGIDsValid })
-                       }}/>
             }
             </div>
             <div className="colors">
@@ -121,7 +128,7 @@ export default class Anterograde extends React.Component<TAnterogradeProps, TAnt
             <Button wide={true} icon="show"
                     wait={this.props.wait}
                     label="Show connections"
-                    enabled={isCellGIDsValid}
+                    enabled={this.isButtonEnabled()}
                     onClick={this.handleAction}/>
         </div>)
     }

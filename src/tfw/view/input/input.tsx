@@ -97,7 +97,8 @@ export default class Input extends React.Component<IInputProps, IInputState> {
                 if (typeof validator === 'function') {
                     f = validator
                 } else if (typeof validator.test === 'function') {
-                    f = validator.test
+                    validator.lastIndex = -1
+                    f = txt => validator.test(txt)
                 }
                 const valid = f(value)
                 if (valid === true) {

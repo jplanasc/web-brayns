@@ -1,4 +1,7 @@
 # Anterograde Highlighter
 
 You can use this circuit:
-`/gpfs/bbp.cscs.ch/project/proj42/simulations/CA1.O1.20191017/signal_propagation/100cells/0p4nA_100ms/BlueConfig`
+`/gpfs/bbp.cscs.ch/project/proj42/circuits/CA1/20191025/CircuitConfig`
+
+* GID for afferent and efferent: **80**
+* projection: **SC** afferent GID: **514554**

@@ -72,16 +72,6 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
             wait.progress = 0
             const modelId = this.props.model.brayns.id
             this.setState({ wait: true })
-            //const ids = CircuitService.listGIDs()
-            console.info("this.props.model.brayns=", this.props.model.brayns);
-            let targets = []
-            const metadata = this.props.model.brayns.metadata
-            if (metadata) {
-                targets = (metadata.Targets || "")
-                    .split(/\s*[,; \n]+\s*/)
-                    .map((target: string) => target.trim())
-                    .filter((target: string) => target.length > 0)
-            }
 
             const circuitPath = this.props.model.brayns.path || ""
             let connectedCellsIds: (number|BigInt)[] = []
@@ -99,47 +89,25 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                     circuitPath, params.cellGIDs
                 )
             }
+            else {
+                wait.label = "Loading projection cells..."
+                wait.progress = .2
+                connectedCellsIds = await CircuitService.getProjectionGIDs(
+                    circuitPath, params.cellGIDs, params.projection
+                )
+            }
             console.info("connectedCellsIds=", connectedCellsIds);
 
-            wait.label = "Setting non-connected cells colors..."
-            wait.progress = .4
-            await MaterialService.setMaterials({
-                modelId,
-                materialIds: [],
-                shadingMode: MaterialService.SHADER.DIFFUSE_TRANSPARENCY,
-                diffuseColor: params.nonConnectedCellsColor.slice(0, 3) as [number, number, number],
-                specularColor: params.nonConnectedCellsColor.slice(0, 3) as [number, number, number],
-                opacity: params.nonConnectedCellsColor[3]
-            })
-            wait.label = "Setting source cells colors..."
+            wait.label = "Setting colors..."
             wait.progress = .6
-            await MaterialService.setMaterials({
-                modelId,
-                shadingMode: MaterialService.SHADER.ELECTRON,
-                materialIds: params.cellGIDs,
-                diffuseColor: params.sourceCellColor.slice() as [number, number, number],
-                specularColor: params.sourceCellColor.slice() as [number, number, number],
-                emission: 1
-            })
-            wait.label = "Setting connected cells colors..."
-            wait.progress = .6
-            await MaterialService.setMaterials({
-                modelId,
-                shadingMode: MaterialService.SHADER.ELECTRON,
-                materialIds: connectedCellsIds,
-                diffuseColor: params.connectedCellsColor.slice() as [number, number, number],
-                specularColor: params.connectedCellsColor.slice() as [number, number, number],
-                emission: 1
-            })
-            wait.progress = 1
-/*
             const result = await Scene.request(
                 "trace-anterograde", {
                     modelId,
                     targetCellGIDs: connectedCellsIds,
                     ...params
                 })
-            console.info("result=", result);*/
+            console.info("result=", result);
+            wait.progress = 1
             this.setState({ wait: false })
         }
         catch (ex) {

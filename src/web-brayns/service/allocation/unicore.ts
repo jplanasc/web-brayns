@@ -17,7 +17,8 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
             --plugin braynsCircuitExplorer \
             --plugin braynsCircuitInfo \
             --sandbox-path /gpfs/bbp.cscs.ch/project`,
-        Project: 'proj3'
+        Project: 'proj3',
+        Runtime: allocationTimeInMinutes * 60
     }
 
 

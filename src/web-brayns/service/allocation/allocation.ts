@@ -20,7 +20,7 @@ interface IParams {
 
 async function startBraynsServiceAndRedirect(opts: Partial<IParams>) {
     const params = {
-        allocationTimeInMinutes: 60,
+        allocationTimeInMinutes: 60 * 8,
         ...opts
     }
 
@@ -31,7 +31,7 @@ async function startBraynsServiceAndRedirect(opts: Partial<IParams>) {
         const hostname = await Agent(token, params.allocationTimeInMinutes)
         const args = UrlArgs.parse()
         args['host'] = hostname
-        console.info("args=", args);
+        args['allocator'] = 'unicore'
         const queryString = UrlArgs.stringify(args)
         console.info("queryString=", queryString);
         window.location.href = `?${queryString}`

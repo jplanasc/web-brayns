@@ -6,7 +6,7 @@ import castInteger from '../../../tfw/converter/integer'
 
 export default {
     listGIDs, listReports, listTargets,
-    getAfferentGIDs, getEfferentGIDs
+    getAfferentGIDs, getEfferentGIDs, getProjectionGIDs
 }
 
 /**
@@ -68,6 +68,18 @@ async function getAfferentGIDs(circuitPath: string, sourcesGIDs: (number|BigInt)
 async function getEfferentGIDs(circuitPath: string, sourcesGIDs: (number|BigInt)[]): Promise<(number|BigInt)[]> {
     const result = (await Scene.request("ci-get-efferent-cell-ids", {
         path: circuitPath, sources: sourcesGIDs
+    })) as { ids: string[] }
+    if (Array.isArray(result.ids)) {
+        return result.ids.map(castInteger)
+    }
+    throw result
+}
+
+async function getProjectionGIDs(circuitPath: string,
+                                 sourcesGIDs: (number|BigInt)[],
+                                 projection: string) {
+    const result = (await Scene.request("ci-get-projection-efferent-cell-ids", {
+        path: circuitPath, sources: sourcesGIDs, projection
     })) as { ids: string[] }
     if (Array.isArray(result.ids)) {
         return result.ids.map(castInteger)
