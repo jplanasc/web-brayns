@@ -65,6 +65,7 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
                 }
                 break
         }
+        console.info("material=", material);
         this.props.onClick(material)
     }
 

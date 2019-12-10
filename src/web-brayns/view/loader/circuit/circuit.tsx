@@ -8,7 +8,7 @@ import Icon from '../../../../tfw/view/icon'
 import Dialog from '../../../../tfw/factory/dialog'
 import Checkbox from '../../../../tfw/view/checkbox'
 import Storage from '../../../storage'
-import CircuitProxy from '../../../proxy/circuit'
+import CircuitProxy, { Circuit } from '../../../proxy/circuit'
 import CircuitService from '../../../service/circuit'
 import Options from '../../options'
 import castString from '../../../../tfw/converter/string'
@@ -94,21 +94,6 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                         reportsError: `${err}`
                     })
                 })
-
-            const circuit = await CircuitService.parseCircuitFromFile(this.props.path)
-            const reportSections = circuit.filter(section => section.type.toLowerCase() === 'report')
-            const map = this.targetsMap
-            const reports = ['']
-            map.clear()
-            reportSections.forEach(section => {
-                map.set(section.name, section.properties.Target || '')
-                reports.push(section.name)
-            })
-            const firstReport = reports[1] || ""
-            this.setState({
-                report: firstReport,
-                reports
-            })
         }
         catch (err) {
             console.error("Failed to load/parse circuit: ", err, this.props.path)
@@ -189,7 +174,7 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
     render() {
         const { path, onCancel } = this.props
         const {
-            density, densityValid, report, reports,
+            density, report, reports,
             targetsAvailable, targetsSelected, targetsError
         } = this.state
         const { soma, axon, dendrite, apicalDendrite, morphoSDF, circuitColorScheme } = this.state
@@ -201,13 +186,16 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                 <Input label="Cells density (%)"
                     value={density}
                     focus={true}
-                    valid={densityValid}
                     validator={Validator.isFloat}
                     onValidation={densityValid => this.setState({ densityValid })}
                     onChange={density => this.setState({ density })}/>
                 {
                     targetsError &&
                     <div className="error">{targetsError}</div>
+                }
+                {
+                    reports.length === 0 &&
+                    <div>No simulation.</div>
                 }
                 {
                     reports.length > 1 &&

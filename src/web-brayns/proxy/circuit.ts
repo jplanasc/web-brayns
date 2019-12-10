@@ -3,7 +3,7 @@
  */
 import CircuitService from '../service/circuit'
 
-class Circuit {
+export class Circuit {
     readonly path: string
     readonly targetsPromise: Promise<string[]>
     readonly reportsPromise: Promise<string[]>
