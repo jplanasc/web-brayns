@@ -86,7 +86,10 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                 })
             this.circuit.reportsPromise
                 .then((reports: string[]) => {
-                    this.setState({ reports })
+                    this.setState({
+                        reports,
+                        report: reports.length > 0 ? reports[0] : ""
+                    })
                 })
                 .catch((err: string) => {
                     console.error(err)
@@ -196,6 +199,10 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                 {
                     reports.length === 0 &&
                     <div>No simulation.</div>
+                }
+                {
+                    reports.length === 1 &&
+                    <Input label="Report" value={report} enabled={false} />
                 }
                 {
                     reports.length > 1 &&
