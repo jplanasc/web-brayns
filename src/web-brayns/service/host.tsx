@@ -10,7 +10,7 @@ import Wait from '../view/wait/wait'
 import Help from '../help'
 
 // Timeout connection to Brayns service.
-const CONNECTION_TIMEOUT = 10000;
+const CONNECTION_TIMEOUT = 20000;
 
 
 export default { getHostName, connect }

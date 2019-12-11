@@ -5,6 +5,7 @@
 import React from "react"
 import { Provider } from 'react-redux'
 
+import UrlArgs from '../../tfw/url-args'
 import Api from "./api"
 import Models from '../models'
 import { IBraynsModel, IModel, IVector } from '../types'
@@ -108,6 +109,16 @@ async function connect(hostName: string): Promise<BraynsService> {
     })
 
     await Scene.renderer.initialize()
+
+    const args = UrlArgs.parse()
+    if (typeof args.allocator === 'string') {
+        // BraynsService has been started from this web interface.
+        // We need to kill it as soon as this page is not used anymore.
+        // For this, we will use the 'exit-later' function.
+        window.setInterval(() => {
+            Scene.brayns.exec("exit-later", { minutes: 6 })
+        }, 60 * 5 * 1000)
+    }
 
     return Scene.brayns;
 }

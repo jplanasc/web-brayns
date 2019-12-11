@@ -18,7 +18,11 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
             --plugin braynsCircuitInfo \
             --sandbox-path /gpfs/bbp.cscs.ch/project`,
         Project: 'proj3',
-        Runtime: allocationTimeInMinutes * 60
+        Resources: {
+            Nodes: 1,
+            Queue: 'prod_small',
+            QoS: "longjob"
+        }
     }
 
 
@@ -37,14 +41,17 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
         body: JSON.stringify(job) // body data type must match "Content-Type" header
     })
 
-
+    if (response.ok === false) {
+        console.info("response=", response);
+        throw "Allocation failed due to UNICORE error!"
+    }
     const { jobId } = extractJobIdAndURL(response.headers)
 
     while (true) {
         const hostname = await readFileContent(jobId, token, "hostname")
         if (hostname) {
             if (!RX_HOSTNAME.test(hostname)) {
-                throw Error(`We were expecting to receive a hostname, but we got "${hostname}"!`)
+                throw `We were expecting to receive a hostname, but we got "${hostname}"!`
             }
             return hostname
         }
@@ -59,6 +66,10 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
  */
 function extractJobIdAndURL(headers: any) {
     const jobURL = headers.get('Location')
+    if (!jobURL) {
+        console.info("headers=", headers);
+        throw `Header "Location" is missing!`
+    }
     const pos = jobURL.indexOf("/jobs/")
     const jobId = jobURL.substring(pos + "/jobs/".length)
     return { jobId, jobURL }
@@ -80,7 +91,7 @@ async function readFileContent(jobId: string, token: string, filename: string) {
             referrer: 'no-referrer' // no-referrer, *client
         })
         if (!response.ok) {
-            throw Error(`Unable to retrieve file "${filename}": ${response.statusText}`)
+            throw `Unable to retrieve file "${filename}": ${response.statusText}`
         }
         const content = await response.text()
         return content
@@ -96,7 +107,7 @@ async function readFileContent(jobId: string, token: string, filename: string) {
 async function getJobStatus(jobURL: string, token: string) {
     const response = await fetch(jobURL, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
+        mode: 'no-cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
