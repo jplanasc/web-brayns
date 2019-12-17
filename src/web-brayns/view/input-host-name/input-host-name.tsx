@@ -17,7 +17,7 @@ interface IHostNameInputState {
 export default class HostNameInput extends React.Component<IHostNameInputProps, IHostNameInputState> {
     constructor( props: IHostNameInputProps ) {
         super( props );
-        this.state = { hostName: Storage.local.get("brayns-host-name", "http://r1i7n13.bbp.epfl.ch:5000") };
+        this.state = { hostName: Storage.local.get("brayns-host-name", "r1i7n13.bbp.epfl.ch:5000") };
     }
 
     handleChange = (hostName: string) => {

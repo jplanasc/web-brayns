@@ -2,12 +2,10 @@
 import React from 'react';
 import UrlArgs from "../../tfw/url-args"
 import Dialog from "../../tfw/factory/dialog"
-import Button from "../../tfw/view/button"
-import InputHostName from "../view/input-host-name"
+import ConnectionView from "../view/connection"
 import BraynsService from "../service/brayns"
 import AllocationService from '../service/allocation'
 import Wait from '../view/wait/wait'
-import Help from '../help'
 
 // Timeout connection to Brayns service.
 const CONNECTION_TIMEOUT = 20000;
@@ -36,48 +34,26 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
             }
         }
 
-        let hostName = "";
-        let validated = false;
-        const onOk = async () => {
-            validated = true;
-            dialog.hide();
-            /*
-            const token = await AllocationService.startBraynsServiceAndRedirect({})
-            console.info("token=", token);
-            */
-            resolve(hostName);
-        }
-        const input = <div>
-            <InputHostName
-                onEnterPressed={onOk}
-                onChange={(value: string) => hostName = value} />
-            <Button label="Connect to Brayns Service"
-                wide={true}
-                onClick={onOk}
-                icon="plug" />
-            <hr/>
-            <Button label="How to get Brayns' host name?"
-                small={true} flat={true} icon="link"
-                onClick={Help.showBraynsHostName} />
-            <br />
-        </div>
-        const dialog = Dialog.show({
-            closeOnEscape: true,
+        const input = <ConnectionView
+                        onConnect={
+                            (hostName: string) => {
+                                urlArgs.host = hostName
+                                window.location.href = `?${UrlArgs.stringify(urlArgs)}`
+                            }
+                        }
+                        onAllocate={
+                            (account: string) => {
+                                urlArgs.host = "auto"
+                                urlArgs.account = account
+                                window.location.href = `?${UrlArgs.stringify(urlArgs)}`
+                            }
+                        } />
+        Dialog.show({
+            closeOnEscape: false,
             content: input,
-            footer: <div style={{padding: "1rem"}}>
-                <Button label="Allocate new resource"
-                    warning={true}
-                    onClick={() => window.location.href = `${window.location.origin}/?host=auto` }
-                    icon="add" />
-            </div>,
+            footer: null,
             icon: "plug",
-            title: "Connect to Brayns Service",
-            onClose: async () => {
-                if (validated) return;
-                await Dialog.alert((<p>Web-Brayns absolutly needs to be connected to the Brayns server...</p>));
-                location.reload();
-                resolve("");
-            }
+            title: "Connect to Brayns Service"
         });
     });
 }

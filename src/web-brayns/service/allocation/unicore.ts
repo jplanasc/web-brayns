@@ -1,9 +1,12 @@
 import Async from '../../tool/async'
+import UrlArgs from '../../../tfw/url-args'
 
 const UNICORE_URL = 'https://bbpunicore.epfl.ch:8080/BB5-CSCS/rest/core'
 const RX_HOSTNAME = /[a-z0-9.-]+:[0-9]+/gi
 
 export default async (token: string, allocationTimeInMinutes: number): Promise<string> => {
+    const urlArgs = UrlArgs.parse()
+    const account = urlArgs.account || "proj3"
     const job = {
         Executable: `
         echo $(hostname -f):5000 > hostname &&
@@ -17,12 +20,12 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
             --plugin braynsCircuitExplorer \
             --plugin braynsCircuitInfo \
             --sandbox-path /gpfs/bbp.cscs.ch/project`,
-        Project: 'proj3'/*,
+        Project: account,
         Resources: {
             Nodes: 1,
             Queue: 'prod_small',
             QoS: "longjob"
-        }*/
+        }
     }
 
 
