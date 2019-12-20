@@ -59,12 +59,6 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
 }
 
 async function getHostNameAuto() {
-    const dialog = Dialog.show({
-        content: <Wait cancellable={false}
-            progress={0}
-            label="Allocating resources for Brayns..." />,
-        footer: null
-    })
     try {
         await AllocationService.startBraynsServiceAndRedirect({
             allocationTimeInMinutes: 60
@@ -73,9 +67,6 @@ async function getHostNameAuto() {
     catch (ex) {
         console.error(ex)
         throw ex
-    }
-    finally {
-        dialog.hide()
     }
 }
 

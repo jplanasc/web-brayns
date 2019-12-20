@@ -35,6 +35,20 @@ export default class App extends React.Component<IAppProps, IAppState> {
         const args = UrlArgs.parse()
         const load = args.load
         if (typeof load === 'string') this.execLoad(load)
+
+        if (typeof args.allocator === 'string') {
+            // BraynsService has been started from this web interface.
+            // We need to kill it as soon as this page is not used anymore.
+            // For this, we will use the 'exit-later' function.
+            const exitLater = () => {
+                console.log("exit-later", { minutes: 6 })
+                Scene.brayns.exec("exit-later", { minutes: 6 })
+                window.setTimeout(() => {
+                    exitLater()
+                }, 5 * 60 * 1000)
+            }
+            exitLater()
+        }
     }
 
     /**

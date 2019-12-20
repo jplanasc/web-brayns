@@ -1,10 +1,28 @@
 import Async from '../../tool/async'
 import UrlArgs from '../../../tfw/url-args'
+import Dialog from "../../../tfw/factory/dialog"
 
 const UNICORE_URL = 'https://bbpunicore.epfl.ch:8080/BB5-CSCS/rest/core'
 const RX_HOSTNAME = /[a-z0-9.-]+:[0-9]+/gi
 
 export default async (token: string, allocationTimeInMinutes: number): Promise<string> => {
+    const { jobId, jobURL } = await Dialog.wait(
+        "Contacting UNICORE...",
+        contactingUnicore(token)
+    )
+    await Dialog.wait(
+        "Waiting for an available node on BB5...",
+        waitForJobStatus(jobURL, token)
+    )
+    const hostname = await Dialog.wait(
+        "Brayns service is starting...",
+        waitForBraynsToBeUpAndRunning(jobId, token)
+    )
+    return hostname
+}
+
+
+async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL: string }> {
     const urlArgs = UrlArgs.parse()
     const account = urlArgs.account || "proj3"
     const job = {
@@ -23,11 +41,11 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
         Project: account,
         Resources: {
             Nodes: 1,
-            Queue: 'prod_small',
-            QoS: "longjob"
+            Queue: 'prod',
+            QoS: "longjob",
+            Runtime: "8h"
         }
     }
-
 
     console.info("job=", job);
     const response = await fetch(`${UNICORE_URL}/jobs`, {
@@ -48,17 +66,17 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
         console.info("response=", response);
         throw "Allocation failed due to UNICORE error!"
     }
-    const { jobId } = extractJobIdAndURL(response.headers)
+    return extractJobIdAndURL(response.headers)
+}
 
+
+async function waitForJobStatus(jobURL: string, token: string) {
     while (true) {
-        const hostname = await readFileContent(jobId, token, "hostname")
-        if (hostname) {
-            if (!RX_HOSTNAME.test(hostname)) {
-                throw `We were expecting to receive a hostname, but we got "${hostname}"!`
-            }
-            return hostname
-        }
-        Async.sleep(500)
+        await Async.sleep(500)
+        const status = await getJobStatus(jobURL, token)
+        //console.info("result=", result);
+        console.info("status=", status);
+        if (status === "RUNNING" || status === 'SUCCESSFUL') return status
     }
 }
 
@@ -67,7 +85,7 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
  * Example of "Location" header:
  * https://bbpunicore.epfl.ch:8080/BB5-CSCS/rest/core/jobs/be1d27bd-9063-4b33-869a-f8b2274ea792
  */
-function extractJobIdAndURL(headers: any) {
+function extractJobIdAndURL(headers: any): { jobId: string, jobURL: string } {
     const jobURL = headers.get('Location')
     if (!jobURL) {
         console.info("headers=", headers);
@@ -110,7 +128,7 @@ async function readFileContent(jobId: string, token: string, filename: string) {
 async function getJobStatus(jobURL: string, token: string) {
     const response = await fetch(jobURL, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'no-cors', // no-cors, *cors, same-origin
+        mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin', // include, *same-origin, omit
         headers: {
@@ -121,8 +139,24 @@ async function getJobStatus(jobURL: string, token: string) {
         referrer: 'no-referrer' // no-referrer, *client
     })
     if (!response.ok) {
-        throw "Blabla"
+        console.error(`Unable to get status: ${response.statusText}`)
+        return "ERROR"
     }
-    const content = await response.json()
-    return content
+    const result = await response.json()
+    const status = result.status
+    return status
+}
+
+
+async function waitForBraynsToBeUpAndRunning(jobId: string, token: string): Promise<string> {
+    while (true) {
+        const hostname = await readFileContent(jobId, token, "hostname")
+        if (hostname) {
+            if (!RX_HOSTNAME.test(hostname)) {
+                throw `We were expecting to receive a hostname, but we got "${hostname}"!`
+            }
+            return hostname
+        }
+        await Async.sleep(1000)
+    }
 }
