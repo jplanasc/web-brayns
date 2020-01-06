@@ -31,6 +31,9 @@ export default {
     wait
 };
 
+type IBackgroundEnum = "none" | "dark" | "light"
+type IAlignEnum = "TR" | "TL" | "BR" | "BL" | ""
+
 interface IOptions {
     onClose?: () => void;
     closeOnEscape?: boolean;
@@ -39,7 +42,35 @@ interface IOptions {
     content?: string | React.ReactElement<any>;
     footer?: React.ReactElement<any>[] | React.ReactElement<any> | null;
     maxWidth?: number;
+    background?: IBackgroundEnum,
+    align?: IAlignEnum
 }
+
+/**
+ * Ensure a string is an enum for modal alignement.
+ */
+function castAlign(value: any, defaultValue: IAlignEnum): IAlignEnum {
+    switch (value) {
+        case "TL": return "TL"
+        case "TR": return "TR"
+        case "BL": return "BL"
+        case "BR": return "BR"
+        default: return defaultValue
+    }
+}
+
+/**
+ * Ensure a string is an enum for modal background.
+ */
+function castBackground(value: any, defaultValue: IBackgroundEnum): IBackgroundEnum {
+    switch (value) {
+        case "none": return "none"
+        case "dark": return "dark"
+        case "light": return "light"
+        default: return defaultValue
+    }
+}
+
 
 class Dialog {
     _screen: HTMLElement;
@@ -55,10 +86,17 @@ class Dialog {
                 flat={ true}
                 onClick={() => this.hide()}/>
         }, options);
-        this._options.closeOnEscape = castBoolean(this._options.closeOnEscape, true);
-        this.footer = this._options.footer || null;
-        const screen = document.createElement("div");
-        screen.className = "tfw-factory-dialog";
+        this._options.align = castAlign(this._options.align, "")
+        this._options.background = castBackground(this._options.background, "dark")
+        this._options.closeOnEscape = castBoolean(this._options.closeOnEscape, true)
+        this.footer = this._options.footer || null
+        const screen = document.createElement("div")
+        const classNames = [
+            "tfw-factory-dialog",
+            `align-${this._options.align}`,
+            `background-${this._options.background}`
+        ]
+        screen.className = classNames.join(" ");
         document.body.appendChild(screen);
         this._screen = screen;
         this.hide = this.hide.bind(this);

@@ -58,7 +58,9 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
             content: input,
             footer: null,
             icon: "plug",
-            title: "Connect to Brayns Service"
+            title: "Connect to Brayns Service",
+            align: "BR",
+            background: "none"
         });
     });
 }

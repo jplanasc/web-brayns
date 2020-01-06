@@ -17,6 +17,38 @@ div.tfw-factory-dialog {
     padding: 1rem;
 }
 
+div.tfw-factory-dialog.align-TL {
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+div.tfw-factory-dialog.align-TR {
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+div.tfw-factory-dialog.align-BL {
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+
+div.tfw-factory-dialog.align-BR {
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+div.tfw-factory-dialog.background-dark {
+    background: rgba(0, 0, 0, .2);
+}
+
+div.tfw-factory-dialog.background-light {
+    background: rgba(255, 255, 255, .2);
+}
+
+div.tfw-factory-dialog.background-none {
+    background: transparent;
+}
+
 div.tfw-factory-dialog>div {
     transition: all .2s;
     transform: scale(0);
