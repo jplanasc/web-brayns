@@ -5,7 +5,7 @@ import Dialog from "../../tfw/factory/dialog"
 import ConnectionView from "../view/connection"
 import BraynsService from "../service/brayns"
 import AllocationService from '../service/allocation'
-import Wait from '../view/wait/wait'
+import Package from "../../../package.json"
 
 // Timeout connection to Brayns service.
 const CONNECTION_TIMEOUT = 20000;
@@ -18,6 +18,10 @@ export default { getHostName, connect }
  * Retrieve Brayns' host name from querystring of from user input.
  */
 async function getHostName(ignoreQueryString: boolean): Promise<string> {
+    const versionElement = document.getElementById("splash-screen-version")
+    if (versionElement) {
+        versionElement.textContent = `v${Package.version}`
+    }
     const urlArgs = UrlArgs.parse();
 
     if (urlArgs.host === 'auto') {
@@ -42,9 +46,10 @@ async function getHostName(ignoreQueryString: boolean): Promise<string> {
                             }
                         }
                         onAllocate={
-                            (account: string) => {
+                            (account: string, partition: string) => {
                                 urlArgs.host = "auto"
                                 urlArgs.account = account
+                                urlArgs.partition = partition.length > 0 ? partition : "prod"
                                 window.location.href = `?${UrlArgs.stringify(urlArgs)}`
                             }
                         } />

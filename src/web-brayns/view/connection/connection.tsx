@@ -1,7 +1,7 @@
 import React from "react"
-
 import Input from "../../../tfw/view/input"
 import Button from "../../../tfw/view/button"
+import Combo from "../../../tfw/view/combo"
 import Help from '../../help'
 import Storage from '../../storage'
 
@@ -13,10 +13,13 @@ const RX_HOSTNAME = /[^ \t:]+:[0-9]+/
 
 
 interface TConnectionProps {
-    onAllocate: (account: string) => void,
+    // Ask for automatic Node allocation.
+    onAllocate: (account: string, partition: string) => void,
+    // Connect directly to an existing host.
     onConnect: (hostname: string) => void
 }
 interface TConnectionState {
+    partition: string,
     account: string,
     isAccountValid: boolean,
     hostname: string,
@@ -28,30 +31,38 @@ export default class Connection extends React.Component<TConnectionProps, TConne
     constructor(props: TConnectionProps) {
         super(props)
         this.state = {
-            account: Storage.get("connection/account", ""),
+            partition: "interactive",
+            account: "",
             isAccountValid: false,
-            hostname: Storage.get("connection/hostname", ""),
-            isHostnameValid: false
+            hostname: "",
+            isHostnameValid: false,
+            ...Storage.get("connection", {})
         }
     }
 
     private handleAccountClick = () => {
-        const { account, isAccountValid } = this.state
+        const { partition, account, isAccountValid } = this.state
         if (!isAccountValid) return
         const { onAllocate } = this.props
-        onAllocate(account)
+        this.saveState()
+        onAllocate(account, partition)
     }
 
     private handleHostnameClick = () => {
-        const { hostname, isHostnameValid } = this.state
+        const { partition, hostname, isHostnameValid } = this.state
         if (!isHostnameValid) return
         const { onConnect } = this.props
+        this.saveState()
         onConnect(hostname)
+    }
+
+    private saveState() {
+        Storage.set("connection", this.state)
     }
 
     render() {
         const classes = ['webBrayns-view-Connection', 'thm-bg1']
-        const { account, hostname, isAccountValid, isHostnameValid } = this.state
+        const { partition, account, hostname, isAccountValid, isHostnameValid } = this.state
 
         return (<div className={classes.join(' ')}>
             <div className="thm-bg2">
@@ -67,6 +78,20 @@ export default class Connection extends React.Component<TConnectionProps, TConne
                     onEnterPressed={this.handleAccountClick}
                     onValidation={isAccountValid => this.setState({ isAccountValid })}
                     onChange={account => this.setState({ account })}/>
+                <Combo label="Partition"
+                       value={partition}
+                       wide={true}
+                       onChange={partition => this.setState({ partition })}>
+                    <div key="interactive">interactive</div>
+                    <div key="prod_small">prod_small</div>
+                    <div key="prod">prod</div>
+                    <div key="jenkins">jenkins</div>
+                    <div key="prod_knl">prod_knl</div>
+                    <div key="debug_scale">debug_scale</div>
+                    <div key="opendeck">opendeck</div>
+                    <div key="phase2_r12">phase2_r12</div>
+                    <div key="phase2_all">phase2_all</div>
+                </Combo>
                 <Button label="Allocate new resource"
                     enabled={isAccountValid}
                     wide={true}

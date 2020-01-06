@@ -25,6 +25,7 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
 async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL: string }> {
     const urlArgs = UrlArgs.parse()
     const account = urlArgs.account || "proj3"
+    const partition = urlArgs.partition || "prod"
     const job = {
         Executable: `
         echo $(hostname -f):5000 > hostname &&
@@ -41,9 +42,17 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
         Project: account,
         Resources: {
             Nodes: 1,
-            Queue: 'prod',
+            Queue: partition,
             QoS: "longjob",
             Runtime: "8h"
+            // TODO in unicore:
+            // CPU number
+            // Memory
+            // Constraints
+            // Exclusive allocation ?
+            // by default we get the one below (which sucks)
+            // TRES=cpu=1,mem=256M,node=1,billing=1
+
         }
     }
 
