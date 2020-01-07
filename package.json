@@ -22,6 +22,7 @@
         "request-promise-native": "^1.0.7",
         "rockets-client": "^0.3.0",
         "save-as-file": "^0.2.0",
+        "tfw": "^0.6.2",
         "typescript": "^3.6.3"
     },
     "scripts": {

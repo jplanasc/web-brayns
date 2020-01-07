@@ -31,7 +31,7 @@ export default class Connection extends React.Component<TConnectionProps, TConne
     constructor(props: TConnectionProps) {
         super(props)
         this.state = {
-            partition: "interactive",
+            partition: "prod_small",
             account: "",
             isAccountValid: false,
             hostname: "",
@@ -82,15 +82,16 @@ export default class Connection extends React.Component<TConnectionProps, TConne
                        value={partition}
                        wide={true}
                        onChange={partition => this.setState({ partition })}>
-                    <div key="interactive">interactive</div>
                     <div key="prod_small">prod_small</div>
                     <div key="prod">prod</div>
+                    {/*
                     <div key="jenkins">jenkins</div>
                     <div key="prod_knl">prod_knl</div>
                     <div key="debug_scale">debug_scale</div>
                     <div key="opendeck">opendeck</div>
                     <div key="phase2_r12">phase2_r12</div>
                     <div key="phase2_all">phase2_all</div>
+                    */}
                 </Combo>
                 <Button label="Allocate new resource"
                     enabled={isAccountValid}

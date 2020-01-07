@@ -1,6 +1,9 @@
 import Async from '../../tool/async'
 import UrlArgs from '../../../tfw/url-args'
 import Dialog from "../../../tfw/factory/dialog"
+import Tfw from 'tfw'
+
+const castInteger = Tfw.Converter.Integer
 
 const UNICORE_URL = 'https://bbpunicore.epfl.ch:8080/BB5-CSCS/rest/core'
 const RX_HOSTNAME = /[a-z0-9.-]+:[0-9]+/gi
@@ -10,7 +13,7 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
         "Contacting UNICORE...",
         contactingUnicore(token)
     )
-    await Dialog.wait(
+    const status = await Dialog.wait(
         "Waiting for an available node on BB5...",
         waitForJobStatus(jobURL, token)
     )
@@ -26,6 +29,8 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
     const urlArgs = UrlArgs.parse()
     const account = urlArgs.account || "proj3"
     const partition = urlArgs.partition || "prod"
+    const cpus = castInteger(urlArgs.cpus, 36)
+    const memory = castInteger(urlArgs.memory, 96*1024)
     const job = {
         Executable: `
         echo $(hostname -f):5000 > hostname &&
@@ -42,17 +47,15 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
         Project: account,
         Resources: {
             Nodes: 1,
+            CPUsPerNode: cpus,
             Queue: partition,
             QoS: "longjob",
-            Runtime: "8h"
+            Runtime: partition === 'prod_small' ? '1h' : '8h',
+            // Memory per node: K, M or G.
+            Memory: `${memory}M`
             // TODO in unicore:
-            // CPU number
-            // Memory
             // Constraints
             // Exclusive allocation ?
-            // by default we get the one below (which sucks)
-            // TRES=cpu=1,mem=256M,node=1,billing=1
-
         }
     }
 
@@ -153,6 +156,10 @@ async function getJobStatus(jobURL: string, token: string) {
     }
     const result = await response.json()
     const status = result.status
+    if (status === 'FAILED') {
+        console.error(result.log)
+        throw result.log.slice().pop()
+    }
     return status
 }
 
