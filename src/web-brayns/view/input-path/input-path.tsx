@@ -29,9 +29,9 @@ interface IInputPathState {
     isValidPath: boolean
 }
 
-export default class  extends React.Component<IInputPathProps, IInputPathState> {
-    constructor( props: IInputPathProps ) {
-        super( props );
+export default class extends React.Component<IInputPathProps, IInputPathState> {
+    constructor(props: IInputPathProps) {
+        super(props);
         this.state = {
             path: '',
             dir: '',
@@ -62,38 +62,43 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
                 () => this.handleChange(fixedPath)
             )
         }
-        catch(ex) {
+        catch (ex) {
             console.error("[view/input-path/componentDidMount()]", ex)
         }
     }
 
     private checkValidity = Debouncer(async () => {
-        const foldersOnly = castBoolean(this.props.foldersOnly, false)
-        const { path } = this.state
+        try {
+            const foldersOnly = castBoolean(this.props.foldersOnly, false)
+            const { path } = this.state
 
-        if (foldersOnly) {
-            // Current path must be an existing directory.
-            const isValidPath = await FS.isDir(path)
-            this.setState({ isValidPath })
-        } else {
-            // Current path must be an existing file.
-            const isValidPath = await FS.isFile(path)
-            this.setState({ isValidPath })
+            if (foldersOnly) {
+                // Current path must be an existing directory.
+                const isValidPath = await FS.isDir(path)
+                this.setState({ isValidPath })
+            } else {
+                // Current path must be an existing file.
+                const isValidPath = await FS.isFile(path)
+                this.setState({ isValidPath })
+            }
+        }
+        catch (ex) {
+            console.error("[webBrayns/view/inputPath]", Error(ex))
         }
     }, 300)
 
     handleChange = async (path: string) => {
-        const dir = await FS.getDirName(path)
-        this.setState({
+        try {
+            const dir = await FS.getDirName(path)
+            this.setState({
                 loading: true,
                 path,
                 dir,
                 isValidPath: false
             },
-            this.checkValidity
-        )
+                this.checkValidity
+            )
 
-        try {
             const content = await FS.listDir(dir)
             this.setState({
                 files: content.files,
@@ -128,13 +133,13 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
                     value={path}
                     onChange={this.handleChange}
                     onEnterPressed={this.handleFileClick}
-                    wide={true}/>
+                    wide={true} />
                 <Button
                     label="Load"
                     enabled={isValidPath}
-                    onClick={this.handleFileClick}/>
+                    onClick={this.handleFileClick} />
             </div>
-            <hr/>
+            <hr />
             <PathSelector
                 className={loading ? 'loading' : 'ready'}
                 dir={dir}
@@ -143,7 +148,7 @@ export default class  extends React.Component<IInputPathProps, IInputPathState> 
                 dirs={dirs}
                 foldersOnly={foldersOnly}
                 onFolderClick={this.handleChange}
-                onFileClick={this.handleFileChange}/>
+                onFileClick={this.handleFileChange} />
         </div>
     }
 }

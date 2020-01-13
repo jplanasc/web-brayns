@@ -3,15 +3,16 @@
 import Scene from './scene'
 import Geom from '../geometry'
 import State from '../state'
-import Material, { IMaterial } from '../service/material'
+import { IMaterial } from '../service/material'
+import MaterialService from '../service/material'
 
 import { IModel, IVector, IQuaternion } from '../types'
 
 
 export default class Model {
-    private center: IVector = [0,0,0]
+    private center: IVector = [0, 0, 0]
 
-    constructor(private model: IModel) {}
+    constructor(private model: IModel) { }
 
     /**
      * Warning!
@@ -55,7 +56,7 @@ export default class Model {
         const currentBounds = this.model.brayns.bounds
         const currentPosition = this.model.brayns.transformation.translation
         const currentScale = this.model.brayns.transformation.scale
-        const relativeMoving = Geom.makeVector(currentPosition, [0,0,0])
+        const relativeMoving = Geom.makeVector(currentPosition, [0, 0, 0])
         const boundsAtCenter = Geom.translateBounds(currentBounds, relativeMoving)
         const scaledBounds = Geom.scaleBounds(
             boundsAtCenter,
@@ -81,7 +82,7 @@ export default class Model {
     rotate(nextRotation: IQuaternion) {
         const currentBounds = this.model.brayns.bounds
         const currentPosition = this.model.brayns.transformation.translation
-        const relativeMoving = Geom.makeVector(currentPosition, [0,0,0])
+        const relativeMoving = Geom.makeVector(currentPosition, [0, 0, 0])
         const boundsAtCenter = Geom.translateBounds(currentBounds, relativeMoving)
         const rotatedBounds = Geom.rotateBounds(
             boundsAtCenter, nextRotation
@@ -110,17 +111,21 @@ export default class Model {
             console.info("this.model=", this.model);
             return this.model.materialIds
         }
-        catch(err) {
+        catch (err) {
             console.error(err)
             return []
         }
     }
 
-    async setMaterial(material: IMaterial) {
-        await Material.setMaterials({
+    async setMaterial(material?: Partial<IMaterial>) {
+        const modelId = this.model.brayns.id
+        await MaterialService.setMaterials({
+            diffuseColor: [1, .6, .1],
+            materialIds: [],
             ...material,
-            modelId: this.model.brayns.id
+            modelId
         })
+        await Scene.Api.updateModel({ id: modelId })
     }
 
     /**
@@ -165,7 +170,7 @@ export default class Model {
     /**
      * Make to camera to look at this model.
      */
-    async focus(zoom: number=1): Promise<boolean> {
+    async focus(zoom: number = 1): Promise<boolean> {
         await Scene.camera.lookAtBounds(this.model.brayns.bounds, zoom);
         return true;
     }

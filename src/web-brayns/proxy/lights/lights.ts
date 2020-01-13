@@ -1,5 +1,5 @@
 import Scene from '../../scene'
-
+import Geom from '../../geometry'
 type IColor = [number, number, number]
 
 interface IAmbientLight {
@@ -15,9 +15,9 @@ export class LightsType {
 
     async initialize() {
         await Scene.Api.clearLights()
-        await this.setAmbientLight({})
-        //await this.setKeyLight()
-        //await this.setFillLight()
+        //await this.setAmbientLight({})
+        await this.setKeyLight()
+        await this.setFillLight()
         await this.setBackLight()
     }
 
@@ -43,31 +43,31 @@ export class LightsType {
 
     async setKeyLight() {
         await Scene.Api.addLightDirectional({
-            angularDiameter: 180,
+            angularDiameter: 1,
             color: [.8,.8,.8],
-            intensity: .5,
-            is_visible: false,
-            direction: [1,1,1]
+            intensity: 1,
+            is_visible: true,
+            direction: Geom.normalize([1,-1,-1])
         })
     }
 
     async setFillLight() {
         await Scene.Api.addLightDirectional({
-            angularDiameter: 180,
+            angularDiameter: 1,
             color: [.8,.8,.8],
-            intensity: .1,
-            is_visible: false,
-            direction: [-1,1,1]
+            intensity: .3,
+            is_visible: true,
+            direction: Geom.normalize([-2,1,-1])
         })
     }
 
     async setBackLight() {
         await Scene.Api.addLightDirectional({
-            angularDiameter: 180,
+            angularDiameter: 1,
             color: [.8,.8,.8],
             intensity: 1,
-            is_visible: false,
-            direction: [1,0,0]
+            is_visible: true,
+            direction: [0,0,1]
         })
     }
 }

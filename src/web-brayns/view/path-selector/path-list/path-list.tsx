@@ -18,10 +18,6 @@ interface IPathListProps {
 }
 
 export default class PathList extends React.Component<IPathListProps, {}> {
-    constructor( props: IPathListProps ) {
-        super( props );
-    }
-
     renderDir = (name: string) => {
         const { onFolderClick } = this.props;
 
@@ -51,8 +47,6 @@ export default class PathList extends React.Component<IPathListProps, {}> {
 
     render() {
         const { files, dirs, foldersOnly } = this.props;
-
-        console.info("files=", files);
 
         return (<div className="webBrayns-view-PathList">
             <div>

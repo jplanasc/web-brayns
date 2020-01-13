@@ -68,7 +68,6 @@ export default class Renderer {
         })
 
         await Scene.request("set-renderer", {
-            "current": "circuit_explorer_basic",
             "samples_per_pixel": this.progressive ? 1 : this.samples,
             "max_accum_frames": this.samples
         })

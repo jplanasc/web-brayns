@@ -43,6 +43,7 @@ async function listTargets(circuitPath: string): Promise<string[]> {
     const result = (await Scene.request("ci-get-targets", {
         path: circuitPath
     })) as { targets: string[] }
+
     if (Array.isArray(result.targets)) {
         return result.targets
     }

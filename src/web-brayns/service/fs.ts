@@ -5,7 +5,7 @@ import Scene from '../scene'
 import { IDirContent } from './types'
 
 
-const UNEXPECTED_ERROR = { code: -1, message: 'Unexpected error' }
+export const UNEXPECTED_ERROR = { code: -1, message: 'Unexpected error' }
 
 
 export default {
@@ -34,18 +34,24 @@ function concat(...parts: string[]) {
  *   3 = Unexpected error.
  */
 async function exists(path: string): Promise<boolean> {
-    const result: any = await Scene.request("fs-exists", { path })
-    if (result) {
-        // If the path is outside the sandbox, we return that it does not exist.
-        if (result.error === 1) return false
+    try {
+        const result: any = await Scene.request("fs-exists", { path })
+        if (result) {
+            // If the path is outside the sandbox, we return that it does not exist.
+            if (result.error === 1) return false
 
-        catchError(result)
-        if (result.type === 'file' || result.type === 'directory') {
-            return true
+            catchError(result)
+            if (result.type === 'file' || result.type === 'directory') {
+                return true
+            }
+            return false
+        } else {
+            throw UNEXPECTED_ERROR
         }
-        return false
-    } else {
-        throw UNEXPECTED_ERROR
+    }
+    catch (ex) {
+        console.error('[webBrayns/service/fs/exists()]', ex)
+        throw ex
     }
 }
 
@@ -60,14 +66,20 @@ async function exists(path: string): Promise<boolean> {
  *   3 = Unexpected error.
  */
 async function getContent(path: string): Promise<string> {
-    const result: any = await Scene.request("fs-get-content", { path })
-    if (result) {
-        catchError(result)
-        if (typeof result.content === 'string') {
-            return result.content
+    try {
+        const result: any = await Scene.request("fs-get-content", { path })
+        if (result) {
+            catchError(result)
+            if (typeof result.content === 'string') {
+                return result.content
+            }
         }
+        throw UNEXPECTED_ERROR
     }
-    throw UNEXPECTED_ERROR
+    catch (ex) {
+        console.error('[webBrayns/service/fs/getContent()]', ex)
+        throw ex
+    }
 }
 
 
@@ -76,10 +88,16 @@ async function getContent(path: string): Promise<string> {
  * Otherwise, return the owning folder.
  */
 async function getDirName(path: string) {
-    if (await isDir(path)) return path
-    const pieces = path.split('/')
-    pieces.pop()
-    return pieces.join('/')
+    try {
+        if (await isDir(path)) return path
+        const pieces = path.split('/')
+        pieces.pop()
+        return pieces.join('/')
+    }
+    catch (ex) {
+        console.error('[webBrayns/service/fs/getDirName()]', ex)
+        throw ex
+    }
 }
 
 
@@ -87,8 +105,14 @@ async function getDirName(path: string) {
  * Get the root for sandboxing.
  */
 async function getRoot(): Promise<string> {
-    const result: any = await Scene.request("fs-get-root")
-    return result ? result.root : ''
+    try {
+        const result: any = await Scene.request("fs-get-root")
+        return result ? result.root : ''
+    }
+    catch (ex) {
+        console.error('[webBrayns/service/fs/getRoot()]', ex)
+        throw ex
+    }
 }
 
 /**
@@ -101,15 +125,21 @@ async function getRoot(): Promise<string> {
  *   3 = Unexpected error.
  */
 async function isDir(path: string): Promise<boolean> {
-    const result: any = await Scene.request("fs-exists", { path })
-    if (result) {
-        catchError(result)
-        if (result.type === 'directory') {
-            return true
+    try {
+        const result: any = await Scene.request("fs-exists", { path })
+        if (result) {
+            catchError(result)
+            if (result.type === 'directory') {
+                return true
+            }
+            return false
         }
-        return false
+        throw UNEXPECTED_ERROR
     }
-    throw UNEXPECTED_ERROR
+    catch (ex) {
+        console.error('[webBrayns/service/fs/isDir()]', ex)
+        throw ex
+    }
 }
 
 
@@ -123,44 +153,56 @@ async function isDir(path: string): Promise<boolean> {
  *   3 = Unexpected error.
  */
 async function isFile(path: string): Promise<boolean> {
-    const result: any = await Scene.request("fs-exists", { path })
-    if (result) {
-        catchError(result)
-        if (result.type === 'file') {
-            return true
+    try {
+        const result: any = await Scene.request("fs-exists", { path })
+        if (result) {
+            catchError(result)
+            if (result.type === 'file') {
+                return true
+            }
+            return false
         }
-        return false
+        throw UNEXPECTED_ERROR
     }
-    throw UNEXPECTED_ERROR
+    catch (ex) {
+        console.error('[webBrayns/service/fs/isFile()]', ex)
+        throw ex
+    }
 }
 
 
 async function listDir(path: string): Promise<IDirContent> {
-    const content = { files: [], dirs: [] }
-    const result: any = await Scene.request("fs-list-dir", { path })
-    if (result) {
-        console.info("[listDir] result=", result);
-        catchError(result)
-        if (!result.files
+    try {
+        const content = { files: [], dirs: [] }
+        const result: any = await Scene.request("fs-list-dir", { path })
+        if (result) {
+            console.info("[listDir] result=", result);
+            catchError(result)
+            if (!result.files
                 || !Array.isArray(result.files.names)
                 || !Array.isArray(result.files.sizes)) {
-            throw { code: -2, message: `Bad format for "files" attribute: ${JSON.stringify(result.files)}!` }
+                throw { code: -2, message: `Bad format for "files" attribute: ${JSON.stringify(result.files)}!` }
+            }
+            if (!Array.isArray(result.dirs)) {
+                throw { code: -2, message: `Bad format for "dirs" attribute: ${JSON.stringify(result.dirs)}!` }
+            }
+
+            content.dirs = result.dirs
+                .filter((name: string) => name !== '.' && name !== '..')
+
+            content.files = result.files.names
+                .map((name: string, index: number) => (
+                    { name, size: result.files.sizes[index] }
+                ))
+
+            return content
         }
-        if (!Array.isArray(result.dirs)) {
-            throw { code: -2, message: `Bad format for "dirs" attribute: ${JSON.stringify(result.dirs)}!` }
-        }
-
-        content.dirs = result.dirs
-            .filter((name: string) => name !== '.' && name !== '..')
-
-        content.files = result.files.names
-            .map((name: string, index: number) => (
-                { name, size: result.files.sizes[index] }
-            ))
-
-        return content
+        throw UNEXPECTED_ERROR
     }
-    throw UNEXPECTED_ERROR
+    catch (ex) {
+        console.error('[webBrayns/service/fs/listDir]', ex)
+        throw ex
+    }
 }
 
 

@@ -166,25 +166,6 @@ async function clear(): Promise<boolean> {
     await request("remove-model", ids);
     State.dispatch(State.Models.reset([]))
 
-    const rendererParams: any = await request("get-renderer-params", {});
-    if (rendererParams) {
-        // A bit brighter.
-        rendererParams.pixel_alpha = 1.1;
-        rendererParams.shadows = 1;
-        rendererParams.soft_shadows = 0.5;
-        await request("set-renderer-params", rendererParams);
-    }
-
-    await Api.setRenderer({
-        accumulation: true,
-        //current: "circuit_explorer_basic",
-        current: "circuit_explorer_advanced",
-        head_light: true,
-        max_accum_frames: 32,
-        samples_per_pixel: 1,
-        subsampling: 1
-    });
-
     return true;
 }
 
@@ -239,6 +220,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         await modelInstance.applyTransfo()
         State.dispatch(State.Models.add(model));
         State.dispatch(State.CurrentModel.reset(model));
+        await modelInstance.setMaterial()
         return new Model(model);
     }
     catch (ex) {

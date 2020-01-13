@@ -28,15 +28,15 @@ interface IPathSelectorProps {
 }
 
 export default class PathSelector extends React.Component<IPathSelectorProps, {}> {
-    handleFileClick = async (fileName: string) => {
+    handleFileClick = (fileName: string) => {
         this.props.onFileClick(concatPath(this.props.dir, fileName))
     }
 
-    handleBarClick = async (folderPath: string) => {
+    handleBarClick = (folderPath: string) => {
         this.props.onFolderClick(folderPath)
     }
 
-    handleFolderClick = async (folderName: string) => {
+    handleFolderClick = (folderName: string) => {
         const finalPath = concatPath(this.props.dir, folderName)
         this.props.onFolderClick(finalPath)
     }

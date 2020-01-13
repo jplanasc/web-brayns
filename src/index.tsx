@@ -34,11 +34,11 @@ async function start() {
                 `Contacting Brayns on ${hostName}...`,
                 Scene.connect(hostName),
                 false)
-            //await Lights.initialize()
+            await Lights.initialize()
             const planes = await Scene.Api.getClipPlanes()
-            const notNullplanes: {id: number, plane: [number,number,number,number]}[] =
-                planes.filter( p => p !== null )
-            const planeIds = notNullplanes.map( p => p.id )
+            const notNullplanes: { id: number, plane: [number, number, number, number] }[] =
+                planes.filter(p => p !== null)
+            const planeIds = notNullplanes.map(p => p.id)
             Scene.Api.removeClipPlanes(planeIds);
 
             const scene = await Dialog.wait("Loading models...", Scene.Api.getScene(), false)
@@ -52,13 +52,47 @@ async function start() {
             State.dispatch(State.Models.reset(models))
             State.dispatch(State.CurrentModel.reset(models[0]))
 
+            // Initial renderer
+            await Scene.Api.setRenderer({
+                "accumulation": true,
+                "background_color": [
+                    0,
+                    0,
+                    0
+                ],
+                current: "circuit_explorer_advanced",
+                head_light: false,
+                max_accum_frames: 128,
+                samples_per_pixel: 1,
+                subsampling: 1,
+                variance_threshold: -1
+            });
+            await Scene.Api.setRendererParams({
+                epsilon_factor: 1,
+                exposure: 1,
+                fog_start: 0,
+                fog_thickness: 1000000,
+                gi_distance: 10000,
+                gi_samples: 0,
+                gi_weight: 0,
+                max_bounces: 3,
+                max_distance_to_secondary_model: 30,
+                sampling_threshold: 0.001,
+                shadows: 0,
+                soft_shadows: 0,
+                soft_shadows_samples: 1,
+                use_hardware_randomizer: false,
+                volume_alpha_correction: 0.5,
+                volume_specular_exponent: 20
+            })
+
             // Entry point for our app
             const stream = await figureOutStreamType()
             console.info("Stream type:", stream.toUpperCase())
             const root = document.getElementById('root') as HTMLElement;
             ReactDOM.render(<Provider store={State.store}>
-                    <App brayns={client} stream={stream}/>
-                </Provider>, root);
+                <App brayns={client} stream={stream} />
+            </Provider>, root);
 
             const splash = document.getElementById('splash-screen');
             if (splash) {
@@ -66,19 +100,19 @@ async function start() {
                 window.setTimeout(() => document.body.removeChild(splash), 600);
             }
         }
-        catch(ex) {
+        catch (ex) {
             console.error("Unable to connect Brayns: ", ex)
             await Dialog.alert(`Seems like Brayns is not reachable on ${hostName}!`);
             location.reload();
         }
     }
-    catch(ex) {
+    catch (ex) {
         console.error("Unable to start!")
         console.info(ex)
         await Dialog.alert(
             <div>
                 <h1>Unable to connect to Brayns' backend!</h1>
-                <pre style={{whiteSpace: "pre-wrap", opacity: .5}}>{`${ex}`}</pre>
+                <pre style={{ whiteSpace: "pre-wrap", opacity: .5 }}>{`${ex}`}</pre>
             </div>
         );
         console.info("window.location=", window.location);
@@ -98,7 +132,7 @@ async function figureOutStreamType(): Promise<("image" | "video")> {
         if (!result) return "image"
         return "video"
     }
-    catch(err) {
+    catch (err) {
         return "image"
     }
 }

@@ -46,26 +46,31 @@ export interface IMaterial extends IMaterialBase {
 }
 
 
-async function setMaterials(params: IMaterial) {
+async function setMaterials(params: Partial<IMaterial>) {
+    const material: IMaterial = {
+        modelId: 0,
+        materialIds: [],
+        diffuseColor: [1, 0.6, 0.1],
+        specularColor: [1,1,1],
+        specularExponent: 20,
+        reflectionIndex: 0,
+        opacity: 1,
+        refractionIndex: 1,
+        emission: 0,
+        glossiness: 1,
+        simulationDataCast: false,
+        shadingMode: 1,
+        clippingMode: 0,
+        userParameter: 0,
+        ...params
+    }
+    console.info("material=", material);
     await Scene.request(
         "set-material-extra-attributes",
         { modelId: params.modelId }
     )
     await Scene.request(
-        "set-material-range", {
-            specularColor: [.8,.8,.8],
-            specularExponent: 0,
-            reflectionIndex: 0,
-            opacity: 1,
-            refractionIndex: 0,
-            emission: 0,
-            glossiness: 0,
-            simulationDataCast: false,
-            shadingMode: 1,
-            clippingMode: 0,
-            userParameter: 0,
-            ...params
-        }
+        "set-material-range", material
     )
 
 }

@@ -47,9 +47,10 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
             modelId: -1,
             materialIds: [],
             diffuseColor,
-            specularColor: [0, 0, 0],
+            specularColor: [1, 1, 1],
+            specularExponent: 20,
             shadingMode: MaterialService.SHADER.DIFFUSE,
-            glossiness: 0,
+            glossiness: 1,
             emission: this.state.emission
         }
         switch (this.state.style) {
