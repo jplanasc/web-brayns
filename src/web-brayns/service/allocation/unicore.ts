@@ -43,7 +43,7 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
             --http-server :5000 \
             --plugin braynsCircuitExplorer \
             --plugin braynsCircuitInfo \
-            --sandbox-path /gpfs/bbp.cscs.ch`,
+            --sandbox-path /gpfs/bbp.cscs.ch/tmp`,
         Project: account,
         Resources: {
             Nodes: 1,
