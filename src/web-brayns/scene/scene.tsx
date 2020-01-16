@@ -107,6 +107,17 @@ async function connect(hostName: string): Promise<BraynsService> {
             sceneSizeInBytes: stats.scene_size_in_bytes
         }))
     })
+    Scene.brayns.subscribe("set-camera", cameraParams => {
+        console.log("<set-camera>", cameraParams)
+        State.dispatch(State.Camera.update({
+            current: cameraParams.current,
+            types: cameraParams.types
+        }))
+    })
+
+    Scene.brayns.subscribe("set-camera-params", cameraParams => {
+        console.log("<set-camera-params>", cameraParams)
+    })
 
     await Scene.renderer.initialize()
 

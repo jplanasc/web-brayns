@@ -5,6 +5,7 @@ import { createStore } from 'redux'
 import { IAppState, IAction } from "../types"
 
 import Animation from './animation'
+import Camera from './camera'
 import CurrentModel from './current-model'
 import Dialogs from './dialogs'
 import KeyFrames from './key-frames'
@@ -18,6 +19,7 @@ import Wait from './wait'
 
 const INITIAL_STATE: IAppState = {
     animation: Animation.INITIAL_STATE,
+    camera: Camera.INITIAL_STATE,
     currentModel: CurrentModel.INITIAL_STATE,
     dialogs: Dialogs.INITIAL_STATE,
     keyFrames: KeyFrames.INITIAL_STATE,
@@ -32,6 +34,7 @@ const INITIAL_STATE: IAppState = {
 function reducer(state: IAppState | undefined = INITIAL_STATE, action: IAction): IAppState {
     return {
         animation: Animation.reducer(state.animation, action),
+        camera: Camera.reducer(state.camera, action),
         currentModel: CurrentModel.reducer(state.currentModel, action),
         dialogs: Dialogs.reducer(state.dialogs, action),
         keyFrames: KeyFrames.reducer(state.keyFrames, action),
@@ -48,6 +51,7 @@ const store = createStore(reducer);
 export default {
     store, dispatch: store.dispatch,
     Animation,
+    Camera,
     CurrentModel,
     Dialogs,
     Models,

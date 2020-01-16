@@ -1,5 +1,6 @@
 import Scene from '../../scene'
 import Geom from '../../geometry'
+import { IVector } from '../../types'
 type IColor = [number, number, number]
 
 interface IAmbientLight {
@@ -15,10 +16,9 @@ export class LightsType {
 
     async initialize() {
         await Scene.Api.clearLights()
-        //await this.setAmbientLight({})
-        await this.setKeyLight()
-        await this.setFillLight()
-        await this.setBackLight()
+        await this.setKeyLight(true)
+        await this.setFillLight(true)
+        await this.setBackLight(true)
     }
 
     get ambientColor() {
@@ -27,6 +27,10 @@ export class LightsType {
 
     get ambientIntensity() {
         return this.ambientLight.intensity
+    }
+
+    async clear() {
+        await Scene.Api.clearLights()
     }
 
     async setAmbientLight(args: Partial<IAmbientLight>) {
@@ -41,33 +45,36 @@ export class LightsType {
         return this.ambientId
     }
 
-    async setKeyLight() {
+    async setKeyLight(inCameraSpace = false) {
+        let direction = await normalize([1,-1,-1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
-            color: [.8,.8,.8],
+            color: [1,1,1],
             intensity: 1,
             is_visible: true,
-            direction: Geom.normalize([1,-1,-1])
+            direction
         })
     }
 
-    async setFillLight() {
+    async setFillLight(inCameraSpace = false) {
+        let direction = await normalize([-20,10,-1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
-            color: [.8,.8,.8],
+            color: [1,1,1],
             intensity: .3,
             is_visible: true,
-            direction: Geom.normalize([-2,1,-1])
+            direction
         })
     }
 
-    async setBackLight() {
+    async setBackLight(inCameraSpace = false) {
+        let direction = await normalize([0,0,1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
-            color: [.8,.8,.8],
+            color: [1,1,1],
             intensity: 1,
             is_visible: true,
-            direction: [0,0,1]
+            direction
         })
     }
 }
@@ -87,4 +94,17 @@ export default {
         }
         return LIGHTS
     }
+}
+
+
+async function normalize(vector: IVector, inCameraSpace: boolean): Promise<IVector> {
+    let direction = Geom.normalize(vector)
+    if (inCameraSpace) {
+        const camera = await Scene.Api.getCamera()
+        const quaternion = camera.orientation
+        if (quaternion) {
+            direction = Geom.rotateWithQuaternion(direction, quaternion)
+        }
+    }
+    return direction
 }

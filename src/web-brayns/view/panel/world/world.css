@@ -10,6 +10,14 @@ div.webBrayns-view-panel-World > div {
     overflow: auto;
 }
 
+div.webBrayns-view-panel-World > div.flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 0 0 auto;
+}
+
 div.webBrayns-view-panel-World > footer {
     flex: 0 0 auto;
     display: flex;

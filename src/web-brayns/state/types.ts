@@ -5,6 +5,15 @@ export interface INavigationState {
     showConsole: boolean
 }
 
+export interface ICameraState {
+    // Currrent camera type: "perspective", "orthographic", ...
+    current: string,
+    // Array of available camera types.
+    types: string[],
+    // Used with orthographic camera type.
+    height?: number
+}
+
 export interface ISlicerState {
     activated: boolean,
     minX: number,
@@ -67,6 +76,7 @@ export interface IKeyFrame {
 
 export interface IAppState {
     animation: IAnimation,
+    camera: ICameraState,
     currentModel: IModel,
     dialogs: IDialogs,
     keyFrames: IKeyFrame[],
