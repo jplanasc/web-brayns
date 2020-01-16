@@ -23,6 +23,11 @@ const DEFAULT_MATERIALS: {
         specular: 15,
         glossiness: .2,
         emission: .2
+    },
+    TOON: {
+        specular: 20,
+        glossiness: 1,
+        emission: .2
     }
 }
 
@@ -50,7 +55,7 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
                 emission: 0,
                 specular: 40,
                 glossiness: .8,
-                style: "DIFFUSE"
+                style: "PLASTIC"
             }
         )
     }
@@ -77,7 +82,7 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
                 material.shadingMode = MaterialService.SHADER.NONE
                 break
             case "TOON":
-                material.shadingMode = MaterialService.SHADER.CARTOON
+                material.shadingMode = MaterialService.SHADER.PERLIN
                 break
             case "INVERTED":
                 for (let i=0; i<diffuseColor.length; i++) {
@@ -112,7 +117,7 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
                     Soft shadows
                 </div>
                 <div key="TOON">
-                    Cartoon shading
+                    Backlight
                 </div>
                 <div key="INVERTED">
                     Inverted colors
