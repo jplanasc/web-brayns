@@ -190,6 +190,15 @@ export default class Model {
         });
     }
 
+    /**
+     * Is this model a Circuit?
+     */
+    isCircuit() {
+        const metadata = this.model.brayns.metadata
+        if (!metadata) return false
+        return typeof metadata.CircuitPath === 'string'
+    }
+
     private updateState() {
         State.dispatch(State.Models.update(this.model));
     }

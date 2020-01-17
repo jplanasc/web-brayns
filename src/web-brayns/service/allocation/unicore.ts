@@ -39,7 +39,7 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
         module load brayns/1.0.1/serial &&
         module load ffmpeg/4.2 &&
         export OMP_THREAD_LIMIT=1 &&
-        /gpfs/bbp.cscs.ch/home/nroman/software/install/linux-rhel7-x86_64/gcc-6.4.0/brayns-base-vuuz2b/bin/braynsService \
+        /gpfs/bbp.cscs.ch/home/nroman/software/install/linux-rhel7-x86_64/gcc-6.4.0/brayns-nadir-zqk4nj/bin/braynsService \
             --http-server :5000 \
             --plugin braynsCircuitExplorer \
             --plugin braynsCircuitInfo \

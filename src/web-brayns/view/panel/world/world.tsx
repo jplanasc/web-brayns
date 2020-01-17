@@ -11,6 +11,7 @@ import "./world.css"
 const Button = Tfw.View.Button
 const Combo = Tfw.View.Combo
 const Input = Tfw.View.Input
+const Slider = Tfw.View.Slider
 
 interface TWorldProps {
     fps: number,
@@ -18,12 +19,13 @@ interface TWorldProps {
     camera: ICameraState,
     onCameraChange: (cameraState: Partial<ICameraState>) => void,
     onRefreshCamera: () => void,
-    onApplyLightings: () => void
+    onApplyLightings: (intensity: number) => void
 }
 
 interface TWorldState {
     background: string,
-    height: string
+    height: string,
+    lightIntensity: number
 }
 
 export default class World extends React.Component<TWorldProps, TWorldState> {
@@ -31,7 +33,8 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
         super(props)
         this.state = {
             background: "#000",
-            height: `${props.camera.height || ""}`
+            height: `${props.camera.height || ""}`,
+            lightIntensity: 2
         }
     }
 
@@ -72,6 +75,11 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
         this.props.onCameraChange({ height: numericHeight })
     }, 400)
 
+    handleApplyLightings = () => {
+        const { lightIntensity } = this.state
+        this.props.onApplyLightings(lightIntensity)
+    }
+
     render() {
         const handleCameraHeightChange = (value: string) => {
             this.setState({ height: value })
@@ -108,8 +116,12 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
                 }
             </div>
             <div>
+                <Slider label="Light intensity"
+                        min={0.1} max={5}
+                        value={this.state.lightIntensity}
+                        onChange={lightIntensity => this.setState({ lightIntensity })}/>
                 <Button label="Applying default lightings"
-                        onClick={this.props.onApplyLightings} />
+                        onClick={this.handleApplyLightings} />
             </div>
             <footer className="thm-bg2">
                 <div><em>FPS</em>: <b>{Math.floor(0.5 + this.props.fps)}</b></div>

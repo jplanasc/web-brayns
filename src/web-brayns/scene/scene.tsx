@@ -190,6 +190,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
 
     try {
         const params = await LoaderService.getLoaderParams(path)
+        console.info("[loadMeshFromPath] params=", params);
         const query = Scene.brayns.execAsync("add-model", params)
         const wait = <Provider store={State.store}><Wait onCancel={() => {
             query.cancel()
@@ -236,7 +237,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         await modelInstance.applyTransfo()
         State.dispatch(State.Models.add(model));
         State.dispatch(State.CurrentModel.reset(model));
-        if (params !== "circuit") {
+        if (!modelInstance.isCircuit()) {
             await modelInstance.setMaterial()
         }
         return new Model(model);

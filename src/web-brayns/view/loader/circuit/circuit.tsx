@@ -122,7 +122,6 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
             const radiusMultiplier = axon || dendrite || apicalDendrite ? 1 : 8
 
             const params = {
-                type: "circuit",
                 path,
                 bounding_box: false,
                 loader_name: "Advanced circuit loader (Experimental)",

@@ -37,11 +37,11 @@ function mapDispatchToProps(dispatch) {
             }))
         },
 
-        async onApplyLightings() {
+        async onApplyLightings(intensity: number) {
             Lights.instance.clear()
-            Lights.instance.setKeyLight(true)
-            Lights.instance.setFillLight(true)
-            Lights.instance.setBackLight(true)
+            Lights.instance.setKeyLight(intensity, true)
+            Lights.instance.setFillLight(intensity, true)
+            Lights.instance.setBackLight(intensity, true)
         }
     }
 }

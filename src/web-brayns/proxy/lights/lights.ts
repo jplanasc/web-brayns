@@ -16,9 +16,9 @@ export class LightsType {
 
     async initialize() {
         await Scene.Api.clearLights()
-        await this.setKeyLight(true)
-        await this.setFillLight(true)
-        await this.setBackLight(true)
+        await this.setKeyLight(1, true)
+        await this.setFillLight(1, true)
+        await this.setBackLight(1, true)
     }
 
     get ambientColor() {
@@ -45,34 +45,34 @@ export class LightsType {
         return this.ambientId
     }
 
-    async setKeyLight(inCameraSpace = false) {
+    async setKeyLight(intensity: number, inCameraSpace = false) {
         let direction = await normalize([1,-1,-1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
             color: [1,1,1],
-            intensity: 1,
+            intensity: intensity,
             is_visible: true,
             direction
         })
     }
 
-    async setFillLight(inCameraSpace = false) {
+    async setFillLight(intensity: number, inCameraSpace = false) {
         let direction = await normalize([-20,10,-1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
             color: [1,1,1],
-            intensity: .3,
+            intensity: .3 * intensity,
             is_visible: true,
             direction
         })
     }
 
-    async setBackLight(inCameraSpace = false) {
+    async setBackLight(intensity: number, inCameraSpace = false) {
         let direction = await normalize([0,0,1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
             color: [1,1,1],
-            intensity: 1,
+            intensity: intensity,
             is_visible: true,
             direction
         })

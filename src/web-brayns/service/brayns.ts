@@ -231,7 +231,6 @@ export default class BraynsService {
     }
 
     private handleUpdate(method: string, params: {}) {
-        console.info(">>> Update on", method);
         const listeners = this.subscribers[method];
         if (!listeners) {
             return
