@@ -17,12 +17,12 @@ const DEFAULT_MATERIALS: {
     METAL: {
         specular: 40,
         glossiness: 1,
-        emission: 0
+        emission: 0.02
     },
     PLASTIC: {
         specular: 15,
         glossiness: .2,
-        emission: .2
+        emission: .1
     },
     TOON: {
         specular: 20,

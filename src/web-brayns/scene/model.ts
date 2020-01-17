@@ -119,10 +119,12 @@ export default class Model {
 
     async setMaterial(material?: Partial<IMaterial>) {
         const modelId = this.model.brayns.id
-        const materialIds = await MaterialService.getMaterialIds(modelId)
         await MaterialService.setMaterials({
             diffuseColor: [1, .6, .1],
-            materialIds: [materialIds[0]],
+            materialIds: [],
+            specularExponent: 20,
+            glossiness: 0.2,
+            emission: 0.2,
             ...material,
             modelId
         })

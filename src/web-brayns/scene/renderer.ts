@@ -123,7 +123,7 @@ export default class Renderer {
     get samples(): number {
         const context = this.contextStack[this.contextStack.length - 1]
         if (!context) return 64
-        return castInteger(context.samples, 64)
+        return castInteger(context.samples, 64) as number
     }
 
     get progressive(): boolean {
@@ -141,13 +141,13 @@ export default class Renderer {
     get quality(): number {
         const context = this.contextStack[this.contextStack.length - 1]
         if (!context) return 90
-        return castInteger(context.quality, 90)
+        return castInteger(context.quality, 90) as number
     }
 
     get fps(): number {
         const context = this.contextStack[this.contextStack.length - 1]
         if (!context) return 30
-        return castInteger(context.fps, 30)
+        return castInteger(context.fps, 30) as number
     }
 
     get ctx() {
@@ -205,18 +205,18 @@ export default class Renderer {
 
     askNextFrame = Throttler(() => {
         window.requestAnimationFrame(async () => {
-            this.tryAgaintoAskNextFrame()
+            this.tryAgainToAskNextFrame()
             await Scene.request("trigger-jpeg-stream")
         })
     }, 50)
 
     /**
-     * If we miss a JPEG stream frame, we can try again after 5 seconds.
+     * If we miss a JPEG stream frame, we can try again after 30 seconds.
      */
-    tryAgaintoAskNextFrame = Debouncer(async () => {
-        console.warn("Brayns doesn't send us any new frame for more than 15 seconds!")
+    tryAgainToAskNextFrame = Debouncer(async () => {
+        console.warn("Brayns doesn't send us any new frame for more than 30 seconds!")
         this.askNextFrame()
-    }, 15000)
+    }, 30000)
 
     handleImage = Throttler(async (data: ArrayBuffer) => {
         this.askNextFrame()

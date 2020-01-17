@@ -237,6 +237,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         await modelInstance.applyTransfo()
         State.dispatch(State.Models.add(model));
         State.dispatch(State.CurrentModel.reset(model));
+        console.info("modelInstance.isCircuit()=", modelInstance.isCircuit());
         if (!modelInstance.isCircuit()) {
             await modelInstance.setMaterial()
         }
