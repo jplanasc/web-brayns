@@ -13,7 +13,7 @@ import ObjectService from '../../../service/object'
 import OkCancel from "../../../../tfw/view/ok-cancel"
 import ModelObject from "../../../scene/model"
 
-import LowPolySphere from '../../../object/mesh/low-poly-sphere.ply'
+//import LowPolySphere from '../../../object/mesh/low-poly-sphere.ply'
 
 import "./models.css"
 

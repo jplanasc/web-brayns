@@ -78,8 +78,8 @@ async function start() {
                 max_bounces: 3,
                 max_distance_to_secondary_model: 30,
                 sampling_threshold: 0.001,
-                shadows: 0,
-                soft_shadows: 0,
+                shadows: 1,
+                soft_shadows: 1,
                 soft_shadows_samples: 1,
                 use_hardware_randomizer: false,
                 volume_alpha_correction: 0.5,
@@ -126,15 +126,16 @@ async function start() {
  * We will try to know which type is used by the current Brayns Service.
  */
 async function figureOutStreamType(): Promise<("image" | "video")> {
+    /*
     try {
         const result = await Scene.request("get-videostream")
         console.info("result=", result);
         if (!result) return "image"
         return "video"
     }
-    catch (err) {
+    catch (err) {*/
         return "image"
-    }
+    //}
 }
 
 

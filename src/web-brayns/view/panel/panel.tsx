@@ -20,6 +20,7 @@ interface IPanelProps {
     value: string,
     model: IModel,
     visible: boolean,
+    braynsServiceVersion: string,
     onVisibleChange: (visible: boolean) => void,
     onChange: (value: string) => void
 }
@@ -45,7 +46,10 @@ export default class Panel extends React.Component<IPanelProps, {}> {
         return (<div className={classes.join(' ')}>
             <header className="thm-bgPD thm-ele-nav">
                 <div>{/*icon('more', 'menu')*/}</div>
-                <p>Web-Brayns <span className="faded">{Package.version}</span></p>
+                <p>
+                    Web-Brayns <span className="faded"><big>{Package.version}</big></span><br/>
+                    <span className="faded">{this.props.braynsServiceVersion}</span>
+                </p>
                 <div>
                     {icon('menu', 'models')}
                     {icon('earth', 'world')}

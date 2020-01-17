@@ -2,7 +2,6 @@ import React from "react"
 //import { Client as BraynsClient } from "brayns"
 
 import SnapshotService from './web-brayns/service/snapshot'
-import SnapshotDialog from './web-brayns/dialog/snapshot'
 import Snapshot from './web-brayns/dialog/snapshot'
 import Scene from './web-brayns/scene'
 import State from './web-brayns/state'
@@ -25,13 +24,27 @@ interface IAppProps {
 
 interface IAppState {
     data: Blob,
+    braynsServiceVersion: string,
     panelVisible: boolean
 }
 
 export default class App extends React.Component<IAppProps, IAppState> {
     constructor( props: IAppProps ) {
         super( props );
-        this.state = { data: new Blob(), panelVisible: true }
+        this.state = { data: new Blob(), panelVisible: true, braynsServiceVersion: "" }
+    }
+
+    async componentDidMount() {
+        const version = await Scene.brayns.exec("get-version")
+        console.info("version=", version);
+        if (version) {
+            this.setState({
+                braynsServiceVersion: `${version.major}.${version.minor}.${version.patch} (${
+                    version.revision
+                })`
+            })
+        }
+
         const args = UrlArgs.parse()
         const load = args.load
         if (typeof load === 'string') this.execLoad(load)
@@ -40,9 +53,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
             // BraynsService has been started from this web interface.
             // We need to kill it as soon as this page is not used anymore.
             // For this, we will use the 'exit-later' function.
-            const exitLater = () => {
+            const exitLater = async () => {
                 console.log("exit-later", { minutes: 6 })
-                Scene.brayns.exec("exit-later", { minutes: 6 })
+                await Scene.brayns.exec("exit-later", { minutes: 6 })
                 window.setTimeout(() => {
                     exitLater()
                 }, 5 * 60 * 1000)
@@ -88,6 +101,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
         return (<div className={className}>
             <Panel value={this.props.panel}
                    model={this.props.model}
+                   braynsServiceVersion={this.state.braynsServiceVersion}
                    visible={this.state.panelVisible}
                    onVisibleChange={this.handlePanelVisibleChange}
                    onChange={this.handlePanelChange}/>

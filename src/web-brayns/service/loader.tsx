@@ -35,27 +35,27 @@ function getLoaderParams(path: string): Promise<{}> {
                 closeOnEscape: false,
                 footer: null,
                 content: (<CircuitLoaderView
-                            path= { path }
-                            onCancel={() => {
-                dialog.hide()
-                resolve(null)
-            }
-        }
-                            onOK = {
-            params => {
-                dialog.hide()
-                resolve({
-                    ...commonParams,
-                    ...params
-                })
-            }
-        } />)
-})
+                    path={path}
+                    onCancel={() => {
+                        dialog.hide()
+                        resolve(null)
+                    }
+                    }
+                    onOK={
+                        params => {
+                            dialog.hide()
+                            resolve({
+                                ...commonParams,
+                                ...params
+                            })
+                        }
+                    } />)
+            })
         }
         catch (ex) {
-    console.error("service/loader/getLoaderParams()", ex)
-    reject(ex)
-}
+            console.error("service/loader/getLoaderParams()", ex)
+            reject(ex)
+        }
     })
 }
 
@@ -91,27 +91,27 @@ async function loadFromFile(file: File) {
 interface ILoadFromStringOptions {
     path?: string,
     transformation?: {
-       rotation?: [
-          number,
-          number,
-          number,
-          number
-       ];
-       rotation_center?: [
-          number,
-          number,
-          number
-       ];
-       scale?: [
-          number,
-          number,
-          number
-       ];
-       translation?: [
-          number,
-          number,
-          number
-       ];
+        rotation?: [
+            number,
+            number,
+            number,
+            number
+        ];
+        rotation_center?: [
+            number,
+            number,
+            number
+        ];
+        scale?: [
+            number,
+            number,
+            number
+        ];
+        translation?: [
+            number,
+            number,
+            number
+        ];
     }
 }
 
@@ -128,9 +128,9 @@ async function loadFromURL(url: string, options: ILoadFromStringOptions = {}) {
 }
 
 async function loadFromString(
-        filename: string,
-        content: string,
-        options: ILoadFromStringOptions = {}) {
+    filename: string,
+    content: string,
+    options: ILoadFromStringOptions = {}) {
     const chunksId = Scene.brayns.nextId()
     const { base, extension } = parseFilename(filename)
     const transfo: {
@@ -150,10 +150,10 @@ async function loadFromString(
             size: content.length,
             type: extension,
             transformation: {
-                rotation: transfo.rotation || [0,0,0,1],
-                rotation_center: transfo.rotation_center || [0,0,0],
-                scale: transfo.scale || [1,1,1],
-                translation: transfo.translation || [0,0,0]
+                rotation: transfo.rotation || [0, 0, 0, 1],
+                rotation_center: transfo.rotation_center || [0, 0, 0],
+                scale: transfo.scale || [1, 1, 1],
+                translation: transfo.translation || [0, 0, 0]
             }
         })
 
@@ -167,9 +167,9 @@ async function loadFromString(
     const model: IModel = {
         brayns: {
             transformation: {
-                rotation: [0,0,0,1],
-                scale: [1,1,1],
-                translation: [0,0,0]
+                rotation: [0, 0, 0, 1],
+                scale: [1, 1, 1],
+                translation: [0, 0, 0]
             },
             ...result.message
         },

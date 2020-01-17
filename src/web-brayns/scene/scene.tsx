@@ -74,9 +74,10 @@ async function connect(hostName: string): Promise<BraynsService> {
     if (Array.isArray(loadersDefinition)) {
         Scene.loader.init(loadersDefinition)
     }
+    /*
     const videostreamAvailable = await isVideoStreamingAvailable()
     console.info("videostreamAvailable=", videostreamAvailable);
-
+    */
     await Api.setCamera({ current: "perspective" })
     await Api.setCameraParams({
         aperture_radius: 0,
@@ -89,8 +90,8 @@ async function connect(hostName: string): Promise<BraynsService> {
         image_stream_fps: 15,
         jpeg_compression: 80
     })
-    const camera = await request('get-camera');
-    const cameraParams = await request('get-camera-params');
+    const camera = await request('get-camera') as {};
+    const cameraParams = await request('get-camera-params') as {};
     console.info("camera, cameraParams=", camera, cameraParams);
 
     Scene.camera = new Camera({ ...cameraParams, ...camera });
@@ -117,6 +118,9 @@ async function connect(hostName: string): Promise<BraynsService> {
 
     Scene.brayns.subscribe("set-camera-params", cameraParams => {
         console.log("<set-camera-params>", cameraParams)
+        State.dispatch(State.Camera.update({
+            height: cameraParams.height
+        }))
     })
 
     await Scene.renderer.initialize()
@@ -124,6 +128,7 @@ async function connect(hostName: string): Promise<BraynsService> {
     return Scene.brayns;
 }
 
+/*
 async function isVideoStreamingAvailable(): Promise<boolean> {
     try {
         await request("set-videostream", { enabled: false })
@@ -133,7 +138,7 @@ async function isVideoStreamingAvailable(): Promise<boolean> {
         return false
     }
 }
-
+*/
 async function request(method: string, params: {} = {}) {
     return new Promise((resolve, reject) => {
         try {
@@ -231,7 +236,9 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         await modelInstance.applyTransfo()
         State.dispatch(State.Models.add(model));
         State.dispatch(State.CurrentModel.reset(model));
-        await modelInstance.setMaterial()
+        if (params !== "circuit") {
+            await modelInstance.setMaterial()
+        }
         return new Model(model);
     }
     catch (ex) {

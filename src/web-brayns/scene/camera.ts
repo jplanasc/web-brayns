@@ -193,22 +193,20 @@ export default class Camera {
     }
 
     async lookAtBounds(bounds: BoundingBox, zoom: number=1) {
-        const minX = bounds.min[0];
-        const minY = bounds.min[1];
-        const minZ = bounds.min[2];
-        const maxX = bounds.max[0];
-        const maxY = bounds.max[1];
-        const maxZ = bounds.max[2];
+        console.info("[lookAtBounds] bounds=", bounds);
+        const [minX, minY, minZ] = bounds.min
+        const [maxX, maxY, maxZ] = bounds.max
         const centerX = (minX + maxX) / 2;
         const centerY = (minY + maxY) / 2;
         const centerZ = (minZ + maxZ) / 2;
-        const width = maxX - minX;
-        const height = maxY - minY;
-        const cameraZ = maxZ + Math.max(width, height) / zoom;
+        const width = Math.abs(maxX - minX);
+        const height = Math.abs(maxY - minY);
+        const cameraZ = maxZ + 0.5 * Math.max(width, height) / zoom;
 
         this.params.orientation = [0, 0, 0, 1];
         this.params.position = [centerX, centerY, cameraZ];
         this.params.target = [centerX, centerY, centerZ];
+        console.info("this.params=", this.params);
         await this.applyCamera();
     }
 }
