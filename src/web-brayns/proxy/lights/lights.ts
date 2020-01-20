@@ -49,7 +49,7 @@ export class LightsType {
         let direction = await normalize([1,-1,-1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
-            color: [1,1,1],
+            color: [1,.9,.8],
             intensity: intensity,
             is_visible: true,
             direction
@@ -60,7 +60,7 @@ export class LightsType {
         let direction = await normalize([-20,10,-1], inCameraSpace)
         await Scene.Api.addLightDirectional({
             angularDiameter: 1,
-            color: [1,1,1],
+            color: [.6,.8,1],
             intensity: .3 * intensity,
             is_visible: true,
             direction

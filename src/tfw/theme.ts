@@ -76,37 +76,37 @@ interface IThemes {
 }
 
 // Used for luminance computations. Because we need to know which text color
-// can be used based on the background's luminance.
-const COLOR = new Color();
+// Can be used based on the background's luminance.
+const COLOR = new Color()
 
-const THEME_COLOR_NAMES = ["0", "1", "2", "3", "P", "PD", "PL", "S", "SD", "SL"];
+const THEME_COLOR_NAMES = ["0", "1", "2", "3", "P", "PD", "PL", "S", "SD", "SL"]
 const THEMES: IThemes = {
     css: {},
     vars: {},
     current: null
-};
+}
 
 function registerTheme(themeName: string, _style: IStyle) {
-    const style = completeWithDefaultValues(_style);
-    THEMES.vars[themeName] = style;
+    const style = completeWithDefaultValues(_style)
+    THEMES.vars[themeName] = style
 
-    let codeCSS = codeVariables(themeName, style);
-    codeCSS += codeBackground(themeName, style);
-    codeCSS += codeElevation(themeName, style);
-    codeCSS += codeText(themeName, style);
+    let codeCSS = codeVariables(themeName, style)
+    codeCSS += codeBackground(themeName, style)
+    codeCSS += codeElevation(themeName, style)
+    codeCSS += codeText(themeName, style)
 
-    let styleElement = THEMES.css[themeName];
+    let styleElement = THEMES.css[themeName]
     if (!styleElement) {
-        styleElement = document.createElement("style");
-        document.getElementsByTagName('head')[0].appendChild(styleElement);
-        THEMES.css[themeName] = styleElement;
+        styleElement = document.createElement("style")
+        document.getElementsByTagName('head')[0].appendChild(styleElement)
+        THEMES.css[themeName] = styleElement
     }
 
-    styleElement.textContent = codeCSS;
+    styleElement.textContent = codeCSS
 }
 
 function codeText(themeName: string, style: IStyle) {
-    let codeCSS = '';
+    let codeCSS = ''
     for (let depth = 1; depth <= 10; depth++) {
         for (const colorName of THEME_COLOR_NAMES) {
             const fgColorName = `fg${colorName}`;

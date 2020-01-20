@@ -1,14 +1,17 @@
 import React from "react"
-
-import Debouncer from '../../../tfw/debouncer'
-import Slider from '../../../tfw/view/slider'
-import Input from '../../../tfw/view/input'
-import Icon from '../../../tfw/view/icon'
+import Tfw from 'tfw'
 import Util from '../../../tfw/util'
 import State from '../../state'
 import Scene from '../../scene'
 
 import "./animation-control.css"
+
+const Debouncer = Tfw.Debouncer
+const Button = Tfw.View.Button
+const Combo = Tfw.View.Combo
+const Icon = Tfw.View.Icon
+const Input = Tfw.View.Input
+const Slider = Tfw.View.Slider
 
 interface IAnimationControlProps {
     current?: (number /* Integer */);
@@ -36,6 +39,15 @@ export default class AnimationControl extends React.Component<IAnimationControlP
         }
     }
 
+    handleTogglePlayAnimation = async () => {
+        await Scene.Api.setAnimationParameters({
+            playing: !this.props.playing
+        })
+        State.dispatch(State.Animation.update({
+            playing: !this.props.playing
+        }))
+    }
+
     handleInputChange = (value: string) => {
         this.setState({ current: value })
         const current = parseInt(value)
@@ -57,9 +69,11 @@ export default class AnimationControl extends React.Component<IAnimationControlP
         Scene.Api.setAnimationParameters(params);
     }, 300)
 
-    handleSpeedChange = (speedKey: string) => {
-        this.setState({ speedKey });
-        State.dispatch(State.Animation.update({ delta: keyToSpeed(speedKey) }));
+    handleSpeedChange = async (speedKey: string) => {
+        this.setState({ speedKey })
+        const params = { delta: keyToSpeed(speedKey) }
+        await Scene.Api.setAnimationParameters(params)
+        State.dispatch(State.Animation.update(params))
     }
 
     shift(delta: number) {
@@ -115,11 +129,12 @@ export default class AnimationControl extends React.Component<IAnimationControlP
                     onClick={this.handleNext2Click}/>
             </div>
             <Slider min={0} max={frame_count}
-                    value={p.current || 0}
-                    step={1}
-                    text={`${percent} %`}
-                    onChange={this.handleCurrentChange} />
-            {/*
+                value={p.current || 0}
+                step={1}
+                text={`${percent} %`}
+                onChange={this.handleCurrentChange} />
+            {
+                p.playing &&
                 <Combo value={this.state.speedKey} label="Speed" onChange={this.handleSpeedChange}>
                     <div key="NORMAL">x1</div>
                     <div key="x2">x2</div>
@@ -128,7 +143,9 @@ export default class AnimationControl extends React.Component<IAnimationControlP
                     <div key="x16">x16</div>
                     <div key="x32">x32</div>
                 </Combo>
-            */}
+            }
+            <Button icon={p.playing ? 'pause' : 'play'}
+                    onClick={this.handleTogglePlayAnimation} />
         </div>)
     }
 }
