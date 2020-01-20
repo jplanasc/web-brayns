@@ -1,10 +1,12 @@
 import React, { useState } from "react"
+import { QRCode } from "react-qr-svg"
+import Tfw from 'tfw'
+
 import { ICameraState } from '../../../types'
 import Scene from '../../../scene'
 import Color from "../../../../tfw/color"
 import InputColor from "../../../../tfw/view/input-color"
 import Size from '../../size'
-import Tfw from 'tfw'
 
 import "./world.css"
 
@@ -34,7 +36,7 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
         this.state = {
             background: "#000",
             height: `${props.camera.height || ""}`,
-            lightIntensity: 2
+            lightIntensity: 1
         }
     }
 
@@ -122,6 +124,16 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
                         onChange={lightIntensity => this.setState({ lightIntensity })}/>
                 <Button label="Applying default lightings"
                         onClick={this.handleApplyLightings} />
+            </div>
+            <div className="qrcode">
+                <div className="thm-ele-nav">
+                    <QRCode
+                        bgColor="#FFFFFF"
+                        fgColor="#000000"
+                        level="Q"
+                        style={{ width: 256 }}
+                        value={`${location.href}`} />
+                </div>
             </div>
             <footer className="thm-bg2">
                 <div><em>FPS</em>: <b>{Math.floor(0.5 + this.props.fps)}</b></div>

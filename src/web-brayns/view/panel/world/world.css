@@ -30,3 +30,13 @@ div.webBrayns-view-panel-World > footer {
 div.webBrayns-view-panel-World > footer em {
     opacity: .5;
 }
+
+div.webBrayns-view-panel-World > div.qrcode {
+    text-align: center;
+}
+
+div.webBrayns-view-panel-World > div.qrcode > div {
+    display: inline-block;
+    padding: 16px;
+    background: #fff;
+}
