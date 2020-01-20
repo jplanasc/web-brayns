@@ -2,3 +2,10 @@ div.webBrayns-view-feature-Material label {
     opacity: .5;
     font-size: 80%;
 }
+
+div.webBrayns-view-feature-Material > div.flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}

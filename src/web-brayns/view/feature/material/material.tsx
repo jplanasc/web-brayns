@@ -246,10 +246,11 @@ brayns.rockets_client.request("set-material-range", ${textMaterial})
                 onChange={this.handleChange} />
             <hr />
             <div className="flex">
-                <Button label="Apply colors"
+                <Button label="Apply"
                     wide={true} icon="play"
                     onClick={this.handleApplyColors} />
                 <Button label="Export"
+                    flat={true}
                     wide={true} icon="python"
                     onClick={this.handlePythonExport} />
             </div>
