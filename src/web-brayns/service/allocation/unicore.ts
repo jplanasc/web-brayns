@@ -13,7 +13,7 @@ export default async (token: string, allocationTimeInMinutes: number): Promise<s
         "Contacting UNICORE...",
         contactingUnicore(token)
     )
-    const status = await Dialog.wait(
+    await Dialog.wait(
         "Waiting for an available node on BB5...",
         waitForJobStatus(jobURL, token)
     )
@@ -31,16 +31,17 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
     const partition = urlArgs.partition || "prod"
     const cpus = castInteger(urlArgs.cpus, 36)
     const memory = castInteger(urlArgs.memory, 96*1024)
+    const port = `${Math.floor(2000 + Math.random() * 60000)}`
     const job = {
         Executable: `
-        echo $(hostname -f):5000 > hostname &&
+        echo $(hostname -f):${port} > hostname &&
         source /etc/profile &&
         module purge &&
         module load brayns/1.0.1/serial &&
         module load ffmpeg/4.2 &&
         export OMP_THREAD_LIMIT=1 &&
         /gpfs/bbp.cscs.ch/home/nroman/software/install/linux-rhel7-x86_64/gcc-6.4.0/brayns-nadir-zqk4nj/bin/braynsService \
-            --http-server :5000 \
+            --http-server :${port} \
             --plugin braynsCircuitExplorer \
             --plugin braynsCircuitInfo \
             --sandbox-path /gpfs/bbp.cscs.ch`,
@@ -85,8 +86,8 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
 async function waitForJobStatus(jobURL: string, token: string) {
     while (true) {
         await Async.sleep(500)
+
         const status = await getJobStatus(jobURL, token)
-        //console.info("result=", result);
         console.info("status=", status);
         if (status === "RUNNING" || status === 'SUCCESSFUL') return status
     }
