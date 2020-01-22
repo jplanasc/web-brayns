@@ -45,8 +45,8 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
     private targetsMap: Map<string, string> = new Map()
     private readonly circuit: Circuit
 
-    constructor( props: ICircuitProps ) {
-        super( props );
+    constructor(props: ICircuitProps) {
+        super(props);
         this.state = {
             ...Storage.get("view/loader/circuit/state", {
                 density: "1",
@@ -113,10 +113,10 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
 
             const cellGIDs =
                 targetsSelected.size === 0 ? [] :
-                await Dialog.wait(
-                    "Retrieving cells IDs...",
-                    CircuitService.listGIDs(path, Array.from(targetsSelected))
-                )
+                    await Dialog.wait(
+                        "Retrieving cells IDs...",
+                        CircuitService.listGIDs(path, Array.from(targetsSelected))
+                    )
 
             // When showing only soma, we will have a bigger radius.
             const radiusMultiplier = axon || dendrite || apicalDendrite ? 1 : 8
@@ -130,13 +130,13 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     "000_db_connection_string": "",
                     "001_density": parseFloat(density) / 100,
                     "002_random_seed": 0,
-                    "010_targets": "",  //Array.from(targetsSelected).join(","),
-                    "011_gids": cellGIDs.map(castString).join(","),
+                    "010_targets": Array.from(targetsSelected).join(","),
+                    "011_gids": "",  // cellGIDs.map(castString).join(","),
                     "020_report": report,
                     "021_report_type": "Voltages from file",
                     "022_user_data_type": "Undefined",
                     "023_synchronous_mode": true,
-                    "030_circuit_color_scheme": circuitColorScheme || "By id",
+                    "030_circuit_color_scheme": circuitColorScheme || "None",
                     "040_mesh_folder": "",
                     "041_mesh_filename_pattern": "mesh_{gid}.obj",
                     "042_mesh_transformation": false,
@@ -184,14 +184,14 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
 
         return (<div className="webBrayns-view-loader-Circuit thm-bg1">
             <div><code>{path}</code></div>
-            <hr/>
+            <hr />
             <div>
                 <Input label="Cells density (%)"
                     value={density}
                     focus={true}
                     validator={Validator.isFloat}
                     onValidation={densityValid => this.setState({ densityValid })}
-                    onChange={density => this.setState({ density })}/>
+                    onChange={density => this.setState({ density })} />
                 {
                     targetsError &&
                     <div className="error">{targetsError}</div>
@@ -209,58 +209,59 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     <Combo label="Report"
                         value={report}
                         onChange={this.handleReportChange}>{
-                        reports.map((name: string) => {
-                            if (name.length === 0) {
-                                return <div key=""><em>Don't load any simulation</em></div>
-                            }
-                            return <div key={name}>{name}</div>
-                        })
-                    }</Combo>
+                            reports.map((name: string) => {
+                                if (name.length === 0) {
+                                    return <div key=""><em>Don't load any simulation</em></div>
+                                }
+                                return <div key={name}>{name}</div>
+                            })
+                        }</Combo>
                 }
                 {
                     targetsAvailable.length > 0 ?
-                    <Options
-                        label="Targets to load"
-                        options={targetsAvailable}
-                        selection={targetsSelected}
-                        onChange={targetsSelected => this.setState({ targetsSelected })}/>
-                    :
-                    (
-                        targetsError === null &&
-                        <div className="wait">
-                            <Icon content="wait" animate={true} />
-                            <div>Loading targets...</div>
-                        </div>
-                    )
+                        <Options
+                            label="Targets to load"
+                            options={targetsAvailable}
+                            selection={targetsSelected}
+                            onChange={targetsSelected => this.setState({ targetsSelected })} />
+                        :
+                        (
+                            targetsError === null &&
+                            <div className="wait">
+                                <Icon content="wait" animate={true} />
+                                <div>Loading targets...</div>
+                            </div>
+                        )
                 }
             </div>
-            <br/>
+            <br />
             <div>
                 <Combo label="Colors" value={circuitColorScheme}
-                       onChange={circuitColorScheme => this.setState({ circuitColorScheme })}>
+                    onChange={circuitColorScheme => this.setState({ circuitColorScheme })}>
+                    <div key="None">None</div>
                     <div key="By id">By Cell ID</div>
                     <div key="By layer">By Layer</div>
                     <div key="By mtype">By Morphology Type</div>
                     <div key="By etype">By Electrical Type</div>
                 </Combo>
                 <Checkbox label="Improved cells geometry (slower)" value={morphoSDF}
-                          onChange={morphoSDF => this.setState({ morphoSDF })}/>
+                    onChange={morphoSDF => this.setState({ morphoSDF })} />
             </div>
-            <br/>
+            <br />
             <div>
-                <Checkbox label="Soma" value={soma} onChange={soma => this.setState({ soma })}/>
-                <Checkbox label="Axon" value={axon} onChange={axon => this.setState({ axon })}/>
-                <Checkbox label="Dendrite" value={dendrite} onChange={dendrite => this.setState({ dendrite })}/>
-                <Checkbox label="Apical Dendrite" value={apicalDendrite} onChange={apicalDendrite => this.setState({ apicalDendrite })}/>
+                <Checkbox label="Soma" value={soma} onChange={soma => this.setState({ soma })} />
+                <Checkbox label="Axon" value={axon} onChange={axon => this.setState({ axon })} />
+                <Checkbox label="Dendrite" value={dendrite} onChange={dendrite => this.setState({ dendrite })} />
+                <Checkbox label="Apical Dendrite" value={apicalDendrite} onChange={apicalDendrite => this.setState({ apicalDendrite })} />
             </div>
-            <hr/>
+            <hr />
             <footer>
-                <Button flat={true} label="Cancel" onClick={onCancel}/>
+                <Button flat={true} label="Cancel" onClick={onCancel} />
                 <Button
                     flat={false}
                     enabled={targetsSelected.size >= 0}
                     label="Load Circuit"
-                    onClick={this.handleOK}/>
+                    onClick={this.handleOK} />
             </footer>
         </div>)
     }

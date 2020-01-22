@@ -1,4 +1,6 @@
 import React from "react"
+import Tfw from 'tfw'
+
 import { IModel, IMaterial } from "../../../types"
 import Dialog from '../../../../tfw/factory/dialog'
 import Expand from '../../../../tfw/view/expand'
@@ -29,30 +31,47 @@ interface IModelState {
     expandedId: string
 }
 
+const DEFAULT_COLORMAP: { name: string, colors: Array<[number, number, number]> } = {
+    name: "custom",
+    colors: [
+        [0, 1, 0],
+        [1, 1, 0],
+        [1, 0, 0]
+    ]
+}
+const DEFAULT_RANGE: [number, number] = [-80, -20]
+const DEFAULT_OPACITY: Array<number[]> = [[0, 1], [.2, 1], [.7, 1], [1, 0]]
+
+
 export default class ModelPanel extends React.Component<IModelProps, IModelState> {
-    constructor( props: IModelProps ) {
-        super( props );
+    constructor(props: IModelProps) {
+        super(props);
         this.state = Storage.get(
             "web-brayns/view/panel/model/state", {
                 wait: false,
                 materialIds: [],
                 transferFunction: {
-                    range: [-100, 0],
-                    opacity_curve: [
-                        [0,1], [.2,0], [.7,.8], [1,0]
-                    ],
-                    colormap: {
-                        name: "custom",
-                        colors: [
-                            [0,1,0],
-                            [1,1,0],
-                            [1,0,0]
-                        ]
-                    }
+                    range: DEFAULT_RANGE,
+                    opacity_curve: DEFAULT_OPACITY,
+                    colormap: DEFAULT_COLORMAP
                 },
                 expandedId: ""
             }
         )
+    }
+
+    async componentDidMount() {
+        const transferFunction = await Scene.Api.getModelTransferFunction({
+            id: this.props.model.brayns.id
+        })
+        console.info("transferFunction=", transferFunction);
+        this.setState({
+            transferFunction: {
+                colormap: transferFunction.colormap || DEFAULT_COLORMAP,
+                opacity_curve: transferFunction.opacity_curve || DEFAULT_OPACITY,
+                range: transferFunction.range || DEFAULT_RANGE
+            }
+        })
     }
 
     handleBack = () => {
@@ -60,12 +79,25 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
         Scene.camera.restoreState();
     }
 
-    private handleTransferFunctionChange = (transferFunction: ITransferFunction) => {
-        this.setState({ transferFunction })
+    private handleTransferFunctionChange = async (transferFunction: ITransferFunction) => {
+        try {
+            this.setState({ transferFunction })
+            await Scene.Api.setModelTransferFunction({
+                id: this.props.model.brayns.id,
+                transfer_function: {
+                    colormap: transferFunction.colormap,
+                    opacity_curve: transferFunction.opacity_curve,
+                    range: transferFunction.range
+                }
+            })
+        }
+        catch (ex) {
+            Tfw.Factory.Dialog.alert(`Unable to apply transfer function! ${ex}`)
+        }
     }
 
     private handleAnterogradeAction = async (params: IAnterograde) => {
-        const wait = new WaitService(() => {})
+        const wait = new WaitService(() => { })
         try {
             wait.label = "Anterograde Highlight"
             wait.progress = 0
@@ -73,7 +105,7 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
             this.setState({ wait: true })
 
             const circuitPath = this.props.model.brayns.path || ""
-            let connectedCellsIds: (number|BigInt)[] = []
+            let connectedCellsIds: (number | BigInt)[] = []
             if (params.synapseType === 'afferent') {
                 wait.label = "Loading afferent cells..."
                 wait.progress = .2
@@ -151,7 +183,7 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                 <p>Cache files are very quick to load, but they come with <b>drawbacks</b>:</p>
                 <ul>
                     <li>
-                        Compatibility is not garanted!<br/>
+                        Compatibility is not garanted!<br />
                         <p className="hint">
                             Future versions of Brayns may not be able to read them anymore.
                         </p>
@@ -194,50 +226,56 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
             </header>
             <div>
                 <Expand label="Transfer Function"
-                        value={expandedId === 'TransferFunction'}
-                        onValueChange={v => this.handleExpand('TransferFunction', v)}>
+                    value={expandedId === 'TransferFunction'}
+                    onValueChange={v => this.handleExpand('TransferFunction', v)}>
                     <TransferFunction
                         value={this.state.transferFunction}
-                        onChange={this.handleTransferFunctionChange}/>
+                        onChange={this.handleTransferFunctionChange} />
                 </Expand>
                 <Expand label="Anterograde Highlighting"
-                        value={expandedId === 'Anterograde'}
-                        onValueChange={v => this.handleExpand('Anterograde', v)}>
+                    value={expandedId === 'Anterograde'}
+                    onValueChange={v => this.handleExpand('Anterograde', v)}>
                     <Anterograde
                         wait={wait}
-                        onAction={this.handleAnterogradeAction}/>
+                        onAction={this.handleAnterogradeAction} />
                 </Expand>
                 <Expand label="Colors"
-                        value={expandedId === 'Colors'}
-                        onValueChange={v => this.handleExpand('Colors', v)}>
+                    value={expandedId === 'Colors'}
+                    onValueChange={v => this.handleExpand('Colors', v)}>
                     <MaterialFeature
-                        onClick={this.handleMaterial}/>
+                        onClick={this.handleMaterial} />
                 </Expand>
                 {
                     this.props.model.brayns.metadata &&
                     <Expand label="Metadata"
-                            value={expandedId === 'Metadata'}
-                            onValueChange={v => this.handleExpand('Metadata', v)}>{
-                        Object.keys(model.brayns.metadata)
-                            .map((key: string) => {
-                                const data = model.brayns.metadata[key]
-                                if (!data || typeof data !== 'string' || data.length === 0) {
-                                    return null
-                                }
-                                return <div className="metadata" key={key}>
-                                    <label>{key}</label>
-                                    <div>{data}</div>
-                                </div>
-                            })
-                    }</Expand>
+                        value={expandedId === 'Metadata'}
+                        onValueChange={v => this.handleExpand('Metadata', v)}>{
+                            Object.keys(model.brayns.metadata)
+                                .map((key: string) => {
+                                    const data = model.brayns.metadata[key]
+                                    if (!data || typeof data !== 'string' || data.length === 0) {
+                                        return null
+                                    }
+                                    return <div className="metadata" key={key}>
+                                        <label>{key}</label>
+                                        <div>{data}</div>
+                                    </div>
+                                })
+                        }</Expand>
                 }
             </div>
             <footer className="thm-bg0">
                 <Button
                     label="Save model to temporaty cache"
                     icon="export"
-                    onClick={this.handleSaveModelToCache}/>
+                    onClick={this.handleSaveModelToCache} />
             </footer>
         </div>)
     }
+}
+
+
+
+function reduceColorMap(colormap: { name: string, colors: Array<[number, number, number]> }) {
+
 }
