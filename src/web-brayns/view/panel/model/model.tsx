@@ -12,7 +12,6 @@ import InputString from '../../../dialog/string'
 import Anterograde from '../../feature/anterograde'
 import { IAnterograde } from '../../feature/anterograde/types'
 import TransferFunction from '../../feature/transfer-function'
-import { ITransferFunction } from '../../feature/transfer-function/types'
 import MaterialFeature from '../../feature/material'
 import CircuitService from '../../../service/circuit'
 import MaterialService from '../../../service/material'
@@ -27,20 +26,8 @@ interface IModelProps {
 
 interface IModelState {
     wait: boolean,
-    transferFunction: ITransferFunction,
     expandedId: string
 }
-
-const DEFAULT_COLORMAP: { name: string, colors: Array<[number, number, number]> } = {
-    name: "custom",
-    colors: [
-        [0, 1, 0],
-        [1, 1, 0],
-        [1, 0, 0]
-    ]
-}
-const DEFAULT_RANGE: [number, number] = [-80, -20]
-const DEFAULT_OPACITY: Array<number[]> = [[0, 1], [.2, 1], [.7, 1], [1, 0]]
 
 
 export default class ModelPanel extends React.Component<IModelProps, IModelState> {
@@ -50,50 +37,14 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
             "web-brayns/view/panel/model/state", {
                 wait: false,
                 materialIds: [],
-                transferFunction: {
-                    range: DEFAULT_RANGE,
-                    opacity_curve: DEFAULT_OPACITY,
-                    colormap: DEFAULT_COLORMAP
-                },
                 expandedId: ""
             }
         )
     }
 
-    async componentDidMount() {
-        const transferFunction = await Scene.Api.getModelTransferFunction({
-            id: this.props.model.brayns.id
-        })
-        console.info("transferFunction=", transferFunction);
-        this.setState({
-            transferFunction: {
-                colormap: transferFunction.colormap || DEFAULT_COLORMAP,
-                opacity_curve: transferFunction.opacity_curve || DEFAULT_OPACITY,
-                range: transferFunction.range || DEFAULT_RANGE
-            }
-        })
-    }
-
     handleBack = () => {
         State.dispatch(State.Navigation.setPanel("models"));
         Scene.camera.restoreState();
-    }
-
-    private handleTransferFunctionChange = async (transferFunction: ITransferFunction) => {
-        try {
-            this.setState({ transferFunction })
-            await Scene.Api.setModelTransferFunction({
-                id: this.props.model.brayns.id,
-                transfer_function: {
-                    colormap: transferFunction.colormap,
-                    opacity_curve: transferFunction.opacity_curve,
-                    range: transferFunction.range
-                }
-            })
-        }
-        catch (ex) {
-            Tfw.Factory.Dialog.alert(`Unable to apply transfer function! ${ex}`)
-        }
     }
 
     private handleAnterogradeAction = async (params: IAnterograde) => {
@@ -228,9 +179,7 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                 <Expand label="Transfer Function"
                     value={expandedId === 'TransferFunction'}
                     onValueChange={v => this.handleExpand('TransferFunction', v)}>
-                    <TransferFunction
-                        value={this.state.transferFunction}
-                        onChange={this.handleTransferFunctionChange} />
+                    <TransferFunction modelId={this.props.model.brayns.id} />
                 </Expand>
                 <Expand label="Anterograde Highlighting"
                     value={expandedId === 'Anterograde'}

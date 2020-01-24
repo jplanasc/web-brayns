@@ -1,4 +1,4 @@
-export type IOpacityCurve = Array<number[]>
+export type IOpacityCurve = Array<[number, number]>
 export type IRange = [number, number]
 export type IColorRamp = Array<[number, number, number]>
 
