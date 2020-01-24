@@ -81,7 +81,7 @@ async function setMaterials(params: Partial<IMaterial>) {
         userParameter: 0,
         ...params
     }
-    console.trace("MATERIAL=", material);
+    console.log("MATERIAL=", material);
     await Scene.request(
         "set-material-extra-attributes",
         { modelId: params.modelId }

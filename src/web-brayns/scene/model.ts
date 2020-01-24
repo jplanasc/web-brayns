@@ -125,6 +125,7 @@ export default class Model {
             specularExponent: 20,
             glossiness: 0.2,
             emission: 0.2,
+            simulationDataCast: this.isCircuit(),
             ...material,
             modelId
         })
@@ -199,6 +200,12 @@ export default class Model {
         const metadata = this.model.brayns.metadata
         if (!metadata) return false
         return typeof metadata.CircuitPath === 'string'
+    }
+
+    hasSimulation() {
+        const metadata = this.model.brayns.metadata
+        if (!metadata) return false
+        return typeof metadata.Report === 'string'
     }
 
     private updateState() {

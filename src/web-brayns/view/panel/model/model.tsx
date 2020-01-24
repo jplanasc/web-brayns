@@ -7,6 +7,7 @@ import Expand from '../../../../tfw/view/expand'
 import Button from '../../../../tfw/view/button'
 import State from '../../../state'
 import Scene from '../../../scene'
+import Model from '../../../scene/model'
 import InputDir from '../../../dialog/directory'
 import InputString from '../../../dialog/string'
 import Anterograde from '../../feature/anterograde'
@@ -112,8 +113,11 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
         await Dialog.wait(
             "Applying colors...",
             new Promise(async (resolve) => {
+                const model = new Model(this.props.model)
                 await MaterialService.setMaterials({
-                    ...material, modelId: this.props.model.brayns.id
+                    ...material,
+                    simulationDataCast: model.hasSimulation(),
+                    modelId: this.props.model.brayns.id
                 })
                 await Scene.Api.updateModel({ id: this.props.model.brayns.id })
                 resolve(true)
