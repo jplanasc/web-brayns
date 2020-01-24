@@ -34,6 +34,7 @@ interface ICircuitState {
     // When we get an error while trying to get the targets list,
     // we will set `targetsError` accordingly.
     targetsError: null | string,
+    spikes: boolean,
     soma: boolean,
     axon: boolean,
     dendrite: boolean,
@@ -48,15 +49,15 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
     constructor(props: ICircuitProps) {
         super(props);
         this.state = {
-            ...Storage.get("view/loader/circuit/state", {
-                density: "1",
-                morphoSDF: true,
-                soma: true,
-                axon: false,
-                dendrite: true,
-                apicalDendrite: true,
-                circuitColorScheme: "By id"
-            }),
+            density: "1",
+            spikes: false,
+            morphoSDF: true,
+            soma: true,
+            axon: false,
+            dendrite: true,
+            apicalDendrite: true,
+            circuitColorScheme: "By id",
+            ...Storage.get("view/loader/circuit/state", {}),
             densityValid: true,
             report: "",
             reports: [""],
@@ -106,17 +107,10 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
     handleOK = async () => {
         try {
             const { path, onOK } = this.props
-            const { density, report, targetsSelected, morphoSDF } = this.state
+            const { density, report, targetsSelected, morphoSDF, spikes } = this.state
             const { soma, axon, dendrite, apicalDendrite, circuitColorScheme } = this.state
 
             Storage.set("view/loader/circuit/state", { density, soma, axon, dendrite, apicalDendrite, morphoSDF })
-
-            const cellGIDs =
-                targetsSelected.size === 0 ? [] :
-                    await Dialog.wait(
-                        "Retrieving cells IDs...",
-                        CircuitService.listGIDs(path, Array.from(targetsSelected))
-                    )
 
             // When showing only soma, we will have a bigger radius.
             const radiusMultiplier = axon || dendrite || apicalDendrite ? 1 : 8
@@ -133,7 +127,7 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     "010_targets": Array.from(targetsSelected).join(","),
                     "011_gids": "",  // cellGIDs.map(castString).join(","),
                     "020_report": report,
-                    "021_report_type": "Voltages from file",
+                    "021_report_type": spikes ? "Spikes" : "Voltages from file",
                     "022_user_data_type": "Undefined",
                     "023_synchronous_mode": true,
                     "030_circuit_color_scheme": circuitColorScheme || "None",
@@ -180,7 +174,7 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
             density, report, reports,
             targetsAvailable, targetsSelected, targetsError
         } = this.state
-        const { soma, axon, dendrite, apicalDendrite, morphoSDF, circuitColorScheme } = this.state
+        const { spikes, soma, axon, dendrite, apicalDendrite, morphoSDF, circuitColorScheme } = this.state
 
         return (<div className="webBrayns-view-loader-Circuit thm-bg1">
             <div><code>{path}</code></div>
@@ -192,6 +186,11 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     validator={Validator.isFloat}
                     onValidation={densityValid => this.setState({ densityValid })}
                     onChange={density => this.setState({ density })} />
+                {
+                    !targetsError && reports.length > 0 &&
+                    <Checkbox label="Spikes" value={spikes}
+                        onChange={spikes => this.setState({ spikes })} />
+                }
                 {
                     targetsError &&
                     <div className="error">{targetsError}</div>
