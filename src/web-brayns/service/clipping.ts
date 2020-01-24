@@ -3,12 +3,36 @@ import Geom from '../geometry'
 import { IVector } from '../types'
 
 export default {
-    addPlane, removeAllPlanes, removePlanes, updatePlane
+    addPlane, removeAllPlanes, removePlanes, updatePlane,
+    removeAllFrameModels
 }
 
 interface IBraynsPlane {
     id: number,
     plane: [number, number, number, number]
+}
+
+/**
+ * To visualize clipping planes on the screen, we use models.
+ * But if you close your browser and open it again, you will have
+ * an no more wanted green frame on the screen.
+ * This function try to find and remove such models from the scene.
+ */
+async function removeAllFrameModels() {
+    const sceneDescription = await Scene.Api.getScene()
+    const allModels = sceneDescription.models
+    if (!allModels) return
+
+    const allModelIds = allModels
+        .filter(
+            model => !model ? null : (
+                !model.path ? null : model.path.startsWith('/static/media/clip-plane.')
+            )
+        )
+        .map(model => (model === null || model === undefined) ? -1 : model.id)
+        .filter(id => id > -1)
+
+    await Scene.Api.removeModel(allModelIds)
 }
 
 /**

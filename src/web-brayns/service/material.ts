@@ -76,7 +76,7 @@ async function setMaterials(params: Partial<IMaterial>) {
         emission: 0.2,
         glossiness: 0.2,
         simulationDataCast: false,
-        shadingMode: 1,
+        shadingMode: 1,  // Diffuse
         clippingMode: 0,
         userParameter: 0,
         ...params

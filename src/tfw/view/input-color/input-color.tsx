@@ -155,8 +155,8 @@ export default class InputColor extends React.Component<IInputColorProps, IInput
                             background: value
                         }}
                         onClick={evt => {
-                            evt.preventDefault
-                            evt.stopPropagation
+                            evt.preventDefault()
+                            evt.stopPropagation()
                         }}
                         onChange={this.handleChange}/>
                     <div className="thm-bgP" style={{ background: opaqueValue }}>

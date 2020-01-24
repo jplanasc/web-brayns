@@ -49,7 +49,6 @@ export default class Renderer {
             if (rect.width === width && rect.height === height) return
             canvas.width = rect.width
             canvas.height = rect.height
-            console.log("RESIZE")
             this.setViewPort(canvas.width, canvas.height)
         }, 500)
     }
@@ -74,7 +73,6 @@ export default class Renderer {
 
         const w = context.canvas.width
         const h = context.canvas.height
-        console.log("APPLY CONTEXT")
         await this.setViewPort(w, h)
 
         await Scene.request("set-application-parameters", {
@@ -109,7 +107,6 @@ export default class Renderer {
             throw Error("Popping a NULL context! This is impossible!")
         }
 
-        console.log("POP")
         await this.applyContext(this.contextStack[this.contextStack.length - 1])
         return context
     }
@@ -167,6 +164,7 @@ export default class Renderer {
      */
     async off() {
         this.isRendering = false
+        console.log("OFF")
         return await Scene.request("set-application-parameters", {
             "image_stream_fps": 0
         })
@@ -176,17 +174,17 @@ export default class Renderer {
      * Turning the rendering ON.
      */
     async on() {
+        console.log("ON")
         this.askNextFrame()
+        this.isRendering = true
         const request = await Scene.request("set-application-parameters", {
             "image_stream_fps": this.fps
         })
-        this.isRendering = true
         return request
     }
 
     async setViewPort(width: number, height: number) {
         if (!this.isRendering) return
-        console.info("setViewPort(width, height)=", width, height);
         this.width = width
         this.height = height
         // Negative or null sizes make Brayns crash!
@@ -219,6 +217,9 @@ export default class Renderer {
     }, 30000)
 
     handleImage = Throttler(async (data: ArrayBuffer) => {
+        // Display can be disabled with renderer.off() function.
+        if (!this.isRendering) return
+
         this.askNextFrame()
 
         const canvas = this.canvas;
@@ -229,9 +230,6 @@ export default class Renderer {
         const w = canvas.width
         const h = canvas.height
 
-        if (!this.progressive) {
-            console.info("w, h, data=", w, h, data);
-        }
         const img = await ImageFactory.fromArrayBuffer(data)
         ctx.drawImage(img, 0, 0, w, h)
 

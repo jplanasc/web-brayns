@@ -109,7 +109,6 @@ async function connect(hostName: string): Promise<BraynsService> {
         }))
     })
     Scene.brayns.subscribe("set-camera", cameraParams => {
-        console.log("<set-camera>", cameraParams)
         State.dispatch(State.Camera.update({
             current: cameraParams.current,
             types: cameraParams.types
@@ -117,7 +116,6 @@ async function connect(hostName: string): Promise<BraynsService> {
     })
 
     Scene.brayns.subscribe("set-camera-params", cameraParams => {
-        console.log("<set-camera-params>", cameraParams)
         State.dispatch(State.Camera.update({
             height: cameraParams.height
         }))

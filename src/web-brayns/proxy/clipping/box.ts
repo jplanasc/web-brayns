@@ -37,7 +37,6 @@ export default class Box {
     }
 
     async update(params: Partial<IBoxProps>) {
-        console.log(">>> update")
         try {
             this.props = {
                 ...this.props,
@@ -45,50 +44,34 @@ export default class Box {
             }
 
             if (this._activated) {
-                await Scene.renderer.off()
                 await this.removeAllPlans()
                 this.computePlanes()
-                console.log("========================================")
                 for (const plane of this._planes) {
                     const id = await ClippingService.addPlane(plane.point, plane.normal)
                     plane.id = id
-                    console.log("ADD: ", plane.id)
                 }
-                /*
-                    Looks like updatePlane does not work...
-
-                for (const plane of this._planes) {
-                    console.log("UPDATE: ", plane)
-                    await ClippingService.updatePlane(plane.id, plane.point, plane.normal)
-                }*/
-                await Scene.renderer.on()
             }
         }
         catch (ex) {
             throw ex
         }
-        finally {
-            console.log("<<< update")
-        }
     }
 
     private async removeAllPlans() {
-        const ids = this._planes
-            .map(plane => plane.id)
+        const planeIds = await Scene.Api.getClipPlanes()
+        const ids = planeIds
+            .map(plane => plane ? plane.id : -1)
             .filter(id => id > -1)
         if (ids.length > 0) {
-            console.log("Removing planes: ", ids)
             await ClippingService.removePlanes(ids)
         }
     }
 
     get activated() { return this._activated }
     async setActivated(activated: boolean) {
-        console.log(">>> setActivated")
         try {
             if (activated === this._activated) return
             this._activated = activated
-            console.info("activated=", activated);
             if (activated) {
                 await this.update({})
             } else {
@@ -97,9 +80,6 @@ export default class Box {
         }
         catch (ex) {
             throw ex
-        }
-        finally {
-            console.log("<<< setActivated")
         }
     }
 

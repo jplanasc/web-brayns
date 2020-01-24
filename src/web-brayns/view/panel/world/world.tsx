@@ -132,7 +132,7 @@ export default class World extends React.Component<TWorldProps, TWorldState> {
                         fgColor="#000000"
                         level="Q"
                         style={{ width: 256 }}
-                        value={`${location.href}`} />
+                        value={`${window.location.href}`} />
                 </div>
             </div>
             <footer className="thm-bg2">

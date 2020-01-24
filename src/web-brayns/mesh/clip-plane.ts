@@ -6,7 +6,6 @@ import Dialog from '../../tfw/factory/dialog'
 import Material from '../service/material'
 import LoaderService from '../service/loader'
 import { IQuaternion, IVector } from '../types'
-
 import CLIP_PLANE_URL from './clip-plane.ply'
 
 export interface IClipPlaneState {
@@ -24,9 +23,6 @@ interface ITransformation {
     rotation?: IQuaternion
 }
 
-const EPSILON = 0.1
-const PATH = '/gpfs/bbp.cscs.ch/project/proj3/.tolokoban/clipping-plane.ply'
-
 export default class ClipPlane {
     private readonly state: IClipPlaneState;
     private model: Model | null = null;
@@ -37,9 +33,9 @@ export default class ClipPlane {
             width: 32,
             height: 24,
             depth: 2,
-            center: [0,0,0],
-            orientation: [0,0,0,1],
-            color: [0,1,0],
+            center: [0, 0, 0],
+            orientation: [0, 0, 0, 1],
+            color: [0, 1, 0],
             ...partialState
         }
     }
@@ -50,12 +46,12 @@ export default class ClipPlane {
      */
     async setCameraForSnapshot(orthographic: boolean) {
         const { depth, center, orientation, width, height } = this.state
-        const normal = Geom.rotateWithQuaternion([0,0,1], orientation)
+        const normal = Geom.rotateWithQuaternion([0, 0, 1], orientation)
         const remoteness = Geom.scale(normal, depth * 3)
         const cameraCenter = Geom.addVectors(center, remoteness)
         if (orthographic) {
             await Scene.camera.setOrthographic(
-                width*3, height*3, cameraCenter, orientation
+                width * 3, height * 3, cameraCenter, orientation
             )
         } else {
             await Scene.camera.setPerspective()
@@ -89,32 +85,37 @@ export default class ClipPlane {
     }
 
     async setVisible(visible: boolean) {
-        const { model } = this
+        let { model } = this
+        if (visible && !model) {
+            this.attach()
+            model = this.model
+        }
+
         if (!model) return
-        model.setVisible(visible)
+        await model.setVisible(visible)
     }
 
     async setTransformation(transformation: ITransformation) {
         const { model } = this
+        if (!model) return
+
         const { location, scale, rotation } = transformation
-        if (model) {
-            const state = this.state
-            if (location) {
-                model.locate(location)
-                state.center = location
-            }
-            if (scale) {
-                model.scale(scale)
-                state.width = scale[0]
-                state.height = scale[1]
-                state.depth = scale[2]
-            }
-            if (rotation) {
-                model.rotate(rotation)
-                state.orientation = rotation
-            }
-            await model.applyTransfo()
+        const state = this.state
+        if (location) {
+            model.locate(location)
+            state.center = location
         }
+        if (scale) {
+            model.scale(scale)
+            state.width = scale[0]
+            state.height = scale[1]
+            state.depth = scale[2]
+        }
+        if (rotation) {
+            model.rotate(rotation)
+            state.orientation = rotation
+        }
+        await model.applyTransfo()
     }
 
     async setLocation(location: IVector) {
@@ -123,10 +124,8 @@ export default class ClipPlane {
 
     async attach(): Promise<boolean> {
         try {
-            //const loadedModel = await Scene.loadMeshFromPath(PATH)
             const loadedModel = await LoaderService.loadFromURL(CLIP_PLANE_URL)
 
-            console.info("loadedModel=", loadedModel);
             if (!loadedModel) return false;
             const model = loadedModel.model
             this.model = new Model(model);
@@ -134,7 +133,7 @@ export default class ClipPlane {
 
             return true;
         }
-        catch(err) {
+        catch (err) {
             console.error("Unable to attach ClipPlaneObject!", err)
             return false
         }
@@ -164,5 +163,6 @@ export default class ClipPlane {
         const { model } = this
         if (!model) return
         await Dialog.wait("Removing clipping plane mesh...", model.remove())
+        this.model = null
     }
 }

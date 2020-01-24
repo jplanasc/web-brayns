@@ -4,9 +4,10 @@ html, body {
 
 h1 {
     font-size: 100%;
+    font-weight: bold;
     border-bottom: 1px solid var(--thm-black-5);
     color: var(--thm-black);
-    margin: 1.5rem .5rem 1rem .5rem;
+    margin: 1.5rem .5rem 0 .5rem;
 }
 
 h2 {

@@ -174,7 +174,7 @@ async function login(username: string, password: string): Promise<User> {
 }
 
 function isLocalhost(): boolean {
-    return location.hostname === 'localhost';
+    return window.location.hostname === 'localhost';
 }
 
 function create(root: string): WebService {

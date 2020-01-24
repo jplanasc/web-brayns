@@ -103,7 +103,7 @@ async function start() {
         catch (ex) {
             console.error("Unable to connect Brayns: ", ex)
             await Dialog.alert(`Seems like Brayns is not reachable on ${hostName}!`);
-            location.reload();
+            window.location.reload();
         }
     }
     catch (ex) {

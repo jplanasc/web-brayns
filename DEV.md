@@ -6,5 +6,7 @@
 
 `/gpfs/bbp.cscs.ch/data/scratch/proj42/20200109/50/test/BlueConfig`
 
+`/gpfs/bbp.cscs.ch/project/proj3/TestData/install/share/BBPTestData/circuitBuilding_1000neurons/BlueConfig`
+
 ### Circuit without simulation
 `/gpfs/bbp.cscs.ch/project/proj42/circuits/CA1/20190306/CircuitConfig`

@@ -1,31 +1,32 @@
 import React from "react"
+import Tfw from 'tfw'
 
 import State from '../../../state'
 import Scene from '../../../scene'
 import Geom from '../../../geometry'
-import Dialog from '../../../../tfw/factory/dialog'
-import Color from '../../../../tfw/color'
-import Button from '../../../../tfw/view/button'
-import Checkbox from '../../../../tfw/view/checkbox'
 import Flex from '../../../../tfw/layout/flex'
-import Throttler from '../../../../tfw/throttler'
 import OrientationView from '../../orientation'
 import LocationView from '../../location'
 import ScaleView from '../../scale'
 import Storage from '../../../storage'
+import ClippingService from '../../../service/clipping'
 import ClipPlaneObject from '../../../mesh/clip-plane'
 import ClipBox from '../../../proxy/clipping/box'
 import { IModel } from '../../../types'
 
 import "./clip.css"
 
-const EPSILON = 0.1
+const Button = Tfw.View.Button
+const Checkbox = Tfw.View.Checkbox
+const Dialog = Tfw.Factory.Dialog
+const Throttler = Tfw.Throttler
 
-const COLOR_RAMP = [
-    Color.newRGB(0,1,0),
-    Color.newRGB(1,1,0),
-    Color.newRGB(1,0,1)
-]
+/**
+ * We need to keep an very little distance between the clipping plane and
+ * the box shown on screen. Otherwise, this box will be almost cutted resulting
+ * in visual glitches.
+ */
+const EPSILON = 0.1
 
 interface IClipProps {
     model: IModel,
@@ -53,8 +54,7 @@ interface IClipPlaneDefinition {
     // Orientation
     latitude: number,
     longitude: number,
-    tilt: number,
-
+    tilt: number
 }
 
 interface IClipState extends IClipPlaneDefinition {
@@ -93,7 +93,7 @@ export default class Model extends React.Component<IClipProps, IClipState> {
 
         this.clipPlaneObject =
             new ClipPlaneObject({
-                color: [0,1,0],
+                color: [0, 1, 0],
                 width: this.state.width,
                 height: this.state.height,
                 depth: this.state.depth
@@ -105,12 +105,31 @@ export default class Model extends React.Component<IClipProps, IClipState> {
     }
 
     async componentDidMount() {
-        this.clipPlaneObject.attach()
+        this.computeFrameDimensions()
+        await ClippingService.removeAllFrameModels()
         this.updatePlanes()
     }
 
     async componentDidUpdate() {
-        this.updatePlanes();
+        this.updatePlanes()
+    }
+
+    private computeFrameDimensions() {
+        const state = State.store.getState()
+        const selectedModel = state.currentModel
+        if (!selectedModel) return
+
+        const { min, max } = selectedModel.brayns.bounds
+        const [ minX, minY, minZ ] = min
+        const [ maxX, maxY, maxZ ] = max
+        const x = (minX + maxX) / 2
+        const y = (minY + maxY) / 2
+        const z = (minZ + maxZ) / 2
+        const width = maxX - minX
+        const height = maxY - minY
+
+//@TODO -> Continue this...
+
     }
 
     updatePlanes = Throttler(async () => {
@@ -128,40 +147,46 @@ export default class Model extends React.Component<IClipProps, IClipState> {
             }
         )
 
-        const plane = this.clipPlaneObject
-        await plane.setVisible(visible)
-        if (visible) {
-            await plane.setTransformation({
-                location: [ x, y, z ],
-                scale: [ width, height, depth],
-                rotation: Geom.makeQuaternionFromLatLngTilt(
-                    latitude, longitude, tilt
-                )
-            })
+        try {
+            await Scene.renderer.off()
+            const frame = this.clipPlaneObject
+            await frame.setVisible(visible)
+            if (visible) {
+                await frame.setTransformation({
+                    location: [x, y, z],
+                    scale: [width, height, depth],
+                    rotation: Geom.makeQuaternionFromLatLngTilt(
+                        latitude, longitude, tilt
+                    )
+                })
+            }
+            // The width and height of the frame are actually more than
+            // the real clip width and height which represent the inner rectangle
+            // of the frame.
+            // We estimate that the borders will increase the width and height of
+            // the frame of about 10%.
+            const scale = visible ? 1.1 : 1.0
+            if (activated) {
+                await this.clipBox.update({
+                    x, y, z, latitude, longitude, tilt,
+                    width: scale * width + EPSILON,
+                    height: scale * height + EPSILON,
+                    depth: depth + EPSILON
+                })
+            }
+            await this.clipBox.setActivated(activated)
         }
-
-        console.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-        await this.clipBox.setActivated(activated)
-        console.info("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
-        const scale = this.state.visible ? 1.1 : 1
-        await this.clipBox.update({
-            x, y, z, latitude, longitude, tilt,
-            width: scale * width + EPSILON,
-            height: scale * height + EPSILON,
-            depth: scale * depth + EPSILON
-        })
-        console.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+        catch (ex) {
+            console.error("webBrayns/view/planel/clip/updatePlanes() ", ex)
+        }
+        finally {
+            await Scene.renderer.on()
+        }
     }, 50)
 
-    async componentWillUnmount() {
-        console.log("### componentWillUnmount ###")
-        await this.clipBox.setActivated(false)
-        await this.clipPlaneObject.detach()
-    }
-
     handlePlaneOrientationChange = (latitude: number,
-                                    longitude: number,
-                                    tilt: number) => {
+        longitude: number,
+        tilt: number) => {
         this.setState({
             latitude, longitude, tilt
         }, this.updatePlanes)
@@ -213,12 +238,16 @@ export default class Model extends React.Component<IClipProps, IClipState> {
         Dialog.wait("Facing the clipping plane...", Scene.camera.lookAtBounds(bounds))
     }
 
+    handleResetPlanes = () => {
+
+    }
+
     render() {
         const {
             latitude, longitude, tilt,
             x, y, z,
             width, height, depth
-         } = this.state
+        } = this.state
 
         return (<div className="webBrayns-view-panel-Clip">
             <div>
@@ -226,32 +255,35 @@ export default class Model extends React.Component<IClipProps, IClipState> {
                     <Checkbox
                         label="Activate"
                         onChange={this.handleActivatedChange}
-                        value={this.state.activated}/>
+                        value={this.state.activated} />
                     <Checkbox
                         label="Show Frame"
                         onChange={this.handleVisibleChange}
-                        value={this.state.visible}/>
+                        value={this.state.visible} />
+                </Flex>
+                <Flex justifyContent="space-between">
                     <Button
-                        small={true}
                         label="Face the plane"
                         icon="gps"
-                        onClick={this.handleFaceThePlane}/>
+                        onClick={this.handleFaceThePlane} />
+                    <Button
+                        label="Reset planes"
+                        icon="undo"
+                        warning={true}
+                        onClick={this.handleResetPlanes} />
                 </Flex>
-                <hr/>
                 <h1>Plane size</h1>
                 <ScaleView width={width} height={height} depth={depth}
-                    onChange={this.handlePlaneScaleChange}/>
-                <hr/>
+                    onChange={this.handlePlaneScaleChange} />
                 <h1>Plane center</h1>
                 <LocationView x={x} y={y} z={z}
-                    onChange={this.handlePlaneLocationChange}/>
-                <hr/>
+                    onChange={this.handlePlaneLocationChange} />
                 <h1>Plane orientation</h1>
                 <OrientationView
                     latitude={latitude}
                     longitude={longitude}
                     tilt={tilt}
-                    onChange={this.handlePlaneOrientationChange}/>
+                    onChange={this.handlePlaneOrientationChange} />
             </div>
         </div>)
     }

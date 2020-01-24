@@ -86,6 +86,9 @@ export default class Material extends React.Component<TMaterialProps, TMaterialS
             case "TOON":
                 material.shadingMode = MaterialService.SHADER.PERLIN
                 break
+            case "TRANSPARENT":
+                material.shadingMode = MaterialService.SHADER.DIFFUSE_TRANSPARENCY
+                break
             case "INVERTED":
                 for (let i = 0; i < diffuseColor.length; i++) {
                     material.diffuseColor[i] = 1 - material.diffuseColor[i]
@@ -218,6 +221,9 @@ brayns.rockets_client.request("set-material-range", ${textMaterial})
                 </div>
                 <div key="PLASTIC">
                     Soft shadows
+                </div>
+                <div key="TRANSPARENT">
+                    Transparent
                 </div>
                 <div key="TOON">
                     Backlight
