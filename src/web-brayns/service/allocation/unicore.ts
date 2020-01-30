@@ -32,15 +32,17 @@ async function contactingUnicore(token: string): Promise<{ jobId: string, jobURL
     const cpus = castInteger(urlArgs.cpus, 36)
     const memory = castInteger(urlArgs.memory, 96*1024)
     const port = `${Math.floor(2000 + Math.random() * 60000)}`
+//         /gpfs/bbp.cscs.ch/home/nroman/software/install/linux-rhel7-x86_64/gcc-6.4.0/brayns-nadir-zqk4nj/bin/braynsService \
+
     const job = {
         Executable: `
         echo $(hostname -f):${port} > hostname &&
         source /etc/profile &&
         module purge &&
-        module load brayns/1.0.1/serial &&
+        module load viz/latest brayns/latest &&
         module load ffmpeg/4.2 &&
         export OMP_THREAD_LIMIT=1 &&
-        /gpfs/bbp.cscs.ch/home/nroman/software/install/linux-rhel7-x86_64/gcc-6.4.0/brayns-nadir-zqk4nj/bin/braynsService \
+        braynsService \
             --http-server :${port} \
             --plugin braynsCircuitExplorer \
             --plugin braynsCircuitInfo \
