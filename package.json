@@ -1,6 +1,6 @@
 {
     "name": "web-brayns",
-    "version": "0.22.2",
+    "version": "0.23.0",
     "private": false,
     "proxy": "http://localhost:3666/",
     "dependencies": {
