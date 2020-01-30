@@ -36,17 +36,19 @@ export default class Box {
         }
     }
 
-    async update(params: Partial<IBoxProps>) {
+    async update(activated: boolean, params: Partial<IBoxProps> = {}) {
         try {
             this.props = {
                 ...this.props,
                 ...params
             }
 
-            if (this._activated) {
-                await this.removeAllPlans()
+            await this.removeAllPlans()
+            this._activated = activated
+            if (activated) {
                 this.computePlanes()
                 for (const plane of this._planes) {
+                    console.log("addPlane", plane.point, plane.normal)
                     const id = await ClippingService.addPlane(plane.point, plane.normal)
                     plane.id = id
                 }
@@ -68,20 +70,6 @@ export default class Box {
     }
 
     get activated() { return this._activated }
-    async setActivated(activated: boolean) {
-        try {
-            if (activated === this._activated) return
-            this._activated = activated
-            if (activated) {
-                await this.update({})
-            } else {
-                await this.removeAllPlans()
-            }
-        }
-        catch (ex) {
-            throw ex
-        }
-    }
 
     private computePlanes() {
         const { latitude, longitude, tilt } = this.props

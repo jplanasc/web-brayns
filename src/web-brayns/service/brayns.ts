@@ -2,6 +2,7 @@
  * Communication to Brayns service is made through WebSocket.
  */
 import Listeners from '../../tfw/listeners'
+import { IAsyncQuery } from '../types'
 
 interface IQuery {
     id: string,
@@ -18,15 +19,6 @@ interface IQueries {
 interface ISubscribers {
     [key: string]: Listeners<{}>
 }
-
-type IAsyncExecResolve = {status: "cancel" | "error" | "ok", message: any}
-
-interface IAsyncQuery {
-    cancel: () => void,
-    progress: Listeners<(label: string, progress: number) => void>,
-    promise: Promise<IAsyncExecResolve>
-}
-
 
 export default class BraynsService {
     debug: boolean = false

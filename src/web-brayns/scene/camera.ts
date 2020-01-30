@@ -170,9 +170,7 @@ export default class Camera {
 
     async moveBackward(dist: number) {
         const dir = this.direction;
-        console.info("dir=", dir);
         const { position, target } = this.params;
-        console.info("position, target=", position, target);
         this.params.position = [
             position[0] + dir[0] * dist,
             position[1] + dir[1] * dist,
@@ -193,7 +191,6 @@ export default class Camera {
     }
 
     async lookAtBounds(bounds: BoundingBox, zoom: number=1) {
-        console.info("[lookAtBounds] bounds=", bounds);
         const [minX, minY, minZ] = bounds.min
         const [maxX, maxY, maxZ] = bounds.max
         const centerX = (minX + maxX) / 2;
@@ -206,7 +203,6 @@ export default class Camera {
         this.params.orientation = [0, 0, 0, 1];
         this.params.position = [centerX, centerY, cameraZ];
         this.params.target = [centerX, centerY, centerZ];
-        console.info("this.params=", this.params);
         await this.applyCamera();
     }
 }

@@ -2,7 +2,6 @@ import Geom from '../geometry'
 import Scene from '../scene'
 import Model from '../scene/model'
 import Color from '../../tfw/color'
-import Dialog from '../../tfw/factory/dialog'
 import Material from '../service/material'
 import LoaderService from '../service/loader'
 import { IQuaternion, IVector } from '../types'
@@ -124,6 +123,8 @@ export default class ClipPlane {
 
     async attach(): Promise<boolean> {
         try {
+            if (this.model) return false
+
             const loadedModel = await LoaderService.loadFromURL(CLIP_PLANE_URL)
 
             if (!loadedModel) return false;
@@ -148,8 +149,6 @@ export default class ClipPlane {
 
         const modelId: number = this.model.id;
 
-        console.info("modelId=", modelId);
-
         await Material.setMaterials({
             modelId,
             materialIds: [],
@@ -162,7 +161,7 @@ export default class ClipPlane {
     async detach() {
         const { model } = this
         if (!model) return
-        await Dialog.wait("Removing clipping plane mesh...", model.remove())
+        await model.remove()
         this.model = null
     }
 }

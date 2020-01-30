@@ -49,6 +49,8 @@ function getModelsBounds(models: IModel[]): IBounds {
 
 function getVisibleModels(): IModel[] {
     return getAllModels().filter((model: IModel) => (
+        // Most of the technical models' name start with a "/".
+        model.brayns.name.charAt(0) !== '/' &&
         model.deleted === false &&
         model.technical === false &&
         model.brayns.visible === true

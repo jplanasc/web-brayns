@@ -3,7 +3,11 @@ export * from './models/types'
 export * from './geometry/types'
 export * from './state/types'
 
+import Tfw from 'tfw'
 import { IAxis, IVector, IQuaternion } from './geometry/types'
+
+const Listeners = Tfw.Listeners
+export class IListeners<T> extends Listeners<T> {}
 
 export interface IMetaData {
     [key: string]: string
@@ -40,4 +44,12 @@ export interface IPanningEvent extends IScreenPoint {
     // 2: right
     // 4: middle
     button: number
+}
+
+export type IAsyncExecResolve = {status: "cancel" | "error" | "ok", message: any}
+
+export interface IAsyncQuery {
+    cancel: () => void,
+    progress: IListeners<{ label: string, progress: number }>,
+    promise: Promise<IAsyncExecResolve>
 }

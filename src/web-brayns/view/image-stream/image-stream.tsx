@@ -44,28 +44,6 @@ export default class ImageStream extends React.Component<IImageStreamProps> {
         Scene.renderer.pop()
     }
 
-/*
-    private handleResize = async (dimension: IDimension) => {
-        const canvas = this.canvasRef.current;
-        if (!canvas ) return;
-        const w = Math.floor(dimension.width);
-        const h = Math.floor(dimension.height);
-        canvas.width = w;
-        canvas.height = h;
-        await Scene.renderer.setViewPort(w, h);
-    }
-*/
-/*
-    private handleImage = async (data: ArrayBuffer) => {
-        const canvas = this.canvas;
-        if (!canvas) return
-        const ctx = canvas.getContext("2d")
-        if (!ctx) return
-
-        const img = await ImageFactory.fromArrayBuffer(data)
-        ctx.drawImage(img, 0, 0, canvas.clientWidth, canvas.clientHeight)
-    }
-*/
     private handleDown = (evt: IEvent) => {
         const handler = this.props.onPanStart;
         if (typeof handler !== 'function') return;

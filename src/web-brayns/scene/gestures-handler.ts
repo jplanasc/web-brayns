@@ -47,10 +47,10 @@ export default class GesturesHandler {
         evt.stopPropagation()
 
         let speed = 0.1
-        if (evt.shiftKey) {
+        if (evt.ctrlKey) {
             speed *= evt.altKey ? .01 : .05
         }
-        else if (evt.ctrlKey) {
+        else if (evt.shiftKey) {
             speed *= evt.altKey ? 10 : 2
         }
 
@@ -84,7 +84,7 @@ export default class GesturesHandler {
             const distToPerpendicularPlan = Geom.scalarProduct(z, toCenter)
             const direction = Geom.scale(z, distToPerpendicularPlan)
             const target = Geom.addVectors(location, direction)
-            Scene.camera.setTarget(target, false)
+            await Scene.camera.setTarget(target, false)
         //}
     }
 

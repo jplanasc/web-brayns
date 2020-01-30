@@ -5,6 +5,7 @@ import Throttler from '../../tfw/throttler'
 import castBoolean from '../../tfw/converter/boolean'
 import castInteger from '../../tfw/converter/integer'
 
+const MILLISEC_BEFORE_COMPLAINING_OF_NOT_RECEIVING_ANY_FRAME = 10000
 
 interface IMandatoryContext {
     canvas: HTMLCanvasElement,
@@ -31,6 +32,11 @@ export default class Renderer {
     private width = 0
     private height = 0
     private isRendering = true
+    // The last time we call "trigger-jpeg-stream"
+    private lastQueryForNewFrame = 0
+    private numberOfAskedFrames = 0
+    private numberOfReceivedFrames = 0
+    private numberOfDisplayedFrames = 0
 
     async initialize() {
         try {
@@ -164,7 +170,6 @@ export default class Renderer {
      */
     async off() {
         this.isRendering = false
-        console.log("OFF")
         return await Scene.request("set-application-parameters", {
             "image_stream_fps": 0
         })
@@ -174,7 +179,6 @@ export default class Renderer {
      * Turning the rendering ON.
      */
     async on() {
-        console.log("ON")
         this.askNextFrame()
         this.isRendering = true
         const request = await Scene.request("set-application-parameters", {
@@ -204,6 +208,8 @@ export default class Renderer {
     askNextFrame = Throttler(() => {
         window.requestAnimationFrame(async () => {
             this.tryAgainToAskNextFrame()
+            this.lastQueryForNewFrame = Date.now()
+            this.numberOfAskedFrames++
             await Scene.request("trigger-jpeg-stream")
         })
     }, 50)
@@ -212,13 +218,22 @@ export default class Renderer {
      * If we miss a JPEG stream frame, we can try again after 30 seconds.
      */
     tryAgainToAskNextFrame = Debouncer(async () => {
+        const elapsedTime = ((Date.now() - this.lastQueryForNewFrame) / 1000).toFixed(1)
         console.warn("Brayns doesn't send us any new frame for more than 30 seconds!")
+        console.warn("  > Displayed frames = ", this.numberOfDisplayedFrames)
+        console.warn("  > Received frames = ", this.numberOfReceivedFrames)
+        console.warn("  > Asked frames = ", this.numberOfAskedFrames)
+        console.warn("  > lastTrigger = ", elapsedTime, "seconds ago")
+        console.warn("  > isRendering = ", this.isRendering )
+        console.warn("  > fps = ", this.fps)
         this.askNextFrame()
-    }, 30000)
+    }, MILLISEC_BEFORE_COMPLAINING_OF_NOT_RECEIVING_ANY_FRAME)
 
     handleImage = Throttler(async (data: ArrayBuffer) => {
         // Display can be disabled with renderer.off() function.
+        this.numberOfReceivedFrames++
         if (!this.isRendering) return
+        this.numberOfDisplayedFrames++
 
         this.askNextFrame()
 

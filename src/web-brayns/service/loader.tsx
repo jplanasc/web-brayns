@@ -1,6 +1,6 @@
 import React from "react"
 
-import { IQuaternion, IVector, IModel } from '../types'
+import { IQuaternion, IVector, IModel, IAsyncQuery } from '../types'
 import State from '../state'
 import Scene from '../scene'
 import Model from '../scene/model'
@@ -59,33 +59,43 @@ function getLoaderParams(path: string): Promise<{}> {
     })
 }
 
-async function loadFromFile(file: File) {
-    const chunksId = Scene.brayns.nextId()
-    const filename = file.name
-    const size = file.size
-    const { base, extension } = parseFilename(filename)
-    const asyncCall = Scene.brayns.execAsync(
-        "request-model-upload",
-        {
-            chunks_id: chunksId,
-            loader_name: "mesh",
-            loader_properties: { geometry_quality: "high" },
-            name: base,
-            path: filename,
-            size: size,
-            type: extension
-        })
+async function loadFromFile(file: File): Promise<IAsyncQuery> {
+    return new Promise((resolve, reject) => {
+        try {
+            const chunksId = Scene.brayns.nextId()
+            const filename = file.name
+            const size = file.size
+            const { base, extension } = parseFilename(filename)
+            const reader = new FileReader()
+            reader.onload = async (evt) => {
+                try {
+                    if (!evt || !evt.target) return
+                    const data = evt.target.result as ArrayBuffer
+                    const asyncCall = Scene.brayns.execAsync(
+                        "request-model-upload",
+                        {
+                            chunks_id: chunksId,
+                            loader_name: "mesh",
+                            loader_properties: { geometry_quality: "high" },
+                            name: base,
+                            path: filename,
+                            size: size,
+                            type: extension
+                        })
 
-    const reader = new FileReader()
-    reader.onload = async (evt) => {
-        if (!evt || !evt.target) return
-        const data = evt.target.result
-        await Scene.request("chunk", { id: chunksId })
-        await Scene.brayns.sendChunk(data)
-    }
-    reader.readAsArrayBuffer(file)
-
-    return asyncCall
+                    await Scene.request("chunk", { id: chunksId })
+                    Scene.brayns.sendChunk(data)
+                    resolve(asyncCall)
+                } catch (ex) {
+                    reject(ex)
+                }
+            }
+            reader.onerror = reject
+            reader.readAsArrayBuffer(file)
+        } catch (ex) {
+            reject(ex)
+        }
+    })
 }
 
 interface ILoadFromStringOptions {

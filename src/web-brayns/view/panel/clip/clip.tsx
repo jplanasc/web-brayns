@@ -65,9 +65,6 @@ interface IClipState extends IClipPlaneDefinition {
 
 export default class Model extends React.Component<IClipProps, IClipState> {
     private readonly clipBox: ClipBox
-
-    private clipPlanes: IClipPlaneDefinition[] = []
-
     private readonly clipPlaneObject: ClipPlaneObject
 
     constructor(props: IClipProps) {
@@ -80,7 +77,7 @@ export default class Model extends React.Component<IClipProps, IClipState> {
             height: 24,
             depth: 4,
             activated: false,
-            visible: false,
+            visible: true,
             latitude: 0,
             longitude: 0,
             tilt: 0,
@@ -94,18 +91,25 @@ export default class Model extends React.Component<IClipProps, IClipState> {
         this.clipPlaneObject =
             new ClipPlaneObject({
                 color: [0, 1, 0],
+                center: [this.state.x, this.state.y, this.state.z],
                 width: this.state.width,
                 height: this.state.height,
                 depth: this.state.depth
             })
         this.clipBox = new ClipBox({
-            x: 0, y: 0, z: 0, width: 32, height: 24, depth: 4,
-            longitude: 0, latitude: 0, tilt: 0
+            x: this.state.x,
+            y: this.state.y,
+            z: this.state.z,
+            width: this.state.width,
+            height: this.state.height,
+            depth: this.state.depth,
+            longitude: this.state.longitude,
+            latitude: this.state.latitude,
+            tilt: this.state.tilt
         })
     }
 
     async componentDidMount() {
-        this.computeFrameDimensions()
         await ClippingService.removeAllFrameModels()
         this.updatePlanes()
     }
@@ -114,22 +118,32 @@ export default class Model extends React.Component<IClipProps, IClipState> {
         this.updatePlanes()
     }
 
+    /**
+     * By default the frame will have the dimension of the selected model bounding box.
+     * Except for the depth, which will be a tenth of min(width, height).
+     */
     private computeFrameDimensions() {
         const state = State.store.getState()
         const selectedModel = state.currentModel
         if (!selectedModel) return
 
         const { min, max } = selectedModel.brayns.bounds
-        const [ minX, minY, minZ ] = min
-        const [ maxX, maxY, maxZ ] = max
-        const x = (minX + maxX) / 2
-        const y = (minY + maxY) / 2
-        const z = (minZ + maxZ) / 2
-        const width = maxX - minX
-        const height = maxY - minY
+        const [minX, minY, minZ] = min
+        const [maxX, maxY, maxZ] = max
+        const x = Math.floor(0.5 + (minX + maxX) / 2)
+        const y = Math.floor(0.5 + (minY + maxY) / 2)
+        const z = Math.floor(0.5 + (minZ + maxZ) / 2)
+        const width = Math.ceil(maxX - minX)
+        const height = Math.ceil(maxY - minY)
+        const depth = Math.ceil(Math.min(width, height) / 10)
 
-//@TODO -> Continue this...
-
+        this.setState({
+            width, height, depth,
+            latitude: 0,
+            longitude: 0,
+            tilt: 0,
+            x, y, z
+        })
     }
 
     updatePlanes = Throttler(async () => {
@@ -166,15 +180,12 @@ export default class Model extends React.Component<IClipProps, IClipState> {
             // We estimate that the borders will increase the width and height of
             // the frame of about 10%.
             const scale = visible ? 1.1 : 1.0
-            if (activated) {
-                await this.clipBox.update({
-                    x, y, z, latitude, longitude, tilt,
-                    width: scale * width + EPSILON,
-                    height: scale * height + EPSILON,
-                    depth: depth + EPSILON
-                })
-            }
-            await this.clipBox.setActivated(activated)
+            await this.clipBox.update(activated, {
+                x, y, z, latitude, longitude, tilt,
+                width: scale * width + EPSILON,
+                height: scale * height + EPSILON,
+                depth: depth + EPSILON
+            })
         }
         catch (ex) {
             console.error("webBrayns/view/planel/clip/updatePlanes() ", ex)
@@ -206,10 +217,17 @@ export default class Model extends React.Component<IClipProps, IClipState> {
 
     handleActivatedChange = async (activated: boolean) => {
         this.setState({ activated })
-        await Dialog.wait(
-            activated ? "Adding clipping planes..." : "Removing clipping planes...",
-            this.clipBox.setActivated(activated)
-        )
+        await this.clipBox.update(activated, {
+            x: this.state.x,
+            y: this.state.y,
+            z: this.state.z,
+            width: this.state.width,
+            height: this.state.height,
+            depth: this.state.depth,
+            latitude: this.state.latitude,
+            longitude: this.state.longitude,
+            tilt: this.state.tilt
+        })
     }
 
     handleVisibleChange = async (visible: boolean) => {
@@ -238,8 +256,10 @@ export default class Model extends React.Component<IClipProps, IClipState> {
         Dialog.wait("Facing the clipping plane...", Scene.camera.lookAtBounds(bounds))
     }
 
-    handleResetPlanes = () => {
-
+    handleResetPlanes = async () => {
+        await ClippingService.removeAllFrameModels()
+        this.computeFrameDimensions()
+        this.updatePlanes()
     }
 
     render() {

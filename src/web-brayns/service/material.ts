@@ -55,7 +55,6 @@ export interface IMaterial extends IMaterialBase {
 async function getMaterialIds(modelId: number): Promise<number[]> {
     try {
         const result = await Scene.request("get-material-ids", { modelId }) as { ids: number[] }
-        console.info("result=", result);
         return result.ids
     } catch (ex) {
         console.error("Unable to get materialIds:", ex)
@@ -81,8 +80,7 @@ async function setMaterials(params: Partial<IMaterial>) {
         userParameter: 0,
         ...params
     }
-    console.log("MATERIAL=", material);
-    await Scene.request(
+        await Scene.request(
         "set-material-extra-attributes",
         { modelId: params.modelId }
     )
