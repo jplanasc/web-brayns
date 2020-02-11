@@ -9,6 +9,10 @@ div.webBrayns-view-ModelButton {
     height: 76px;
 }
 
+div.webBrayns-view-ModelButton.invisible {
+    opacity: .5;
+}
+
 div.webBrayns-view-ModelButton > div.icons {
     display: flex;
     flex-direction: row;
@@ -44,6 +48,6 @@ div.webBrayns-view-ModelButton div.name > div.invisible {
     font-style: italic;
 }
 
-div.webBrayns-view-ModelButton div.name > div.visible {
+div.webBrayns-view-ModelButton.selected div.name > div.visible {
     font-weight: bold;
 }

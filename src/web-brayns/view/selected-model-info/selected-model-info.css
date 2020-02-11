@@ -5,7 +5,7 @@ footer.webBrayns-view-SelectedModelInfo {
     align-items: center;
 }
 
-footer.webBrayns-view-SelectedModelInfo div.material-group {
+footer.webBrayns-view-SelectedModelInfo div.material-group > div {
     padding: .25rem .5rem;
     border-radius: .25rem;
     font-variant: small-caps;

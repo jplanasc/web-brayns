@@ -16,6 +16,7 @@ function mapStateToProps(state: IAppState) {
 function mapDispatchToProps(dispatch: (action: IAction) => void) {
     return {
         onToggleSelection(model: IModel) {
+            console.info("[onToggleSelection] model=", model);
             dispatch(State.CurrentModel.reset({ ...model }))
         }
     }

@@ -175,6 +175,9 @@ export default class ModelsView extends React.Component<{}, IState> {
                     State.dispatch(State.Models.add(model))
                     const m = new Model(model)
                     m.focus(0.05)
+                    m.setMaterial({
+                        diffuseColor: options.color.slice(0, 3)
+                    })
                 }} />
         })
     }

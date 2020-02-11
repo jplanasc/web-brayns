@@ -246,6 +246,11 @@ export default class Model {
      * Get the materialGroups from Metadata.
      */
     getMaterialGroups(): IMaterialGroup[] {
+        if (!this.model || !this.model.brayns) {
+            console.info("this.model=", this.model);
+            return []
+        }
+
         const metadata = this.model.brayns.metadata
         if (!metadata) return []
         const value = metadata.materialGroups

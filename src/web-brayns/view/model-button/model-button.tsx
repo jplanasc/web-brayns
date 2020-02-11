@@ -29,6 +29,12 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
     }
 
     handleToggleSelection = async () => {
+        if (!this.state.visible) {
+            // No selected if invisible.
+            // Turn it visible instead.
+            this.handleVisible(true)
+            return
+        }
         const handle = this.props.onToggleSelection;
         if (typeof handle === 'function') handle(this.props.model);
     }
@@ -60,17 +66,20 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
 
     render() {
         const { model, selected } = this.props;
-        const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
-        if (model.brayns.visible) {
-            classNames.push(selected ? "thm-bgSL" : "thm-bg2");
+        const { visible } = this.state
+        const classNames = ["webBrayns-view-ModelButton"];
+        if (selected) classNames.push("selected")
+        classNames.push(selected ? "thm-bgPL" : "thm-bg2");
+        if (visible) {
+            classNames.push(selected ? "thm-ele-nav" : "thm-ele-button")
         } else {
-            classNames.push(selected ? "thm-bgSD" : "thm-bg0");
+            classNames.push("invisible");
         }
         return (<Touchable className={classNames.join(" ")}
                            onClick={this.handleToggleSelection}
                            title={model.brayns.path}>
                 <div className="name">
-                    <div className={model.brayns.visible ? "visible" : "invisible"}>{model.brayns.name}</div>
+                    <div className={visible ? "visible" : "invisible"}>{model.brayns.name}</div>
                     <div className='id'>{`#${model.brayns.id}`}</div>
                 </div>
                 <div className="icons">
@@ -86,7 +95,7 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
                             small={true}
                             icon="gps"/>
                     </div>
-                    <Checkbox label="Visible" value={this.state.visible}
+                    <Checkbox label="Visible" value={visible}
                               onChange={this.handleVisible}/>
                     <Button enabled={true} small={true}
                             icon="delete" warning={true}

@@ -6,7 +6,6 @@ import Button from '../../../tfw/view/button'
 import List from '../../../tfw/view/list'
 import Input from '../../../tfw/view/input'
 import Combo from '../../../tfw/view/combo'
-import Model from '../../scene/model'
 import Matcher from '../../tool/matcher'
 import Debouncer from '../../../tfw/debouncer'
 

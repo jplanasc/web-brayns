@@ -80,12 +80,12 @@ async function setMaterials(params: Partial<IMaterial>) {
         userParameter: 0,
         ...params
     }
-        await Scene.request(
+    await Scene.request(
         "set-material-extra-attributes",
         { modelId: params.modelId }
     )
+    console.info("[set-material-range] material=", material);
     await Scene.request(
         "set-material-range", material
     )
-
 }

@@ -55,6 +55,7 @@ export default {
 
             const dialog = Dialog.show({
                 title: params.title,
+                align: "TL",
                 content: <ColorPickerWrapper
                             color={params.color}
                             onChange={color => result = color}/>,
