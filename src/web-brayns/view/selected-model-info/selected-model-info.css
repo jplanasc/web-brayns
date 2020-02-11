@@ -1,1 +1,17 @@
-div.webBrayns-view-SelectedModelInfo {}
+footer.webBrayns-view-SelectedModelInfo {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+footer.webBrayns-view-SelectedModelInfo div.material-group {
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+    font-variant: small-caps;
+    font-weight: bold;
+    font-size: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

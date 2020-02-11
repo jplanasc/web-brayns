@@ -14,7 +14,9 @@ import "./model-list.css"
 
 interface IModelListProps {
     models: IModel[],
-    onLoad: () => void
+    currentModel: IModel,
+    onLoad: () => void,
+    onToggleSelection: (model: IModel) => void
 }
 
 interface IModelListState {
@@ -32,15 +34,7 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
     }
 
     handleToggleSelection = (model: IModel) => {
-        const currentlySelectedModel = this.props.models.find((m: IModel) => m.selected);
-        if (currentlySelectedModel) {
-            const modelObject1 = new Model(currentlySelectedModel);
-            modelObject1.setSelected(false);
-        }
-        if (model !== currentlySelectedModel) {
-            const modelObject2 = new Model(model);
-            modelObject2.setSelected(true);
-        }
+        this.props.onToggleSelection(model)
     }
 
     handleFilterInputChange = (value: string) => {
@@ -77,6 +71,15 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
         )
     }
 
+    /**
+     * Check if the model is the selected one by comparing it to currentModel.
+     */
+    private isSelected(model: IModel): boolean {
+        const { currentModel } = this.props
+        if (!currentModel) return false
+        return model.brayns.id === currentModel.brayns.id
+    }
+
     render() {
         const models = this.props.models;
         if (models.length === 0) return this.renderEmptyList()
@@ -86,7 +89,8 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
             <ModelButton
                 key={model.brayns.id}
                 onToggleSelection={this.handleToggleSelection}
-                model={model}/>;
+                model={model}
+                selected={this.isSelected(model)}/>;
 
         return (<div className="webBrayns-view-ModelList">
             {

@@ -3,7 +3,8 @@ import { IModel, IAction } from "../types"
 const PREFIX = "current-model:"
 
 export default {
-    INITIAL_STATE: {
+    INITIAL_STATE: null,
+    /*{
         brayns: {
             id: -1,
             name: "",
@@ -20,7 +21,7 @@ export default {
         selected: false,
         technical: false,
         materialIds: []
-    },
+    },*/
 
     reducer(state: IModel, action: IAction): IModel {
         const { type } = action;
@@ -28,13 +29,13 @@ export default {
 
         const command = action.type.substr(PREFIX.length);
         switch (command) {
-            case "reset": return reset(state, action);
+            case "reset": return reset(action);
             case "update": return update(state, action);
             default: throw Error(`Unknown action "${type}"!`);
         }
     },
 
-    reset(model: IModel): IAction {
+    reset(model: IModel | null): IAction {
         return { type: `${PREFIX}reset`, model };
     },
 
@@ -44,11 +45,11 @@ export default {
 }
 
 
-function reset(state: IModel, action: IAction): IModel {
+function reset(action: IAction): IModel {
     return { ...action.model }
 }
 
 
-function update(state: IModel, action: IAction): IModel {
+function update(state: Partial<IModel>, action: IAction): IModel {
     return { state, ...action.model }
 }

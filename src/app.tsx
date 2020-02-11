@@ -99,7 +99,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     render() {
         const className = this.state.panelVisible ? "App visible" : "App"
         const { model } = this.props
-        
+
         return (<div className={className}>
             <Panel value={this.props.panel}
                    model={this.props.model}
@@ -125,7 +125,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
                             onPanStart={Scene.gestures.handlePanStart}
                             onWheel={Scene.gestures.handleWheel}/>
                     }
-                    <SelectedModelInfo model={model}/>
+                    <SelectedModelInfo modelData={model}/>
                 </div>
                 <div className="icons">
                     <Button

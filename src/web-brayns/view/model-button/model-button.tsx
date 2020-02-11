@@ -12,6 +12,7 @@ import "./model-button.css"
 
 interface IModelButtonProps {
     model: IModel,
+    selected: boolean,
     onToggleSelection: (model: IModel) => void
 }
 
@@ -58,12 +59,12 @@ export default class ModelButton extends React.Component<IModelButtonProps, IMod
     }
 
     render() {
-        const { model } = this.props;
+        const { model, selected } = this.props;
         const classNames = ["webBrayns-view-ModelButton", "thm-ele-button"];
         if (model.brayns.visible) {
-            classNames.push(model.selected ? "thm-bgSL" : "thm-bg2");
+            classNames.push(selected ? "thm-bgSL" : "thm-bg2");
         } else {
-            classNames.push(model.selected ? "thm-bgSD" : "thm-bg0");
+            classNames.push(selected ? "thm-bgSD" : "thm-bg0");
         }
         return (<Touchable className={classNames.join(" ")}
                            onClick={this.handleToggleSelection}

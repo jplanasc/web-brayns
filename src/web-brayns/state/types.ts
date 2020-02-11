@@ -77,7 +77,7 @@ export interface IKeyFrame {
 export interface IAppState {
     animation: IAnimation,
     camera: ICameraState,
-    currentModel: IModel,
+    currentModel: IModel | null,
     dialogs: IDialogs,
     keyFrames: IKeyFrame[],
     models: IModel[],
