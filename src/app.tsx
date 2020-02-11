@@ -5,6 +5,7 @@ import SnapshotService from './web-brayns/service/snapshot'
 import Snapshot from './web-brayns/dialog/snapshot'
 import Scene from './web-brayns/scene'
 import State from './web-brayns/state'
+import SelectedModelInfo from './web-brayns/view/selected-model-info'
 import ImageStream from './web-brayns/view/image-stream'
 import VideoStream from './web-brayns/view/video-stream'
 import Button from './tfw/view/button'
@@ -97,7 +98,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     render() {
         const className = this.state.panelVisible ? "App visible" : "App"
-
+        const { model } = this.props
+        
         return (<div className={className}>
             <Panel value={this.props.panel}
                    model={this.props.model}
@@ -106,25 +108,29 @@ export default class App extends React.Component<IAppProps, IAppState> {
                    onVisibleChange={this.handlePanelVisibleChange}
                    onChange={this.handlePanelChange}/>
             <div className='view'>
-                {
-                    this.props.stream === 'image' &&
-                    <ImageStream
-                        key="image-stream"
-                        onPan={Scene.gestures.handlePan}
-                        onPanStart={Scene.gestures.handlePanStart}
-                        onWheel={Scene.gestures.handleWheel}/>
-                }
-                {
-                    this.props.stream === 'video' &&
-                    <VideoStream
-                        key="video-stream"
-                        onPan={Scene.gestures.handlePan}
-                        onPanStart={Scene.gestures.handlePanStart}
-                        onWheel={Scene.gestures.handleWheel}/>
-                }
+                <div className='body'>
+                    {
+                        this.props.stream === 'image' &&
+                        <ImageStream
+                            key="image-stream"
+                            onPan={Scene.gestures.handlePan}
+                            onPanStart={Scene.gestures.handlePanStart}
+                            onWheel={Scene.gestures.handleWheel}/>
+                    }
+                    {
+                        this.props.stream === 'video' &&
+                        <VideoStream
+                            key="video-stream"
+                            onPan={Scene.gestures.handlePan}
+                            onPanStart={Scene.gestures.handlePanStart}
+                            onWheel={Scene.gestures.handleWheel}/>
+                    }
+                    <SelectedModelInfo model={model}/>
+                </div>
                 <div className="icons">
                     <Button
                         icon="camera"
+                        small={true}
                         onClick={this.handleScreenShot}
                         warning={true}/>
                 </div>

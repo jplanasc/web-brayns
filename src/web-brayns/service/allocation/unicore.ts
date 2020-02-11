@@ -6,6 +6,7 @@ import Tfw from 'tfw'
 const castInteger = Tfw.Converter.Integer
 
 const UNICORE_URL = 'https://bbpunicore.epfl.ch:8080/BB5-CSCS/rest/core'
+//const UNICORE_URL = 'https://bspsa.cineca.it/advanced/pizdaint/rest/core'
 const RX_HOSTNAME = /[a-z0-9.-]+:[0-9]+/gi
 
 export default async (token: string, allocationTimeInMinutes: number): Promise<string> => {

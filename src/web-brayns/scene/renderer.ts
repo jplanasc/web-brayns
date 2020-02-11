@@ -29,8 +29,10 @@ interface IContext extends IMandatoryContext {
 
 export default class Renderer {
     private contextStack: IContext[] = []
-    private width = 0
-    private height = 0
+    // Last known viewport width/height.
+    private width = -Math.random()
+    private height = -Math.random()
+
     private isRendering = true
     // The last time we call "trigger-jpeg-stream"
     private lastQueryForNewFrame = 0
@@ -49,13 +51,10 @@ export default class Renderer {
         Scene.brayns.binaryListeners.add(this.handleImage)
         this.on()
         window.setInterval(() => {
-            const { canvas, width, height, resizable } = this
+            const { canvas, resizable } = this
             if (!canvas || !resizable) return
             const rect = canvas.getBoundingClientRect()
-            if (rect.width === width && rect.height === height) return
-            canvas.width = rect.width
-            canvas.height = rect.height
-            this.setViewPort(canvas.width, canvas.height)
+            this.setViewPort(rect.width, rect.height)
         }, 500)
     }
 
@@ -187,10 +186,20 @@ export default class Renderer {
         return request
     }
 
-    async setViewPort(width: number, height: number) {
-        if (!this.isRendering) return
+    /**
+     * Check if the viewport has changed. Then store the new size.
+     */
+    private hasViewportChanged(width: number, height: number): boolean {
+        if (this.width === width && this.height === height) return false
+
         this.width = width
         this.height = height
+        return true
+    }
+
+    async setViewPort(width: number, height: number) {
+        if (!this.isRendering) return
+        if (!this.hasViewportChanged(width, height)) return;
         // Negative or null sizes make Brayns crash!
         if (width < 1 || height < 1) return
 

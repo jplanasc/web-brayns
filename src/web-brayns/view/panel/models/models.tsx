@@ -12,7 +12,7 @@ import LoaderService from '../../../service/loader'
 import ObjectService from '../../../service/object'
 import WaitService from '../../../service/wait'
 import OkCancel from "../../../../tfw/view/ok-cancel"
-import ModelObject from "../../../scene/model"
+import Model from "../../../scene/model"
 
 //import LowPolySphere from '../../../object/mesh/low-poly-sphere.ply'
 
@@ -27,7 +27,7 @@ interface IState {
     refreshing: boolean
 }
 
-export default class Model extends React.Component<{}, IState> {
+export default class ModelsView extends React.Component<{}, IState> {
     constructor(props: {}) {
         super(props)
         this.state = {
@@ -98,6 +98,26 @@ export default class Model extends React.Component<{}, IState> {
                 const newModel = models.pop()
                 if (!newModel) continue
                 console.info("newModel=", newModel);
+                const model = Model.fromBraynsModel(newModel)
+                console.info("model.getMaterialGroups()=", model.getMaterialGroups())
+                State.store.dispatch(
+                    State.Models.add(model.data)
+                )
+                State.store.dispatch(
+                    State.CurrentModel.reset(model.data)
+                )
+                // Assign materials.
+                for (const group of model.getMaterialGroups()) {
+                    for (const materialId of group.ids) {
+                        console.log("GET-MATERIAL")
+                        const material = await model.getMaterial(materialId)
+                        console.log("SET-MATERIAL")
+                        model.setMaterial({
+                            materialIds: [materialId],
+                            diffuseColor: material.diffuseColor
+                        })
+                    }
+                }
             } catch (ex) {
                 console.error("[addFiles]", ex)
             }
@@ -153,7 +173,7 @@ export default class Model extends React.Component<{}, IState> {
                         options.r, options.color
                     )
                     State.dispatch(State.Models.add(model))
-                    const m = new ModelObject(model)
+                    const m = new Model(model)
                     m.focus(0.05)
                 }} />
         })

@@ -6,13 +6,36 @@ import State from '../state'
 import { IMaterial } from '../service/material'
 import MaterialService from '../service/material'
 
-import { IModel, IVector, IQuaternion } from '../types'
+import { IModel, IBraynsModel, IVector, IQuaternion } from '../types'
 
+export interface IMaterialGroup {
+    name: string,
+    ids: number[]
+}
 
 export default class Model {
     private center: IVector = [0, 0, 0]
 
     constructor(private model: IModel) { }
+
+    /**
+     * Internal represention of a Model.
+     */
+    get data(): IModel { return this.model }
+
+    /**
+     * Create a Model from the brayns definition of a model.
+     */
+    static fromBraynsModel(braynsModel: IBraynsModel) : Model {
+        return new Model({
+            brayns: braynsModel,
+            deleted: false,
+            materialIds: [],
+            parent: -1,
+            selected: false,
+            technical: false
+        })
+    }
 
     /**
      * Warning!
@@ -133,6 +156,17 @@ export default class Model {
     }
 
     /**
+     * Return the material attributes for this model and a material ID.
+     */
+    async getMaterial(materialId: number): Promise<IMaterial> {
+        const modelId = this.model.brayns.id
+        const material: IMaterial = await Scene.request("get-material", {
+            modelId, materialId
+        }) as IMaterial
+        return material
+    }
+
+    /**
      * Remove this model from the Scene.
      */
     async remove() {
@@ -206,6 +240,41 @@ export default class Model {
         const metadata = this.model.brayns.metadata
         if (!metadata) return false
         return typeof metadata.Report === 'string'
+    }
+
+    /**
+     * Get the materialGroups from Metadata.
+     */
+    getMaterialGroups(): IMaterialGroup[] {
+        const metadata = this.model.brayns.metadata
+        if (!metadata) return []
+        const value = metadata.materialGroups
+        if (typeof value !== 'string') return []
+
+        try {
+            const groups = JSON.parse(value)
+            if (!Array.isArray) throw "We were expecting an array!"
+            for (const group of groups) {
+                if (typeof group.name !== 'string') {
+                    throw "We were expecting attribute 'name' on all groups!"
+                }
+                if (!Array.isArray(group.ids)) {
+                    throw "We were expecting attribute 'ids' to be an array for all groups!"
+                }
+                for (const id of group.ids) {
+                    if (typeof id !== 'number') {
+                        throw "We were expecting attribute 'ids' to be an array of numbers for all groups!"
+                    }
+                }
+            }
+            return groups
+        } catch (ex) {
+            console.error("Invalid metaData.materialGroups!")
+            console.error("We were expecting Array<{ name: string, ids: number[] }>.")
+            console.error("    value: ", value)
+            console.error("    exception: ", ex)
+            return []
+        }
     }
 
     private updateState() {
