@@ -50,7 +50,7 @@ async function exists(path: string): Promise<boolean> {
         }
     }
     catch (ex) {
-        console.error('[webBrayns/service/fs/exists()]', ex)
+        console.error(`[webBrayns/service/fs/exists("${path}")]`, ex)
         throw ex
     }
 }
@@ -77,7 +77,7 @@ async function getContent(path: string): Promise<string> {
         throw UNEXPECTED_ERROR
     }
     catch (ex) {
-        console.error('[webBrayns/service/fs/getContent()]', ex)
+        console.error(`[webBrayns/service/fs/getContent("${path}")]`, ex)
         throw ex
     }
 }
@@ -95,7 +95,7 @@ async function getDirName(path: string) {
         return pieces.join('/')
     }
     catch (ex) {
-        console.error('[webBrayns/service/fs/getDirName()]', ex)
+        console.error(`[webBrayns/service/fs/getDirName("${path}")]`, ex)
         throw ex
     }
 }
@@ -137,7 +137,7 @@ async function isDir(path: string): Promise<boolean> {
         throw UNEXPECTED_ERROR
     }
     catch (ex) {
-        console.error('[webBrayns/service/fs/isDir()]', ex)
+        console.error(`[webBrayns/service/fs/isDir("${path}")]`, ex)
         throw ex
     }
 }
@@ -165,7 +165,7 @@ async function isFile(path: string): Promise<boolean> {
         throw UNEXPECTED_ERROR
     }
     catch (ex) {
-        console.error('[webBrayns/service/fs/isFile()]', ex)
+        console.error(`[webBrayns/service/fs/isFile("${path}")]`, ex)
         throw ex
     }
 }
@@ -200,7 +200,7 @@ async function listDir(path: string): Promise<IDirContent> {
         throw UNEXPECTED_ERROR
     }
     catch (ex) {
-        console.error('[webBrayns/service/fs/listDir]', ex)
+        console.error(`[webBrayns/service/fs/listDir("${path}")]`, ex)
         throw ex
     }
 }

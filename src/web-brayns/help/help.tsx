@@ -5,13 +5,13 @@ import Dialog from '../../tfw/factory/dialog'
 import Util from '../../tfw/util'
 import Button from '../../tfw/view/button'
 import BraynsHostName from './page/brayns-host-name.md'
+import SpheresCsvFormat from './page/spheres-csv-format.md'
 
 import "./help.css"
 
 export default {
-    async showBraynsHostName() {
-        await show(BraynsHostName)
-    }
+    async showBraynsHostName() { await show(BraynsHostName) },
+    async showSpheresCsvFormat() { await show(SpheresCsvFormat) }
 }
 
 

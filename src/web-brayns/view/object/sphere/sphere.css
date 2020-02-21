@@ -1,1 +1,13 @@
-div.webBrayns-view-object-Sphere {}
+div.webBrayns-view-object-Sphere div.file-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+div.webBrayns-view-object-Sphere div.file-input > *:first {
+    flex: 1 1 auto;
+}
+
+div.webBrayns-view-object-Sphere div.file-input > *:last {
+    flex: 0 0 auto;
+}

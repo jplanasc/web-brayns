@@ -27,8 +27,8 @@ interface IModelListState {
 }
 
 export default class modelList extends React.Component<IModelListProps, IModelListState> {
-    constructor( props: IModelListProps ) {
-        super( props );
+    constructor(props: IModelListProps) {
+        super(props);
         this.state = { filterInput: '', filter: '', sort: 'name' }
     }
 
@@ -64,7 +64,7 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
             <div className="webBrayns-view-ModelList">
                 <div className="centered">
                     <p>Please load a model</p>
-                    <Button icon="import" onClick={this.props.onLoad}/>
+                    <Button icon="import" onClick={this.props.onLoad} />
                 </div>
             </div>
         )
@@ -74,9 +74,15 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
      * Check if the model is the selected one by comparing it to currentModel.
      */
     private isSelected(model: IModel): boolean {
-        const { currentModel } = this.props
-        if (!currentModel) return false
-        return model.brayns.id === currentModel.brayns.id
+        try {
+            const { currentModel } = this.props
+            if (!currentModel) return false
+            return model.brayns.id === currentModel.brayns.id
+        } catch (ex) {
+            console.error(ex)
+            console.info("model=", model)
+            return false
+        }
     }
 
     render() {
@@ -89,30 +95,30 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
                 key={model.brayns.id}
                 onToggleSelection={this.handleToggleSelection}
                 model={model}
-                selected={this.isSelected(model)}/>;
+                selected={this.isSelected(model)} />;
 
         return (<div className="webBrayns-view-ModelList">
             {
                 models.length > 9 &&
                 <header>
                     <Input
-                            label={`Filter by name (${filteredModels.length} / ${models.length})`}
-                            value={this.state.filterInput}
-                            onChange={this.handleFilterInputChange}
-                            wide={true}/>
+                        label={`Filter by name (${filteredModels.length} / ${models.length})`}
+                        value={this.state.filterInput}
+                        onChange={this.handleFilterInputChange}
+                        wide={true} />
                     <Combo
-                            label="Sorting"
-                            value={this.state.sort}
-                            onChange={this.handleSortChange}>
+                        label="Sorting"
+                        value={this.state.sort}
+                        onChange={this.handleSortChange}>
                         <div key="name">Name</div>
                         <div key="volume">Volume</div>
                     </Combo>
                 </header>
             }
             <List itemHeight={80}
-                  items={filteredModels}
-                  width="100%"
-                  mapper={mapper}/>
+                items={filteredModels}
+                width="100%"
+                mapper={mapper} />
         </div>)
     }
 }
@@ -121,8 +127,8 @@ export default class modelList extends React.Component<IModelListProps, IModelLi
 function sortByName(model1: IModel, model2: IModel) {
     const name1 = model1.brayns.name.toLowerCase();
     const name2 = model2.brayns.name.toLowerCase();
-    if (name1 < name2 ) return -1;
-    if (name1 > name2 ) return +1;
+    if (name1 < name2) return -1;
+    if (name1 > name2) return +1;
     return 0;
 }
 

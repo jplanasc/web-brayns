@@ -50,6 +50,7 @@ export default class SelectedModelInfo extends React.Component<TSelectedModelInf
         const extendedMaterialGroups: IExtendedMaterialGroup[] = []
 
         for (const materialGroup of materialGroups) {
+            console.info("materialGroup=", materialGroup);
             if (materialGroup.ids.length === 0) continue
 
             const material = await model.getMaterial(materialGroup.ids[0])
@@ -124,6 +125,7 @@ export default class SelectedModelInfo extends React.Component<TSelectedModelInf
 
         if (extendedMaterialGroups.length === 0 || extendedMaterialGroups.length > 20) {
             // Legend must have less than 21 items to display.
+            console.info("extendedMaterialGroups=", extendedMaterialGroups);
             return null
         }
 

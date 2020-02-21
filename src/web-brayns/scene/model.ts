@@ -253,7 +253,8 @@ export default class Model {
 
         const metadata = this.model.brayns.metadata
         if (!metadata) return []
-        const value = metadata.materialGroups
+        // Don't forget the "s" here for old versions of Brayns.
+        const value = metadata.materialGroups || metadata.materialsGroups
         if (typeof value !== 'string') return []
 
         try {

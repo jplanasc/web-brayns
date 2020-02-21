@@ -82,7 +82,7 @@ export default class Connection extends React.Component<TConnectionProps, TConne
                        value={partition}
                        wide={true}
                        onChange={partition => this.setState({ partition })}>
-                    <div key="prod_small">prod_small</div>
+                    <div key="interactive">interactive</div>
                     <div key="prod">prod</div>
                     {/*
                     <div key="jenkins">jenkins</div>

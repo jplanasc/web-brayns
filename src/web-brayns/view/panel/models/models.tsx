@@ -71,11 +71,14 @@ export default class ModelsView extends React.Component<{}, IState> {
                     <InputFile label="File" icon="import"
                         accept=".obj,.ply,.blend"
                         onClick={handleFiles} />
-                    <Button label="Sphere" icon="add" onClick={handleSphere} />
+                    <Button label="Spheres" icon="add" onClick={handleSphere} />
                 </Flex>
             </div>,
             closeOnEscape: true,
-            footer: null,
+            footer: <Button
+                        label="Cancel"
+                        flat={true}
+                        onClick={() => dialog.hide()} />,
             title: "Add Object"
         })
     }
@@ -147,7 +150,7 @@ export default class ModelsView extends React.Component<{}, IState> {
                 console.error("[addFile]", ex)
                 if (typeof ex.message === 'string') {
                     await Dialog.error(<div>
-                        Error #{ex.code} while loading <b>{file.name}</b>:<br/>
+                        Error #{ex.code} while loading <b>{file.name}</b>:<br />
                         <code>{ex.message}</code>
                     </div>)
                 }
@@ -157,7 +160,9 @@ export default class ModelsView extends React.Component<{}, IState> {
     }
 
     private addSphere() {
-        let options: ISphereOptions = { x: 0, y: 0, z: 0, r: 10, color: [0, 1, 0, 1] }
+        let options: ISphereOptions[] = [
+            { x: 0, y: 0, z: 0, r: 10, color: [0, 1, 0, 1] }
+        ]
         const view = <SphereView onUpdate={v => {
             options = v
             console.info("options=", options);
@@ -168,16 +173,19 @@ export default class ModelsView extends React.Component<{}, IState> {
             footer: <OkCancel onCancel={() => dialog.hide()}
                 onOK={async () => {
                     dialog.hide()
-                    const model = await ObjectService.createSphere(
-                        options.x, options.y, options.z,
-                        options.r, options.color
-                    )
-                    State.dispatch(State.Models.add(model))
-                    const m = new Model(model)
-                    m.focus(0.05)
-                    m.setMaterial({
-                        diffuseColor: options.color.slice(0, 3)
-                    })
+                    let m: Model | null = null
+                    for (const option of options) {
+                        const model = await ObjectService.createSphere(
+                            option.x, option.y, option.z,
+                            option.r, option.color
+                        )
+                        State.dispatch(State.Models.add(model))
+                        m = new Model(model)
+                        m.setMaterial({
+                            diffuseColor: option.color.slice(0, 3)
+                        })
+                    }
+                    if (m) m.focus(0.05)
                 }} />
         })
     }
