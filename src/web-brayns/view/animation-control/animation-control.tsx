@@ -30,8 +30,8 @@ interface IAnimationControlState {
 }
 
 export default class AnimationControl extends React.Component<IAnimationControlProps, IAnimationControlState> {
-    constructor( props: IAnimationControlProps ) {
-        super( props );
+    constructor(props: IAnimationControlProps) {
+        super(props);
         this.state = {
             editFrameIndex: false,
             current: `${props.current}`,
@@ -40,12 +40,22 @@ export default class AnimationControl extends React.Component<IAnimationControlP
     }
 
     handleTogglePlayAnimation = async () => {
-        await Scene.Api.setAnimationParameters({
-            playing: !this.props.playing
-        })
-        State.dispatch(State.Animation.update({
-            playing: !this.props.playing
-        }))
+        const playing = !this.props.playing
+        if (playing) {
+            await Scene.Api.setRenderer({
+                head_light: false,
+                max_accum_frames: 8,
+                samples_per_pixel: 8
+            })
+        } else {
+            await Scene.Api.setRenderer({
+                head_light: false,
+                max_accum_frames: 128,
+                samples_per_pixel: 1
+            })
+        }
+        await Scene.Api.setAnimationParameters({ playing })
+        State.dispatch(State.Animation.update({ playing }))
     }
 
     handleInputChange = (value: string) => {
@@ -65,7 +75,7 @@ export default class AnimationControl extends React.Component<IAnimationControlP
     }
 
     setAnimationParameters = Debouncer((params: IAnimationControlProps) => {
-        this.setState({ current: `${params.current}`})
+        this.setState({ current: `${params.current}` })
         Scene.Api.setAnimationParameters(params);
     }, 300)
 
@@ -103,30 +113,30 @@ export default class AnimationControl extends React.Component<IAnimationControlP
         return (<div className="webBrayns-view-AnimationControl thm-bgPD-C">
             <div className="thm-bgPD flex">
                 <Icon content="skip-prev2" enabled={current > 1}
-                    onClick={this.handlePrev2Click}/>
+                    onClick={this.handlePrev2Click} />
                 <Icon content="skip-prev" enabled={current > 1}
-                    onClick={this.handlePrevClick}/>
+                    onClick={this.handlePrevClick} />
                 {
                     this.state.editFrameIndex ?
-                    <div className='input'>
-                        <Input label="Frame #"
-                            value={`${this.state.current}`}
-                            onEnterPressed={() => this.setState({ editFrameIndex: false })}
-                            onChange={this.handleInputChange}/>
-                    </div>
-                    :
-                    <div className="label"
-                         title="Click to edit"
-                         onClick={() => this.setState({ editFrameIndex: true })}>
-                        <b>{p.current}</b>
-                        <span className='hint'> / </span><br/>
-                        <span className='hint'>{`${frame_count} (${p.unit})`}</span>
-                    </div>
+                        <div className='input'>
+                            <Input label="Frame #"
+                                value={`${this.state.current}`}
+                                onEnterPressed={() => this.setState({ editFrameIndex: false })}
+                                onChange={this.handleInputChange} />
+                        </div>
+                        :
+                        <div className="label"
+                            title="Click to edit"
+                            onClick={() => this.setState({ editFrameIndex: true })}>
+                            <b>{p.current}</b>
+                            <span className='hint'> / </span><br />
+                            <span className='hint'>{`${frame_count} (${p.unit})`}</span>
+                        </div>
                 }
                 <Icon content="skip-next" enabled={current < frame_count}
-                    onClick={this.handleNextClick}/>
+                    onClick={this.handleNextClick} />
                 <Icon content="skip-next2" enabled={current < frame_count}
-                    onClick={this.handleNext2Click}/>
+                    onClick={this.handleNext2Click} />
             </div>
             <Slider min={0} max={frame_count}
                 value={p.current || 0}
@@ -144,8 +154,10 @@ export default class AnimationControl extends React.Component<IAnimationControlP
                     <div key="x32">x32</div>
                 </Combo>
             }
-            <Button icon={p.playing ? 'pause' : 'play'}
-                    onClick={this.handleTogglePlayAnimation} />
+            <Button
+                icon={p.playing ? 'pause' : 'play'}
+                small={true}
+                onClick={this.handleTogglePlayAnimation} />
         </div>)
     }
 }
@@ -153,7 +165,7 @@ export default class AnimationControl extends React.Component<IAnimationControlP
 
 // The speed is the number of frames to skip to go to the next one.
 // In Brayns' animation parameters, it is own by the parameter `delta`.
-const SPEEDS: [string,number][] = [
+const SPEEDS: [string, number][] = [
     ["NORMAL", 1],
     ["x2", 2],
     ["x4", 4],

@@ -247,7 +247,7 @@ export default class Model {
      */
     getMaterialGroups(): IMaterialGroup[] {
         if (!this.model || !this.model.brayns) {
-            console.info("this.model=", this.model);
+            console.info("Bad model! this.model=", this.model);
             return []
         }
 
@@ -255,6 +255,7 @@ export default class Model {
         if (!metadata) return []
         // Don't forget the "s" here for old versions of Brayns.
         const value = metadata.materialGroups || metadata.materialsGroups
+        console.info("value=", value);
         if (typeof value !== 'string') return []
 
         try {
