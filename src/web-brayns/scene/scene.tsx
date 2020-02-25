@@ -6,6 +6,7 @@ import React from "react"
 import { Provider } from 'react-redux'
 
 import UrlArgs from '../../tfw/url-args'
+import Lights from '../proxy/lights'
 import Api from "./api"
 import Models from '../models'
 import { IBraynsModel, IModel, IVector } from '../types'
@@ -18,6 +19,7 @@ import Camera from './camera'
 import Renderer from './renderer'
 import Loader from './loader'
 import LoaderService from '../service/loader'
+import PresetService from '../service/preset'
 
 import GesturesHandler from './gestures-handler'
 import BraynsService from '../service/brayns'
@@ -96,12 +98,13 @@ async function connect(hostName: string): Promise<BraynsService> {
 
     Scene.camera = new Camera({ ...cameraParams, ...camera });
 
-    const animation = await Api.getAnimationParameters();
-    State.dispatch(State.Animation.update(animation));
-
     Scene.brayns.subscribe("set-animation-parameters", animation => {
         State.dispatch(State.Animation.update(animation))
     })
+    const animation = await Api.getAnimationParameters();
+    animation.playing = false
+    await Api.setAnimationParameters(animation)
+
     Scene.brayns.subscribe("set-statistics", stats => {
         State.dispatch(State.Statistics.update({
             fps: stats.fps,
@@ -121,22 +124,14 @@ async function connect(hostName: string): Promise<BraynsService> {
         }))
     })
 
+    await Lights.initialize()
+    await PresetService.defaultRendering()
+
     await Scene.renderer.initialize()
 
     return Scene.brayns;
 }
 
-/*
-async function isVideoStreamingAvailable(): Promise<boolean> {
-    try {
-        await request("set-videostream", { enabled: false })
-        return true
-    }
-    catch(err) {
-        return false
-    }
-}
-*/
 async function request(method: string, params: {} = {}) {
     return new Promise((resolve, reject) => {
         try {

@@ -40,8 +40,8 @@ function mapDispatchToProps(dispatch) {
         async onApplyLightings(intensity: number) {
             Lights.instance.clear()
             Lights.instance.setKeyLight(intensity, true)
-            Lights.instance.setFillLight(intensity, true)
-            Lights.instance.setBackLight(intensity, true)
+            Lights.instance.setFillLight(intensity * 0.5, true)
+            Lights.instance.setBackLight(intensity * 2, true)
         }
     }
 }

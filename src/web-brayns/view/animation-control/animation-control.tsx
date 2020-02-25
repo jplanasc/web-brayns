@@ -3,6 +3,7 @@ import Tfw from 'tfw'
 import Util from '../../../tfw/util'
 import State from '../../state'
 import Scene from '../../scene'
+import PresetService from '../../service/preset'
 
 import "./animation-control.css"
 
@@ -42,19 +43,13 @@ export default class AnimationControl extends React.Component<IAnimationControlP
     handleTogglePlayAnimation = async () => {
         const playing = !this.props.playing
         if (playing) {
-            await Scene.Api.setRenderer({
-                head_light: false,
-                max_accum_frames: 8,
-                samples_per_pixel: 8
-            })
+            PresetService.save()
+            await PresetService.fastRenderingForSimulationPlayback()
+            await Scene.Api.setAnimationParameters({ playing })
         } else {
-            await Scene.Api.setRenderer({
-                head_light: false,
-                max_accum_frames: 128,
-                samples_per_pixel: 1
-            })
+            await Scene.Api.setAnimationParameters({ playing })
+            PresetService.restore()
         }
-        await Scene.Api.setAnimationParameters({ playing })
         State.dispatch(State.Animation.update({ playing }))
     }
 

@@ -118,6 +118,8 @@ export default class Movie extends React.Component<{}, IMovieState> {
     }
 
     private async applyFrame(keyFrame: IKeyFrame) {
+        if (!keyFrame) return
+        
         console.info("Apply keyFrame=", {
             index: this.time2frame(keyFrame.time),
             simulationStep: keyFrame.simulationStep,

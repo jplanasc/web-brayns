@@ -1,9 +1,12 @@
 import React from "react"
+import Tfw from 'tfw'
 
-import Checkbox from '../../../tfw/view/checkbox'
-import Combo from '../../../tfw/view/combo'
-import Input from '../../../tfw/view/input'
-import Flex from '../../../tfw/layout/flex'
+const Checkbox = Tfw.View.Checkbox
+const Combo = Tfw.View.Combo
+const Input = Tfw.View.Input
+const Flex = Tfw.Layout.Flex
+
+const castInteger = Tfw.Converter.Integer
 
 import { ISnapshot } from '../../types'
 
@@ -14,12 +17,29 @@ export const RESOLUTIONS: {[key: string]: [number,number]} = {
     ultraHD: [3840,2160]
 }
 
+function figureOutSizeKey(width: number, height: number) {
+    for (const resolutionKey of Object.keys(RESOLUTIONS)) {
+        const [w, h] = RESOLUTIONS[resolutionKey]
+        if (w === width && h === height) return resolutionKey
+        if (w === height && h === width) return resolutionKey
+    }
+    return "custom"
+}
+
 export const SAMPLINGS: {[key: string]: number} = {
     medium: 50,
     quick: 1,
     low: 10,
     high: 250,
     ultra: 1250
+}
+
+function figureOutSamplesKey(samples: number) {
+    for (const samplesKey of Object.keys(SAMPLINGS)) {
+        const s = SAMPLINGS[samplesKey]
+        if (s === samples) return samplesKey
+    }
+    return "custom"
 }
 
 
@@ -55,19 +75,21 @@ export default class Snapshot extends React.Component<IProps, IState> {
             widthText: `${v.width}`,
             heightText: `${v.height}`,
             samplesText: `${v.samples}`,
-            sizeKey: "custom",
-            samplesKey: "custom",
+            sizeKey: figureOutSizeKey(v.width, v.height),
+            samplesKey: figureOutSamplesKey(v.samples),
             landscape: v.width > v.height
         }
+        this.fire()
     }
 
     private fire = () => {
-        const { filename, widthText, heightText, samplesText } = this.state
+        const { filename, widthText, heightText, samplesText, landscape } = this.state
         this.props.onChange({
             filename,
-            width: parseInt(widthText, 10),
-            height: parseInt(heightText, 10),
-            samples: parseInt(samplesText, 10)
+            width: castInteger(widthText, 0),
+            height: castInteger(heightText, 0),
+            samples: castInteger(samplesText, 0),
+            landscape
         })
     }
 

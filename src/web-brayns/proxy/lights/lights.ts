@@ -29,6 +29,9 @@ export class LightsType {
         return this.ambientLight.intensity
     }
 
+    /**
+     * Remove all lights from the scene.
+     */
     async clear() {
         await Scene.Api.clearLights()
     }
