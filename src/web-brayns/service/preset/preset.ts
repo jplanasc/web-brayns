@@ -102,6 +102,7 @@ async function fastRenderingForSimulationPlayback() {
             variance_threshold: -1
         });
         await Scene.Api.setRendererParams({
+            alpha_correction: 1,
             epsilon_factor: 1,
             exposure: 1,
             fog_start: 0,
