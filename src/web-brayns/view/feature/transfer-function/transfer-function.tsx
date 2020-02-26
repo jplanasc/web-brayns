@@ -1,12 +1,18 @@
 import React from "react"
-import Input from "../../../../tfw/view/input"
-import Debouncer from "../../../../tfw/debouncer"
+import Tfw from 'tfw'
+import SnapshotService from "../../../service/snapshot"
 import CanvasOpacity from "./canvas-opacity"
 import CanvasColors from "./canvas-colors"
+import ExportAsImage from './export-as-image'
 import ColorConverter, { IStepColor } from './color-converter'
 import TransferFunctionService, { ITransferFunction, IOpacityCurve, IColorRamp }
     from '../../../service/transfer-function'
+
 import "./transfer-function.css"
+
+const Button = Tfw.View.Button
+const Input = Tfw.View.Input
+const Debouncer = Tfw.Debouncer
 
 interface TTransferFunctionStateProps {
     modelId: number
@@ -32,9 +38,9 @@ export default class TransferFunction extends React.Component<TTransferFunctionS
             transferFunction: {
                 colormap: {
                     name: 'Undefined',
-                    colors: [[0,0,0], [1,1,1]]
+                    colors: [[0, 0, 0], [1, 1, 1]]
                 },
-                opacity_curve: [[0,1], [1,1]],
+                opacity_curve: [[0, 1], [1, 1]],
                 range: [-100, 0]
             }
         }
@@ -103,6 +109,27 @@ export default class TransferFunction extends React.Component<TTransferFunctionS
         )
     }, 400)
 
+    private handleExportAsImage = () => {
+        const { minRange, maxRange, steps } = this.state
+        const dialog = Tfw.Factory.Dialog.show({
+            title: "Export as Image",
+            closeOnEscape: true,
+            footer: null,
+            icon: "export",
+            content: <ExportAsImage
+                        minRange={Number(minRange)}
+                        maxRange={Number(maxRange)}
+                        steps={steps}
+                        onCancel={() => dialog.hide()}
+                        onOK={async (filename, canvas) => {
+                            dialog.hide()
+                            await SnapshotService.saveCanvasToFile(
+                                canvas, `${filename}.png`
+                            )
+                        }}/>
+        })
+    }
+
     render() {
         const classes = ['webBrayns-view-TransferFunction']
         const { minRange, maxRange, steps } = this.state
@@ -117,14 +144,21 @@ export default class TransferFunction extends React.Component<TTransferFunctionS
                 steps={steps}
                 onStepsChange={this.handleStepsChange} />
             <div className="range">
-                <Input label="Min"
-                    size={4}
-                    value={minRange}
-                    onChange={this.handleMinChange} />
-                <Input label="Max"
-                    size={4}
-                    value={maxRange}
-                    onChange={this.handleMaxChange} />
+                <div>
+                    <Input label="Min"
+                        size={4}
+                        value={minRange}
+                        onChange={this.handleMinChange} />
+                    <Input label="Max"
+                        size={4}
+                        value={maxRange}
+                        onChange={this.handleMaxChange} />
+                </div>
+                <Button
+                    label="Export as image"
+                    icon="export"
+                    flat={false}
+                    onClick={this.handleExportAsImage} />
             </div>
         </div>)
     }

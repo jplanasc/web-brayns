@@ -1,0 +1,23 @@
+div.webBrayns-view-feature-transferFunction-ExportAsImage {
+    margin: -.5rem;
+}
+
+div.webBrayns-view-feature-transferFunction-ExportAsImage>footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: .5rem 1rem;
+}
+
+div.webBrayns-view-feature-transferFunction-ExportAsImage>section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: .25rem .25rem;
+}
+
+div.webBrayns-view-feature-transferFunction-ExportAsImage canvas {
+    margin: .5rem;
+}
