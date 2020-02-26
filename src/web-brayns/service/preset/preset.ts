@@ -93,11 +93,11 @@ async function fastRenderingForSimulationPlayback() {
     try {
         await LightsProxy.instance.clear()
         await Scene.Api.setRenderer({
-            accumulation: true,
-            current: "circuit_explorer_advanced",
+            accumulation: false,
+            current: "circuit_explorer_basic",
             head_light: true,
-            max_accum_frames: 8,
-            samples_per_pixel: 8,
+            max_accum_frames: 1,
+            samples_per_pixel: 1,
             subsampling: 1,
             variance_threshold: -1
         });
