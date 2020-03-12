@@ -1,19 +1,24 @@
 import React from "react"
+import Tfw from 'tfw'
 
 import Validator from '../../../../tfw/validator'
-import Input from '../../../../tfw/view/input'
-import Combo from '../../../../tfw/view/combo'
-import Button from '../../../../tfw/view/button'
-import Icon from '../../../../tfw/view/icon'
-import Dialog from '../../../../tfw/factory/dialog'
-import Checkbox from '../../../../tfw/view/checkbox'
 import Storage from '../../../storage'
 import CircuitProxy, { Circuit } from '../../../proxy/circuit'
 import CircuitService from '../../../service/circuit'
-import Options from '../../options'
-import castString from '../../../../tfw/converter/string'
+import TargetsSelector from "../../targets-selector"
+import TargetsSelectorButton from "../../targets-selector/button"
 
 import "./circuit.css"
+
+const Dialog = Tfw.Factory.Dialog
+const Input = Tfw.View.Input
+const Combo = Tfw.View.Combo
+const Button = Tfw.View.Button
+const Icon = Tfw.View.Icon
+const Flex = Tfw.Layout.Flex
+const Checkbox = Tfw.View.Checkbox
+const castString = Tfw.Converter.String
+
 
 interface ICircuitProps {
     path: string,
@@ -39,7 +44,8 @@ interface ICircuitState {
     axon: boolean,
     dendrite: boolean,
     apicalDendrite: boolean,
-    circuitColorScheme: string
+    circuitColorScheme: string,
+    loadingTargets: boolean
 }
 
 export default class CircuitView extends React.Component<ICircuitProps, ICircuitState> {
@@ -63,7 +69,8 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
             reports: [""],
             targetsAvailable: [],
             targetsSelected: new Set(),
-            targetsError: null
+            targetsError: null,
+            loadingTargets: true
         }
         this.circuit = CircuitProxy.create(props.path)
     }
@@ -76,7 +83,8 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     this.setState({
                         targetsAvailable: targets.sort(),
                         targetsSelected,
-                        targetsError: null
+                        targetsError: null,
+                        loadingTargets: false
                     })
                 })
                 .catch((err: string) => {
@@ -168,11 +176,23 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
         this.setState({ report })
     }
 
+    handleTargetsClick = (selectedTargets: string[]) => {
+        Dialog.alert(
+            <TargetsSelector
+                availableTargets={Array.from(this.state.targetsAvailable)}
+                selectedTargets={selectedTargets}
+                onChange={targetsSelected => this.setState({
+                    targetsSelected: new Set(targetsSelected)
+                })} />
+        )
+    }
+
     render() {
         const { path, onCancel } = this.props
         const {
             density, report, reports,
-            targetsAvailable, targetsSelected, targetsError
+            targetsAvailable, targetsSelected, targetsError,
+            loadingTargets
         } = this.state
         const { spikes, soma, axon, dendrite, apicalDendrite, morphoSDF, circuitColorScheme } = this.state
 
@@ -200,37 +220,34 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                     <div>No simulation.</div>
                 }
                 {
-                    reports.length === 1 &&
-                    <Input label="Report" value={report} enabled={false} />
-                }
-                {
-                    reports.length > 1 &&
+                    reports.length > 0 &&
                     <Combo label="Report"
                         value={report}
-                        onChange={this.handleReportChange}>{
-                            reports.map((name: string) => {
-                                if (name.length === 0) {
-                                    return <div key=""><em>Don't load any simulation</em></div>
+                        onChange={this.handleReportChange}>
+                        {
+                            addEmptyReport(reports).map((name: string) => {
+                                if (name === "") {
+                                    return <div key="">
+                                        <em className="thm-fgSD">Don't load simulation</em>
+                                    </div>
                                 }
                                 return <div key={name}>{name}</div>
                             })
-                        }</Combo>
+                        }
+                    </Combo>
                 }
                 {
-                    targetsAvailable.length > 0 ?
-                        <Options
-                            label="Targets to load"
-                            options={targetsAvailable}
-                            selection={targetsSelected}
-                            onChange={targetsSelected => this.setState({ targetsSelected })} />
-                        :
-                        (
-                            targetsError === null &&
-                            <div className="wait">
-                                <Icon content="wait" animate={true} />
-                                <div>Loading targets...</div>
-                            </div>
-                        )
+                    loadingTargets &&
+                    <Flex>
+                        <Icon content="wait" animate={true} />
+                        <div>Loading targets...</div>
+                    </Flex>
+                }
+                {
+                    !loadingTargets &&
+                    <TargetsSelectorButton
+                        selectedTargets={Array.from(targetsSelected)}
+                        onClick={this.handleTargetsClick} />
                 }
             </div>
             <br />
@@ -264,4 +281,11 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
             </footer>
         </div>)
     }
+}
+
+
+function addEmptyReport(reports: string[]): string[] {
+    const extendedReports = reports.slice()
+    extendedReports.push("")
+    return extendedReports
 }

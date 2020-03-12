@@ -1,11 +1,11 @@
 import React from "react"
-
-import Color from '../../../tfw/color'
+import Tfw from 'tfw'
 import Lights from '../../proxy/lights'
-import Slider from "../../../tfw/view/slider"
 import ColorInput from "../../../tfw/view/input-color"
 
 import "./lights.css"
+
+const Color = Tfw.Color
 
 type IColor = [number, number, number]
 

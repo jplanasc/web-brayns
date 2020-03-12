@@ -1,0 +1,40 @@
+div.webBrayns-view-TargetsSelector {
+    max-width: 480px;
+    max-height: 640px;
+    min-height: 50vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: .5rem;
+}
+
+div.webBrayns-view-TargetsSelector > div {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-width: 200px;
+}
+
+div.webBrayns-view-TargetsSelector div.targets {
+    margin: .25rem;
+    overflow: auto;
+    flex: 1 1 auto;
+    font-size: 80%;
+    max-height: 60vh;
+}
+
+div.webBrayns-view-TargetsSelector div.target {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 24px;
+    padding: 0 1em;
+    border-radius: .25em;
+    border: 1px solid #0004;
+    margin: 1px 0;
+    max-width: 220px;
+}

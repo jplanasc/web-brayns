@@ -1,11 +1,19 @@
 footer.webBrayns-view-SelectedModelInfo {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
 }
 
-footer.webBrayns-view-SelectedModelInfo div.material-group > div {
+footer.webBrayns-view-SelectedModelInfo>div.flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    flex: 1 1 auto;
+}
+
+footer.webBrayns-view-SelectedModelInfo div.material-group>div {
     padding: .25rem .5rem;
     border-radius: .25rem;
     font-variant: small-caps;

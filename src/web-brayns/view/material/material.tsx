@@ -1,8 +1,5 @@
 import React from "react"
-
-import Color from '../../../tfw/color'
-import Slider from '../../../tfw/view/slider'
-import Touchable from '../../../tfw/view/touchable'
+import Tfw from 'tfw'
 
 import { IMaterial } from '../../types'
 
@@ -13,6 +10,10 @@ import SHADING_CARTOON from './preview/cartoon.jpg'
 import SHADING_ELECTRON from './preview/electron.jpg'
 
 import "./material.css"
+
+const Color = Tfw.Color
+const Slider = Tfw.View.Slider
+const Touchable = Tfw.View.Touchable
 
 type IShader = [string, Partial<IMaterial>]
 

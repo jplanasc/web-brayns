@@ -77,5 +77,54 @@ async function start() {
     }
 }
 
+/*
+const root = document.getElementById('root') as HTMLElement;
+ReactDOM.render(<Provider store={State.store}>
+    <div>
+        <TargetsSelectorButton
+            selectedTargets={[]}
+            onClick={targets => { console.log(targets) }} />
+        <TargetsSelectorButton
+            selectedTargets={["Layer 1", "Layer 3", "Layer 5"]}
+            onClick={targets => { console.log(targets) }} />
+        <TargetsSelectorButton
+            selectedTargets={["Ancien Layer 1", "Very old Layer 2", "Almost dead Layer 3", "Layer 4", "Layer 5", "Layer 6", "Layer X"]}
+            onClick={targets => { console.log(targets) }} />
+        <TargetsSelector
+            onChange={targets => { console.log(targets) }}
+            selectedTargets={["Layer 1", "Layer 3", "Layer 5"]}
+            availableTargets={[
+                "Layer 1",
+                "Layer 2",
+                "Layer 3",
+                "Layer 4",
+                "Layer 5",
+                "Layer 6",
+                "mc2_column",
+                "L1_alpha",
+                "L23_alpha",
+                "L4_alpha",
+                "L5_alpha",
+                "L6_alpha",
+                "L1_beta",
+                "L23_beta",
+                "L4_beta",
+                "L5_beta",
+                "L6_beta",
+                "L1_gamma",
+                "L23_gamma",
+                "L4_gamma",
+                "L5_gamma",
+                "L6_gamma"
+            ]} />
+    </div>
+</Provider>, root);
+
+const splash = document.getElementById('splash-screen');
+if (splash) {
+    splash.classList.add("vanish");
+    window.setTimeout(() => document.body.removeChild(splash), 600);
+}
+*/
 
 start();

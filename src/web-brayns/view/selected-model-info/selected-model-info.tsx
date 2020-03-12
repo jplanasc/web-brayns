@@ -7,6 +7,7 @@ import { IModel } from '../../types'
 import "./selected-model-info.css"
 
 const Touchable = Tfw.View.Touchable
+const Button = Tfw.View.Button
 const Color = Tfw.Color
 
 interface IExtendedMaterialGroup extends IMaterialGroup {
@@ -38,7 +39,7 @@ export default class SelectedModelInfo extends React.Component<TSelectedModelInf
         this.reloadMaterialGroups()
     }
 
-    private async reloadMaterialGroups() {
+    private reloadMaterialGroups = async () => {
         const { modelData } = this.props
         if (!modelData) return
         if (modelData === this.lastModelData) return
@@ -50,15 +51,20 @@ export default class SelectedModelInfo extends React.Component<TSelectedModelInf
         const extendedMaterialGroups: IExtendedMaterialGroup[] = []
 
         for (const materialGroup of materialGroups) {
-            console.info("materialGroup=", materialGroup);
             if (materialGroup.ids.length === 0) continue
 
             const material = await model.getMaterial(materialGroup.ids[0])
+            if (material.error > 0) {
+                console.error(material.message)
+                continue
+            }
+            console.info("materialGroup=", materialGroup, material);
             extendedMaterialGroups.push({
                 ...materialGroup,
                 color: material.diffuseColor as [number, number, number, number]
             })
         }
+        console.info("extendedMaterialGroups=", extendedMaterialGroups);
         this.setState({ extendedMaterialGroups })
     }
 
@@ -116,6 +122,16 @@ export default class SelectedModelInfo extends React.Component<TSelectedModelInf
             }</div></Touchable>
     }
 
+    private handleRefresh = async () => {
+        const groups: IExtendedMaterialGroup[] = JSON.parse(JSON.stringify(this.state.extendedMaterialGroups))
+        for (const emg of groups) {
+            emg.color = [0,0,0,1]
+        }
+        this.setState({ extendedMaterialGroups: groups })
+        this.lastModelData = null
+        await this.reloadMaterialGroups()
+    }
+
     render() {
         const { modelData } = this.props
         if (!modelData) return null
@@ -129,8 +145,14 @@ export default class SelectedModelInfo extends React.Component<TSelectedModelInf
             return null
         }
 
-        return (<footer className={classes.join(' ')}>{
-            extendedMaterialGroups.map(this.renderExtendedMaterialGroupItem)
-        }</footer>)
+        return (<footer className={classes.join(' ')}>
+            <div className="flex">{
+                extendedMaterialGroups.map(this.renderExtendedMaterialGroupItem)
+            }</div>
+            <Button
+                icon="refresh"
+                small={true}
+                onClick={this.handleRefresh}/>
+        </footer>)
     }
 }

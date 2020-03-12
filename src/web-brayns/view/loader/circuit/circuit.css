@@ -1,3 +1,7 @@
+div.webBrayns-view-loader-Circuit {
+    max-width: 600px;
+}
+
 div.webBrayns-view-loader-Circuit > div,
 div.webBrayns-view-loader-Circuit > footer {
     width: 100%;

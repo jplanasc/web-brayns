@@ -1,7 +1,9 @@
 import React from "react"
-import Slider from '../../../tfw/view/slider'
+import Tfw from 'tfw'
 
 import "./orientation.css"
+
+const Slider = Tfw.View.Slider
 
 interface IOrientationProps {
     latitude: number,
