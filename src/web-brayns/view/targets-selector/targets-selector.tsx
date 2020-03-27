@@ -132,6 +132,7 @@ export default class TargetsSelector extends React.Component<ITargetsSelectorPro
                 <h1>Selected targets ({selectedTargets.length})</h1>
                 <List
                     className="targets thm-bg1"
+                    width="220px"
                     items={selectedTargets}
                     mapper={this.renderTarget.bind(this, this.handleSelectedClick)}
                     itemHeight={28}/>
@@ -145,6 +146,7 @@ export default class TargetsSelector extends React.Component<ITargetsSelectorPro
                 <h1>Available targets ({availableTargets.length})</h1>
                 <List
                     className="targets thm-bg1"
+                    width="220px"
                     items={availableTargets}
                     mapper={this.renderTarget.bind(this, this.handleAvailableClick)}
                     itemHeight={24}/>

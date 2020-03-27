@@ -177,14 +177,14 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
     }
 
     handleTargetsClick = (selectedTargets: string[]) => {
-        Dialog.alert(
-            <TargetsSelector
+        Dialog.show({
+            content: <TargetsSelector
                 availableTargets={Array.from(this.state.targetsAvailable)}
                 selectedTargets={selectedTargets}
                 onChange={targetsSelected => this.setState({
                     targetsSelected: new Set(targetsSelected)
                 })} />
-        )
+        })
     }
 
     render() {
