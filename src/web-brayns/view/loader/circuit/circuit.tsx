@@ -1,10 +1,10 @@
 import React from "react"
 import Tfw from 'tfw'
 
+import LoaderView from '../loader'
 import Validator from '../../../../tfw/validator'
 import Storage from '../../../storage'
 import CircuitProxy, { Circuit } from '../../../proxy/circuit'
-import CircuitService from '../../../service/circuit'
 import TargetsSelector from "../../targets-selector"
 import TargetsSelectorButton from "../../targets-selector/button"
 
@@ -17,14 +17,7 @@ const Button = Tfw.View.Button
 const Icon = Tfw.View.Icon
 const Flex = Tfw.Layout.Flex
 const Checkbox = Tfw.View.Checkbox
-const castString = Tfw.Converter.String
 
-
-interface ICircuitProps {
-    path: string,
-    onOK: (params: {}) => void,
-    onCancel: () => void
-}
 
 interface ICircuitState {
     density: string,
@@ -48,31 +41,33 @@ interface ICircuitState {
     loadingTargets: boolean
 }
 
-export default class CircuitView extends React.Component<ICircuitProps, ICircuitState> {
-    private targetsMap: Map<string, string> = new Map()
-    private readonly circuit: Circuit
+export default class CircuitView extends LoaderView<ICircuitState> {
+    private _circuit?: Circuit
 
-    constructor(props: ICircuitProps) {
-        super(props);
-        this.state = {
-            density: "1",
-            spikes: false,
-            morphoSDF: true,
-            soma: true,
-            axon: false,
-            dendrite: true,
-            apicalDendrite: true,
-            circuitColorScheme: "By id",
-            ...Storage.get("view/loader/circuit/state", {}),
-            densityValid: true,
-            report: "",
-            reports: [""],
-            targetsAvailable: [],
-            targetsSelected: new Set(),
-            targetsError: null,
-            loadingTargets: true
+    state = {
+        density: "1",
+        spikes: false,
+        morphoSDF: true,
+        soma: true,
+        axon: false,
+        dendrite: true,
+        apicalDendrite: true,
+        circuitColorScheme: "By id",
+        ...Storage.get("view/loader/circuit/state", {}),
+        densityValid: true,
+        report: "",
+        reports: [""],
+        targetsAvailable: [],
+        targetsSelected: new Set(),
+        targetsError: null,
+        loadingTargets: true
+    }
+
+    get circuit() {
+        if (!this._circuit) {
+            this._circuit = CircuitProxy.create(this.props.path)
         }
-        this.circuit = CircuitProxy.create(props.path)
+        return this._circuit
     }
 
     async componentDidMount() {
@@ -112,9 +107,9 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
         }
     }
 
-    handleOK = async () => {
+    handleChange = () => {
         try {
-            const { path, onOK } = this.props
+            const { path, onChange } = this.props
             const { density, report, targetsSelected, morphoSDF, spikes } = this.state
             const { soma, axon, dendrite, apicalDendrite, circuitColorScheme } = this.state
 
@@ -125,9 +120,7 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
 
             const params = {
                 path,
-                bounding_box: false,
                 loader_name: "Advanced circuit loader (Experimental)",
-                visible: true,
                 loader_properties: {
                     "000_db_connection_string": "",
                     "001_density": parseFloat(density) / 100,
@@ -165,7 +158,7 @@ export default class CircuitView extends React.Component<ICircuitProps, ICircuit
                 }
             }
             console.info("params=", params);
-            onOK(params)
+            onChange(params)
         }
         catch (ex) {
             Dialog.error(ex)

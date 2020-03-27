@@ -1,3 +1,4 @@
+
 import Scene from './scene'
 
 export default {
@@ -10,6 +11,10 @@ export default {
    addModel /* Add model from remote path; returns model descriptor on success */,
    chunk /* Indicate sending of a binary chunk after this message */,
    clearLights /* Remove all lights in the scene */,
+   exitLater /* Schedules Brayns to shutdown after a given amount of minutes */,
+   fsExists /* Return the type of filer (file or folder) if a given path exists, or none if it does not exists */,
+   fsGetContent /* Return the content of a file if possible, or an error otherwise */,
+   fsListDir /* Return the content of a file if possible, or an error otherwise */,
    getAnimationParameters /* Get the current state of animation-parameters */,
    getApplicationParameters /* Get the current state of application-parameters */,
    getCamera /* Get the current state of camera */,
@@ -25,8 +30,10 @@ export default {
    getRendererParams /* Get the params of the current renderer */,
    getScene /* Get the current state of scene */,
    getStatistics /* Get the current state of statistics */,
+   getVideostream /* Get the videostream parameters */,
    getVolumeParameters /* Get the current state of volume-parameters */,
    imageJpeg /* Get the current state of image-jpeg */,
+   imageStreamingMode /* Set the image streaming method between automatic or controlled */,
    inspect /* Inspect the scene at x-y position */,
    loadersSchema /* Get the schema for all loaders */,
    modelPropertiesSchema /* Get the property schema of the model */,
@@ -47,22 +54,24 @@ export default {
    setRenderer /* Set the new state of renderer */,
    setRendererParams /* Set the params on the current renderer */,
    setScene /* Set the new state of scene */,
+   setVideostream /* Set the video streaming parameters */,
    setVolumeParameters /* Set the new state of volume-parameters */,
    snapshot /* Make a snapshot of the current view */,
+   triggerJpegStream /* Triggers the engine to stream a frame to the clients */,
    updateClipPlane /* Update a clip plane with the given coefficients */,
    updateInstance /* Update the instance with the given values */,
    updateModel /* Update the model with the given values */}
 
 //========================================================================
-// "add-clip-plane" - Add a clip plane; returns the clip plane descriptor
+// "add-clip-plane" - Add a clip plane; returns the clip plane descriptor 
 //------------------------------------------------------------------------
-export type API_addClipPlane_Param0 = [
+export type IBraynsAddclipplaneInput = [
    number,
    number,
    number,
    number
 ]
-export type API_addClipPlane_Return = (
+export type IBraynsAddclipplaneOutput = (
    null
    | {
          id: (number /* Integer */);
@@ -76,14 +85,14 @@ export type API_addClipPlane_Return = (
 /**
  * Add a clip plane; returns the clip plane descriptor
  */
-async function addClipPlane(plane: API_addClipPlane_Param0): Promise<API_addClipPlane_Return> {
+async function addClipPlane(plane: IBraynsAddclipplaneInput): Promise<IBraynsAddclipplaneOutput> {
    const out = await Scene.request("add-clip-plane", plane)
-   return out as API_addClipPlane_Return
+   return out as IBraynsAddclipplaneOutput
 }
 //============================================
-// "add-light-ambient" - Add an ambient light
+// "add-light-ambient" - Add an ambient light 
 //--------------------------------------------
-export type API_addLightAmbient_Param0 = {
+export type IBraynsAddlightambientInput = {
    color: [
       number,
       number,
@@ -92,18 +101,18 @@ export type API_addLightAmbient_Param0 = {
    intensity: number;
    is_visible: boolean;
 }
-export type API_addLightAmbient_Return = (number /* Integer */)
+export type IBraynsAddlightambientOutput = (number /* Integer */)
 /**
  * Add an ambient light
  */
-async function addLightAmbient(light: API_addLightAmbient_Param0): Promise<API_addLightAmbient_Return> {
+async function addLightAmbient(light: IBraynsAddlightambientInput): Promise<IBraynsAddlightambientOutput> {
    const out = await Scene.request("add-light-ambient", light)
-   return out as API_addLightAmbient_Return
+   return out as IBraynsAddlightambientOutput
 }
 //===================================================
-// "add-light-directional" - Add a directional light
+// "add-light-directional" - Add a directional light 
 //---------------------------------------------------
-export type API_addLightDirectional_Param0 = {
+export type IBraynsAddlightdirectionalInput = {
    angularDiameter: number;
    color: [
       number,
@@ -118,18 +127,18 @@ export type API_addLightDirectional_Param0 = {
    intensity: number;
    is_visible: boolean;
 }
-export type API_addLightDirectional_Return = (number /* Integer */)
+export type IBraynsAddlightdirectionalOutput = (number /* Integer */)
 /**
  * Add a directional light
  */
-async function addLightDirectional(light: API_addLightDirectional_Param0): Promise<API_addLightDirectional_Return> {
+async function addLightDirectional(light: IBraynsAddlightdirectionalInput): Promise<IBraynsAddlightdirectionalOutput> {
    const out = await Scene.request("add-light-directional", light)
-   return out as API_addLightDirectional_Return
+   return out as IBraynsAddlightdirectionalOutput
 }
 //=====================================
-// "add-light-quad" - Add a quad light
+// "add-light-quad" - Add a quad light 
 //-------------------------------------
-export type API_addLightQuad_Param0 = {
+export type IBraynsAddlightquadInput = {
    color: [
       number,
       number,
@@ -153,18 +162,18 @@ export type API_addLightQuad_Param0 = {
       number
    ];
 }
-export type API_addLightQuad_Return = (number /* Integer */)
+export type IBraynsAddlightquadOutput = (number /* Integer */)
 /**
  * Add a quad light
  */
-async function addLightQuad(light: API_addLightQuad_Param0): Promise<API_addLightQuad_Return> {
+async function addLightQuad(light: IBraynsAddlightquadInput): Promise<IBraynsAddlightquadOutput> {
    const out = await Scene.request("add-light-quad", light)
-   return out as API_addLightQuad_Return
+   return out as IBraynsAddlightquadOutput
 }
 //=========================================
-// "add-light-sphere" - Add a sphere light
+// "add-light-sphere" - Add a sphere light 
 //-----------------------------------------
-export type API_addLightSphere_Param0 = {
+export type IBraynsAddlightsphereInput = {
    color: [
       number,
       number,
@@ -179,18 +188,18 @@ export type API_addLightSphere_Param0 = {
    ];
    radius: number;
 }
-export type API_addLightSphere_Return = (number /* Integer */)
+export type IBraynsAddlightsphereOutput = (number /* Integer */)
 /**
  * Add a sphere light
  */
-async function addLightSphere(light: API_addLightSphere_Param0): Promise<API_addLightSphere_Return> {
+async function addLightSphere(light: IBraynsAddlightsphereInput): Promise<IBraynsAddlightsphereOutput> {
    const out = await Scene.request("add-light-sphere", light)
-   return out as API_addLightSphere_Return
+   return out as IBraynsAddlightsphereOutput
 }
 //================================================
-// "add-light-spot" - Add a spotlight, returns id
+// "add-light-spot" - Add a spotlight, returns id 
 //------------------------------------------------
-export type API_addLightSpot_Param0 = {
+export type IBraynsAddlightspotInput = {
    color: [
       number,
       number,
@@ -212,18 +221,18 @@ export type API_addLightSpot_Param0 = {
    ];
    radius: number;
 }
-export type API_addLightSpot_Return = (number /* Integer */)
+export type IBraynsAddlightspotOutput = (number /* Integer */)
 /**
  * Add a spotlight, returns id
  */
-async function addLightSpot(light: API_addLightSpot_Param0): Promise<API_addLightSpot_Return> {
+async function addLightSpot(light: IBraynsAddlightspotInput): Promise<IBraynsAddlightspotOutput> {
    const out = await Scene.request("add-light-spot", light)
-   return out as API_addLightSpot_Return
+   return out as IBraynsAddlightspotOutput
 }
 //===============================================================================
-// "add-model" - Add model from remote path; returns model descriptor on success
+// "add-model" - Add model from remote path; returns model descriptor on success 
 //-------------------------------------------------------------------------------
-export type API_addModel_Param0 = {
+export type IBraynsAddmodelInput = {
    bounding_box?: boolean;
    loader_name?: string;
    loader_properties?: {};
@@ -254,7 +263,7 @@ export type API_addModel_Param0 = {
    };
    visible?: boolean;
 }
-export type API_addModel_Return = (
+export type IBraynsAddmodelOutput = (
    null
    | {
          bounding_box?: boolean;
@@ -302,39 +311,111 @@ export type API_addModel_Return = (
 /**
  * Add model from remote path; returns model descriptor on success
  */
-async function addModel(model_param: API_addModel_Param0): Promise<API_addModel_Return> {
+async function addModel(model_param: IBraynsAddmodelInput): Promise<IBraynsAddmodelOutput> {
    const out = await Scene.request("add-model", model_param)
-   return out as API_addModel_Return
+   return out as IBraynsAddmodelOutput
 }
 //=================================================================
-// "chunk" - Indicate sending of a binary chunk after this message
+// "chunk" - Indicate sending of a binary chunk after this message 
 //-----------------------------------------------------------------
-export type API_chunk_Param0 = {
+export type IBraynsChunkInput = {
    id?: string;
 }
-export type API_chunk_Return = undefined
+export type IBraynsChunkOutput = undefined
 /**
  * Indicate sending of a binary chunk after this message
  */
-async function chunk(chunk: API_chunk_Param0): Promise<API_chunk_Return> {
+async function chunk(chunk: IBraynsChunkInput): Promise<IBraynsChunkOutput> {
    const out = await Scene.request("chunk", chunk)
-   return out as API_chunk_Return
+   return out as IBraynsChunkOutput
 }
 //=================================================
-// "clear-lights" - Remove all lights in the scene
+// "clear-lights" - Remove all lights in the scene 
 //-------------------------------------------------
-export type API_clearLights_Return = undefined
+export type IBraynsClearlightsOutput = undefined
 /**
  * Remove all lights in the scene
  */
-async function clearLights(): Promise<API_clearLights_Return> {
+async function clearLights(): Promise<IBraynsClearlightsOutput> {
    const out = await Scene.request("clear-lights", )
-   return out as API_clearLights_Return
+   return out as IBraynsClearlightsOutput
+}
+//=============================================================================
+// "exit-later" - Schedules Brayns to shutdown after a given amount of minutes 
+//-----------------------------------------------------------------------------
+export type IBraynsExitlaterInput = {
+   minutes: (number /* Integer */);
+}
+export type IBraynsExitlaterOutput = undefined
+/**
+ * Schedules Brayns to shutdown after a given amount of minutes
+ */
+async function exitLater(minutes: IBraynsExitlaterInput): Promise<IBraynsExitlaterOutput> {
+   const out = await Scene.request("exit-later", minutes)
+   return out as IBraynsExitlaterOutput
+}
+//===============================================================================================================
+// "fs-exists" - Return the type of filer (file or folder) if a given path exists, or none if it does not exists 
+//---------------------------------------------------------------------------------------------------------------
+export type IBraynsFsexistsInput = {
+   path: string;
+}
+export type IBraynsFsexistsOutput = {
+   error: (number /* Integer */);
+   message: string;
+   type: string;
+}
+/**
+ * Return the type of filer (file or folder) if a given path exists, or none if it does not exists
+ */
+async function fsExists(path: IBraynsFsexistsInput): Promise<IBraynsFsexistsOutput> {
+   const out = await Scene.request("fs-exists", path)
+   return out as IBraynsFsexistsOutput
+}
+//====================================================================================
+// "fs-get-content" - Return the content of a file if possible, or an error otherwise 
+//------------------------------------------------------------------------------------
+export type IBraynsFsgetcontentInput = {
+   path: string;
+}
+export type IBraynsFsgetcontentOutput = {
+   content: string;
+   error: (number /* Integer */);
+   message: string;
+}
+/**
+ * Return the content of a file if possible, or an error otherwise
+ */
+async function fsGetContent(path: IBraynsFsgetcontentInput): Promise<IBraynsFsgetcontentOutput> {
+   const out = await Scene.request("fs-get-content", path)
+   return out as IBraynsFsgetcontentOutput
+}
+//=================================================================================
+// "fs-list-dir" - Return the content of a file if possible, or an error otherwise 
+//---------------------------------------------------------------------------------
+export type IBraynsFslistdirInput = {
+   path: string;
+}
+export type IBraynsFslistdirOutput = {
+   dirs: string[];
+   error: (number /* Integer */);
+   files: {
+      names: string[];
+      sizes: (number /* Integer */)[];
+   };
+   message: string;
+}
+/**
+ * Return the content of a file if possible, or an error otherwise
+ */
+async function fsListDir(path: IBraynsFslistdirInput): Promise<IBraynsFslistdirOutput> {
+   const out = await Scene.request("fs-list-dir", path)
+   return out as IBraynsFslistdirOutput
 }
 //============================================================================
-// "get-animation-parameters" - Get the current state of animation-parameters
+// "get-animation-parameters" - Get the current state of animation-parameters 
 //----------------------------------------------------------------------------
-export type API_getAnimationParameters_Return = {
+export type IBraynsGetanimationparametersOutput = {
    current?: (number /* Integer */);
    delta?: (number /* Integer */);
    dt?: number;
@@ -345,14 +426,14 @@ export type API_getAnimationParameters_Return = {
 /**
  * Get the current state of animation-parameters
  */
-async function getAnimationParameters(): Promise<API_getAnimationParameters_Return> {
+async function getAnimationParameters(): Promise<IBraynsGetanimationparametersOutput> {
    const out = await Scene.request("get-animation-parameters", )
-   return out as API_getAnimationParameters_Return
+   return out as IBraynsGetanimationparametersOutput
 }
 //================================================================================
-// "get-application-parameters" - Get the current state of application-parameters
+// "get-application-parameters" - Get the current state of application-parameters 
 //--------------------------------------------------------------------------------
-export type API_getApplicationParameters_Return = {
+export type IBraynsGetapplicationparametersOutput = {
    engine?: string;
    image_stream_fps?: (number /* Integer */);
    jpeg_compression?: (number /* Integer */);
@@ -364,14 +445,14 @@ export type API_getApplicationParameters_Return = {
 /**
  * Get the current state of application-parameters
  */
-async function getApplicationParameters(): Promise<API_getApplicationParameters_Return> {
+async function getApplicationParameters(): Promise<IBraynsGetapplicationparametersOutput> {
    const out = await Scene.request("get-application-parameters", )
-   return out as API_getApplicationParameters_Return
+   return out as IBraynsGetapplicationparametersOutput
 }
 //================================================
-// "get-camera" - Get the current state of camera
+// "get-camera" - Get the current state of camera 
 //------------------------------------------------
-export type API_getCamera_Return = {
+export type IBraynsGetcameraOutput = {
    current?: string;
    orientation?: [
       number,
@@ -394,20 +475,21 @@ export type API_getCamera_Return = {
 /**
  * Get the current state of camera
  */
-async function getCamera(): Promise<API_getCamera_Return> {
+async function getCamera(): Promise<IBraynsGetcameraOutput> {
    const out = await Scene.request("get-camera", )
-   return out as API_getCamera_Return
+   return out as IBraynsGetcameraOutput
 }
 //============================================================
-// "get-camera-params" - Get the params of the current camera
+// "get-camera-params" - Get the params of the current camera 
 //------------------------------------------------------------
-export type API_getCameraParams_Return = (
+export type IBraynsGetcameraparamsOutput = (
    {
-         height?: number;
+         fovy?: number;
          aspect?: number;
+         aperture_radius?: number;
+         focus_distance?: number;
          enable_clipping_planes?: boolean;
       }
-   | {}
    | {
          fovy?: number;
          aspect?: number;
@@ -418,18 +500,42 @@ export type API_getCameraParams_Return = (
    | {
          fovy?: number;
          aspect?: number;
+         aperture_radius?: number;
+         focus_distance?: number;
+         enable_clipping_planes?: boolean;
+      }
+   | {
+         height?: number;
+         aspect?: number;
+         enable_clipping_planes?: boolean;
+      }
+   | {
+         enable_clipping_planes?: boolean;
+         half?: boolean;
+      }
+   | {
+         fovy?: number;
+         aspect?: number;
+         aperture_radius?: number;
+         focus_distance?: number;
+         enable_clipping_planes?: boolean;
+      }
+   | {
+         fovy?: number;
+         aspect?: number;
+         enable_clipping_planes?: boolean;
       })
 /**
  * Get the params of the current camera
  */
-async function getCameraParams(): Promise<API_getCameraParams_Return> {
+async function getCameraParams(): Promise<IBraynsGetcameraparamsOutput> {
    const out = await Scene.request("get-camera-params", )
-   return out as API_getCameraParams_Return
+   return out as IBraynsGetcameraparamsOutput
 }
 //=========================================
-// "get-clip-planes" - Get all clip planes
+// "get-clip-planes" - Get all clip planes 
 //-----------------------------------------
-export type API_getClipPlanes_Return = (
+export type IBraynsGetclipplanesOutput = (
       null
       | {
             id: (number /* Integer */);
@@ -443,34 +549,34 @@ export type API_getClipPlanes_Return = (
 /**
  * Get all clip planes
  */
-async function getClipPlanes(): Promise<API_getClipPlanes_Return> {
+async function getClipPlanes(): Promise<IBraynsGetclipplanesOutput> {
    const out = await Scene.request("get-clip-planes", )
-   return out as API_getClipPlanes_Return
+   return out as IBraynsGetclipplanesOutput
 }
 //================================================================
-// "get-environment-map" - Get the environment map from the scene
+// "get-environment-map" - Get the environment map from the scene 
 //----------------------------------------------------------------
-export type API_getEnvironmentMap_Return = {
+export type IBraynsGetenvironmentmapOutput = {
    filename: string;
 }
 /**
  * Get the environment map from the scene
  */
-async function getEnvironmentMap(): Promise<API_getEnvironmentMap_Return> {
+async function getEnvironmentMap(): Promise<IBraynsGetenvironmentmapOutput> {
    const out = await Scene.request("get-environment-map", )
-   return out as API_getEnvironmentMap_Return
+   return out as IBraynsGetenvironmentmapOutput
 }
 //=================================
-// "get-instances" - Get instances
+// "get-instances" - Get instances 
 //---------------------------------
-export type API_getInstances_Param0 = {
+export type IBraynsGetinstancesInput = {
    id: (number /* Integer */);
    result_range?: [
       (number /* Integer */),
       (number /* Integer */)
    ];
 }
-export type API_getInstances_Return = {
+export type IBraynsGetinstancesOutput = {
       bounding_box?: boolean;
       instance_id: (number /* Integer */);
       model_id: (number /* Integer */);
@@ -502,14 +608,14 @@ export type API_getInstances_Return = {
 /**
  * Get instances
  */
-async function getInstances(id, range: API_getInstances_Param0): Promise<API_getInstances_Return> {
+async function getInstances(id, range: IBraynsGetinstancesInput): Promise<IBraynsGetinstancesOutput> {
    const out = await Scene.request("get-instances", id, range)
-   return out as API_getInstances_Return
+   return out as IBraynsGetinstancesOutput
 }
 //===============================
-// "get-lights" - get all lights
+// "get-lights" - get all lights 
 //-------------------------------
-export type API_getLights_Return = {
+export type IBraynsGetlightsOutput = {
       id: (number /* Integer */);
       properties: {};
       type: string;
@@ -517,14 +623,14 @@ export type API_getLights_Return = {
 /**
  * get all lights
  */
-async function getLights(): Promise<API_getLights_Return> {
+async function getLights(): Promise<IBraynsGetlightsOutput> {
    const out = await Scene.request("get-lights", )
-   return out as API_getLights_Return
+   return out as IBraynsGetlightsOutput
 }
 //=================================
-// "get-loaders" - Get all loaders
+// "get-loaders" - Get all loaders 
 //---------------------------------
-export type API_getLoaders_Return = {
+export type IBraynsGetloadersOutput = {
       extensions: string[];
       name: string;
       properties: {};
@@ -532,31 +638,31 @@ export type API_getLoaders_Return = {
 /**
  * Get all loaders
  */
-async function getLoaders(): Promise<API_getLoaders_Return> {
+async function getLoaders(): Promise<IBraynsGetloadersOutput> {
    const out = await Scene.request("get-loaders", )
-   return out as API_getLoaders_Return
+   return out as IBraynsGetloadersOutput
 }
 //================================================================
-// "get-model-properties" - Get the properties of the given model
+// "get-model-properties" - Get the properties of the given model 
 //----------------------------------------------------------------
-export type API_getModelProperties_Param0 = {
+export type IBraynsGetmodelpropertiesInput = {
    id: (number /* Integer */);
 }
-export type API_getModelProperties_Return = {}
+export type IBraynsGetmodelpropertiesOutput = {}
 /**
  * Get the properties of the given model
  */
-async function getModelProperties(id: API_getModelProperties_Param0): Promise<API_getModelProperties_Return> {
+async function getModelProperties(id: IBraynsGetmodelpropertiesInput): Promise<IBraynsGetmodelpropertiesOutput> {
    const out = await Scene.request("get-model-properties", id)
-   return out as API_getModelProperties_Return
+   return out as IBraynsGetmodelpropertiesOutput
 }
 //==============================================================================
-// "get-model-transfer-function" - Get the transfer function of the given model
+// "get-model-transfer-function" - Get the transfer function of the given model 
 //------------------------------------------------------------------------------
-export type API_getModelTransferFunction_Param0 = {
+export type IBraynsGetmodeltransferfunctionInput = {
    id: (number /* Integer */);
 }
-export type API_getModelTransferFunction_Return = {
+export type IBraynsGetmodeltransferfunctionOutput = {
    colormap?: {
       colors: [
             number,
@@ -577,14 +683,14 @@ export type API_getModelTransferFunction_Return = {
 /**
  * Get the transfer function of the given model
  */
-async function getModelTransferFunction(id: API_getModelTransferFunction_Param0): Promise<API_getModelTransferFunction_Return> {
+async function getModelTransferFunction(id: IBraynsGetmodeltransferfunctionInput): Promise<IBraynsGetmodeltransferfunctionOutput> {
    const out = await Scene.request("get-model-transfer-function", id)
-   return out as API_getModelTransferFunction_Return
+   return out as IBraynsGetmodeltransferfunctionOutput
 }
 //====================================================
-// "get-renderer" - Get the current state of renderer
+// "get-renderer" - Get the current state of renderer 
 //----------------------------------------------------
-export type API_getRenderer_Return = {
+export type IBraynsGetrendererOutput = {
    accumulation?: boolean;
    background_color?: [
       number,
@@ -602,51 +708,52 @@ export type API_getRenderer_Return = {
 /**
  * Get the current state of renderer
  */
-async function getRenderer(): Promise<API_getRenderer_Return> {
+async function getRenderer(): Promise<IBraynsGetrendererOutput> {
    const out = await Scene.request("get-renderer", )
-   return out as API_getRenderer_Return
+   return out as IBraynsGetrendererOutput
 }
 //================================================================
-// "get-renderer-params" - Get the params of the current renderer
+// "get-renderer-params" - Get the params of the current renderer 
 //----------------------------------------------------------------
-export type API_getRendererParams_Return = (
-   {
+export type IBraynsGetrendererparamsOutput = (
+   {}
+   | {
          gi_distance?: number;
          gi_weight?: number;
          gi_samples?: (number /* Integer */);
          shadows?: number;
          soft_shadows?: number;
+         soft_shadows_samples?: (number /* Integer */);
+         epsilon_factor?: number;
          sampling_threshold?: number;
          volume_specular_exponent?: number;
          volume_alpha_correction?: number;
          max_distance_to_secondary_model?: number;
-         pixel_alpha?: number;
+         exposure?: number;
          fog_start?: number;
          fog_thickness?: number;
-      }
-   | {}
-   | {
-         alpha_correction?: number;
-         simulation_threshold?: number;
-         pixel_alpha?: number;
-         fog_start?: number;
-         fog_thickness?: number;
+         max_bounces?: (number /* Integer */);
+         use_hardware_randomizer?: boolean;
       }
    | {
          alpha_correction?: number;
          simulation_threshold?: number;
-         pixel_alpha?: number;
+         max_distance_to_secondary_model?: number;
+         exposure?: number;
+         max_bounces?: (number /* Integer */);
+         use_hardware_randomizer?: boolean;
+      }
+   | {
+         alpha_correction?: number;
+         simulation_threshold?: number;
+         exposure?: number;
          fog_start?: number;
          fog_thickness?: number;
-         gi_distance?: number;
-         gi_weight?: number;
-         gi_softness?: number;
-         gi_samples?: (number /* Integer */);
          tf_color?: boolean;
-      }
-   | {
-         roulette_depth?: (number /* Integer */);
-         max_contribution?: number;
+         shadows?: number;
+         soft_shadows?: number;
+         shadow_distance?: number;
+         use_hardware_randomizer?: boolean;
       }
    | {
          alpha_correction?: number;
@@ -662,8 +769,23 @@ export type API_getRendererParams_Return = (
             number
          ];
          detection_on_different_material?: boolean;
-         electron_shading_enabled?: boolean;
          surface_shading_enabled?: boolean;
+         max_bounces?: (number /* Integer */);
+         exposure?: number;
+         use_hardware_randomizer?: boolean;
+      }
+   | {
+         alpha_correction?: number;
+         simulation_threshold?: number;
+         exposure?: number;
+         fog_start?: number;
+         fog_thickness?: number;
+         max_bounces?: (number /* Integer */);
+         use_hardware_randomizer?: boolean;
+      }
+   | {
+         roulette_depth?: (number /* Integer */);
+         max_contribution?: number;
       }
    | {}
    | {}
@@ -674,25 +796,18 @@ export type API_getRendererParams_Return = (
          ao_weight?: number;
          one_sided_lighting?: boolean;
          shadows_enabled?: boolean;
-      }
-   | {
-         alpha_correction?: number;
-         simulation_threshold?: number;
-         pixel_alpha?: number;
-         fog_start?: number;
-         fog_thickness?: number;
       })
 /**
  * Get the params of the current renderer
  */
-async function getRendererParams(): Promise<API_getRendererParams_Return> {
+async function getRendererParams(): Promise<IBraynsGetrendererparamsOutput> {
    const out = await Scene.request("get-renderer-params", )
-   return out as API_getRendererParams_Return
+   return out as IBraynsGetrendererparamsOutput
 }
 //==============================================
-// "get-scene" - Get the current state of scene
+// "get-scene" - Get the current state of scene 
 //----------------------------------------------
-export type API_getScene_Return = {
+export type IBraynsGetsceneOutput = {
    bounds?: {
       max: [
          number,
@@ -754,28 +869,42 @@ export type API_getScene_Return = {
 /**
  * Get the current state of scene
  */
-async function getScene(): Promise<API_getScene_Return> {
+async function getScene(): Promise<IBraynsGetsceneOutput> {
    const out = await Scene.request("get-scene", )
-   return out as API_getScene_Return
+   return out as IBraynsGetsceneOutput
 }
 //========================================================
-// "get-statistics" - Get the current state of statistics
+// "get-statistics" - Get the current state of statistics 
 //--------------------------------------------------------
-export type API_getStatistics_Return = {
+export type IBraynsGetstatisticsOutput = {
    fps: number;
    scene_size_in_bytes: (number /* Integer */);
 }
 /**
  * Get the current state of statistics
  */
-async function getStatistics(): Promise<API_getStatistics_Return> {
+async function getStatistics(): Promise<IBraynsGetstatisticsOutput> {
    const out = await Scene.request("get-statistics", )
-   return out as API_getStatistics_Return
+   return out as IBraynsGetstatisticsOutput
+}
+//====================================================
+// "get-videostream" - Get the videostream parameters 
+//----------------------------------------------------
+export type IBraynsGetvideostreamOutput = {
+   enabled?: boolean;
+   kbps?: (number /* Integer */);
+}
+/**
+ * Get the videostream parameters
+ */
+async function getVideostream(): Promise<IBraynsGetvideostreamOutput> {
+   const out = await Scene.request("get-videostream", )
+   return out as IBraynsGetvideostreamOutput
 }
 //======================================================================
-// "get-volume-parameters" - Get the current state of volume-parameters
+// "get-volume-parameters" - Get the current state of volume-parameters 
 //----------------------------------------------------------------------
-export type API_getVolumeParameters_Return = {
+export type IBraynsGetvolumeparametersOutput = {
    adaptive_max_sampling_rate?: number;
    adaptive_sampling?: boolean;
    clip_box?: {
@@ -818,31 +947,45 @@ export type API_getVolumeParameters_Return = {
 /**
  * Get the current state of volume-parameters
  */
-async function getVolumeParameters(): Promise<API_getVolumeParameters_Return> {
+async function getVolumeParameters(): Promise<IBraynsGetvolumeparametersOutput> {
    const out = await Scene.request("get-volume-parameters", )
-   return out as API_getVolumeParameters_Return
+   return out as IBraynsGetvolumeparametersOutput
 }
 //====================================================
-// "image-jpeg" - Get the current state of image-jpeg
+// "image-jpeg" - Get the current state of image-jpeg 
 //----------------------------------------------------
-export type API_imageJpeg_Return = {
+export type IBraynsImagejpegOutput = {
    data: string;
 }
 /**
  * Get the current state of image-jpeg
  */
-async function imageJpeg(): Promise<API_imageJpeg_Return> {
+async function imageJpeg(): Promise<IBraynsImagejpegOutput> {
    const out = await Scene.request("image-jpeg", )
-   return out as API_imageJpeg_Return
+   return out as IBraynsImagejpegOutput
+}
+//=========================================================================================
+// "image-streaming-mode" - Set the image streaming method between automatic or controlled 
+//-----------------------------------------------------------------------------------------
+export type IBraynsImagestreamingmodeInput = {
+   type: string;
+}
+export type IBraynsImagestreamingmodeOutput = undefined
+/**
+ * Set the image streaming method between automatic or controlled
+ */
+async function imageStreamingMode(type: IBraynsImagestreamingmodeInput): Promise<IBraynsImagestreamingmodeOutput> {
+   const out = await Scene.request("image-streaming-mode", type)
+   return out as IBraynsImagestreamingmodeOutput
 }
 //===============================================
-// "inspect" - Inspect the scene at x-y position
+// "inspect" - Inspect the scene at x-y position 
 //-----------------------------------------------
-export type API_inspect_Param0 = [
+export type IBraynsInspectInput = [
    number,
    number
 ]
-export type API_inspect_Return = {
+export type IBraynsInspectOutput = {
    hit: boolean;
    position: [
       number,
@@ -853,86 +996,86 @@ export type API_inspect_Return = {
 /**
  * Inspect the scene at x-y position
  */
-async function inspect(position: API_inspect_Param0): Promise<API_inspect_Return> {
+async function inspect(position: IBraynsInspectInput): Promise<IBraynsInspectOutput> {
    const out = await Scene.request("inspect", position)
-   return out as API_inspect_Return
+   return out as IBraynsInspectOutput
 }
 //===================================================
-// "loaders-schema" - Get the schema for all loaders
+// "loaders-schema" - Get the schema for all loaders 
 //---------------------------------------------------
-export type API_loadersSchema_Return = {}[]
+export type IBraynsLoadersschemaOutput = {}[]
 /**
  * Get the schema for all loaders
  */
-async function loadersSchema(): Promise<API_loadersSchema_Return> {
+async function loadersSchema(): Promise<IBraynsLoadersschemaOutput> {
    const out = await Scene.request("loaders-schema", )
-   return out as API_loadersSchema_Return
+   return out as IBraynsLoadersschemaOutput
 }
 //==================================================================
-// "model-properties-schema" - Get the property schema of the model
+// "model-properties-schema" - Get the property schema of the model 
 //------------------------------------------------------------------
-export type API_modelPropertiesSchema_Param0 = {
+export type IBraynsModelpropertiesschemaInput = {
    id: (number /* Integer */);
 }
-export type API_modelPropertiesSchema_Return = string
+export type IBraynsModelpropertiesschemaOutput = string
 /**
  * Get the property schema of the model
  */
-async function modelPropertiesSchema(id: API_modelPropertiesSchema_Param0): Promise<API_modelPropertiesSchema_Return> {
+async function modelPropertiesSchema(id: IBraynsModelpropertiesschemaInput): Promise<IBraynsModelpropertiesschemaOutput> {
    const out = await Scene.request("model-properties-schema", id)
-   return out as API_modelPropertiesSchema_Return
+   return out as IBraynsModelpropertiesschemaOutput
 }
 //===============================
-// "quit" - Quit the application
+// "quit" - Quit the application 
 //-------------------------------
-export type API_quit_Return = undefined
+export type IBraynsQuitOutput = undefined
 /**
  * Quit the application
  */
-async function quit(): Promise<API_quit_Return> {
+async function quit(): Promise<IBraynsQuitOutput> {
    const out = await Scene.request("quit", )
-   return out as API_quit_Return
+   return out as IBraynsQuitOutput
 }
 //===========================================================================
-// "remove-clip-planes" - Remove clip planes from the scene given their gids
+// "remove-clip-planes" - Remove clip planes from the scene given their gids 
 //---------------------------------------------------------------------------
-export type API_removeClipPlanes_Param0 = (number /* Integer */)[]
-export type API_removeClipPlanes_Return = boolean
+export type IBraynsRemoveclipplanesInput = (number /* Integer */)[]
+export type IBraynsRemoveclipplanesOutput = boolean
 /**
  * Remove clip planes from the scene given their gids
  */
-async function removeClipPlanes(ids: API_removeClipPlanes_Param0): Promise<API_removeClipPlanes_Return> {
+async function removeClipPlanes(ids: IBraynsRemoveclipplanesInput): Promise<IBraynsRemoveclipplanesOutput> {
    const out = await Scene.request("remove-clip-planes", ids)
-   return out as API_removeClipPlanes_Return
+   return out as IBraynsRemoveclipplanesOutput
 }
 //================================================
-// "remove-lights" - Remove light given their IDs
+// "remove-lights" - Remove light given their IDs 
 //------------------------------------------------
-export type API_removeLights_Param0 = (number /* Integer */)[]
-export type API_removeLights_Return = boolean
+export type IBraynsRemovelightsInput = (number /* Integer */)[]
+export type IBraynsRemovelightsOutput = boolean
 /**
  * Remove light given their IDs
  */
-async function removeLights(ids: API_removeLights_Param0): Promise<API_removeLights_Return> {
+async function removeLights(ids: IBraynsRemovelightsInput): Promise<IBraynsRemovelightsOutput> {
    const out = await Scene.request("remove-lights", ids)
-   return out as API_removeLights_Return
+   return out as IBraynsRemovelightsOutput
 }
 //==========================================================================
-// "remove-model" - Remove the model(s) with the given ID(s) from the scene
+// "remove-model" - Remove the model(s) with the given ID(s) from the scene 
 //--------------------------------------------------------------------------
-export type API_removeModel_Param0 = (number /* Integer */)[]
-export type API_removeModel_Return = boolean
+export type IBraynsRemovemodelInput = (number /* Integer */)[]
+export type IBraynsRemovemodelOutput = boolean
 /**
  * Remove the model(s) with the given ID(s) from the scene
  */
-async function removeModel(ids: API_removeModel_Param0): Promise<API_removeModel_Return> {
+async function removeModel(ids: IBraynsRemovemodelInput): Promise<IBraynsRemovemodelOutput> {
    const out = await Scene.request("remove-model", ids)
-   return out as API_removeModel_Return
+   return out as IBraynsRemovemodelOutput
 }
 //==============================================================================================================================================
-// "request-model-upload" - Request upload of blob to trigger adding of model after blob has been received; returns model descriptor on success
+// "request-model-upload" - Request upload of blob to trigger adding of model after blob has been received; returns model descriptor on success 
 //----------------------------------------------------------------------------------------------------------------------------------------------
-export type API_requestModelUpload_Param0 = {
+export type IBraynsRequestmodeluploadInput = {
    bounding_box?: boolean;
    chunks_id: string;
    loader_name?: string;
@@ -966,7 +1109,7 @@ export type API_requestModelUpload_Param0 = {
    type: string;
    visible?: boolean;
 }
-export type API_requestModelUpload_Return = (
+export type IBraynsRequestmodeluploadOutput = (
    null
    | {
          bounding_box?: boolean;
@@ -1014,39 +1157,39 @@ export type API_requestModelUpload_Return = (
 /**
  * Request upload of blob to trigger adding of model after blob has been received; returns model descriptor on success
  */
-async function requestModelUpload(param: API_requestModelUpload_Param0): Promise<API_requestModelUpload_Return> {
+async function requestModelUpload(param: IBraynsRequestmodeluploadInput): Promise<IBraynsRequestmodeluploadOutput> {
    const out = await Scene.request("request-model-upload", param)
-   return out as API_requestModelUpload_Return
+   return out as IBraynsRequestmodeluploadOutput
 }
 //==========================================================
-// "reset-camera" - Resets the camera to its initial values
+// "reset-camera" - Resets the camera to its initial values 
 //----------------------------------------------------------
-export type API_resetCamera_Return = undefined
+export type IBraynsResetcameraOutput = undefined
 /**
  * Resets the camera to its initial values
  */
-async function resetCamera(): Promise<API_resetCamera_Return> {
+async function resetCamera(): Promise<IBraynsResetcameraOutput> {
    const out = await Scene.request("reset-camera", )
-   return out as API_resetCamera_Return
+   return out as IBraynsResetcameraOutput
 }
 //=================================================
-// "schema" - Get the schema of the given endpoint
+// "schema" - Get the schema of the given endpoint 
 //-------------------------------------------------
-export type API_schema_Param0 = {
+export type IBraynsSchemaInput = {
    endpoint: string;
 }
-export type API_schema_Return = string
+export type IBraynsSchemaOutput = string
 /**
  * Get the schema of the given endpoint
  */
-async function schema(endpoint: API_schema_Param0): Promise<API_schema_Return> {
+async function schema(endpoint: IBraynsSchemaInput): Promise<IBraynsSchemaOutput> {
    const out = await Scene.request("schema", endpoint)
-   return out as API_schema_Return
+   return out as IBraynsSchemaOutput
 }
 //========================================================================
-// "set-animation-parameters" - Set the new state of animation-parameters
+// "set-animation-parameters" - Set the new state of animation-parameters 
 //------------------------------------------------------------------------
-export type API_setAnimationParameters_Param0 = {
+export type IBraynsSetanimationparametersInput = {
    current?: (number /* Integer */);
    delta?: (number /* Integer */);
    dt?: number;
@@ -1054,18 +1197,18 @@ export type API_setAnimationParameters_Param0 = {
    playing?: boolean;
    unit?: string;
 }
-export type API_setAnimationParameters_Return = boolean
+export type IBraynsSetanimationparametersOutput = boolean
 /**
  * Set the new state of animation-parameters
  */
-async function setAnimationParameters(param: API_setAnimationParameters_Param0): Promise<API_setAnimationParameters_Return> {
+async function setAnimationParameters(param: IBraynsSetanimationparametersInput): Promise<IBraynsSetanimationparametersOutput> {
    const out = await Scene.request("set-animation-parameters", param)
-   return out as API_setAnimationParameters_Return
+   return out as IBraynsSetanimationparametersOutput
 }
 //============================================================================
-// "set-application-parameters" - Set the new state of application-parameters
+// "set-application-parameters" - Set the new state of application-parameters 
 //----------------------------------------------------------------------------
-export type API_setApplicationParameters_Param0 = {
+export type IBraynsSetapplicationparametersInput = {
    engine?: string;
    image_stream_fps?: (number /* Integer */);
    jpeg_compression?: (number /* Integer */);
@@ -1074,18 +1217,18 @@ export type API_setApplicationParameters_Param0 = {
       number
    ];
 }
-export type API_setApplicationParameters_Return = boolean
+export type IBraynsSetapplicationparametersOutput = boolean
 /**
  * Set the new state of application-parameters
  */
-async function setApplicationParameters(param: API_setApplicationParameters_Param0): Promise<API_setApplicationParameters_Return> {
+async function setApplicationParameters(param: IBraynsSetapplicationparametersInput): Promise<IBraynsSetapplicationparametersOutput> {
    const out = await Scene.request("set-application-parameters", param)
-   return out as API_setApplicationParameters_Return
+   return out as IBraynsSetapplicationparametersOutput
 }
 //============================================
-// "set-camera" - Set the new state of camera
+// "set-camera" - Set the new state of camera 
 //--------------------------------------------
-export type API_setCamera_Param0 = {
+export type IBraynsSetcameraInput = {
    current?: string;
    orientation?: [
       number,
@@ -1105,24 +1248,25 @@ export type API_setCamera_Param0 = {
    ];
    types?: string[];
 }
-export type API_setCamera_Return = boolean
+export type IBraynsSetcameraOutput = boolean
 /**
  * Set the new state of camera
  */
-async function setCamera(param: API_setCamera_Param0): Promise<API_setCamera_Return> {
+async function setCamera(param: IBraynsSetcameraInput): Promise<IBraynsSetcameraOutput> {
    const out = await Scene.request("set-camera", param)
-   return out as API_setCamera_Return
+   return out as IBraynsSetcameraOutput
 }
 //============================================================
-// "set-camera-params" - Set the params on the current camera
+// "set-camera-params" - Set the params on the current camera 
 //------------------------------------------------------------
-export type API_setCameraParams_Param0 = (
+export type IBraynsSetcameraparamsInput = (
    {
-         height?: number;
+         fovy?: number;
          aspect?: number;
+         aperture_radius?: number;
+         focus_distance?: number;
          enable_clipping_planes?: boolean;
       }
-   | {}
    | {
          fovy?: number;
          aspect?: number;
@@ -1133,48 +1277,72 @@ export type API_setCameraParams_Param0 = (
    | {
          fovy?: number;
          aspect?: number;
+         aperture_radius?: number;
+         focus_distance?: number;
+         enable_clipping_planes?: boolean;
+      }
+   | {
+         height?: number;
+         aspect?: number;
+         enable_clipping_planes?: boolean;
+      }
+   | {
+         enable_clipping_planes?: boolean;
+         half?: boolean;
+      }
+   | {
+         fovy?: number;
+         aspect?: number;
+         aperture_radius?: number;
+         focus_distance?: number;
+         enable_clipping_planes?: boolean;
+      }
+   | {
+         fovy?: number;
+         aspect?: number;
+         enable_clipping_planes?: boolean;
       })
-export type API_setCameraParams_Return = boolean
+export type IBraynsSetcameraparamsOutput = boolean
 /**
  * Set the params on the current camera
  */
-async function setCameraParams(input0: API_setCameraParams_Param0): Promise<API_setCameraParams_Return> {
+async function setCameraParams(input: IBraynsSetcameraparamsInput): Promise<IBraynsSetcameraparamsOutput> {
    const out = await Scene.request("set-camera-params", input0)
-   return out as API_setCameraParams_Return
+   return out as IBraynsSetcameraparamsOutput
 }
 //============================================================
-// "set-environment-map" - Set a environment map in the scene
+// "set-environment-map" - Set a environment map in the scene 
 //------------------------------------------------------------
-export type API_setEnvironmentMap_Param0 = {
+export type IBraynsSetenvironmentmapInput = {
    filename: string;
 }
-export type API_setEnvironmentMap_Return = boolean
+export type IBraynsSetenvironmentmapOutput = boolean
 /**
  * Set a environment map in the scene
  */
-async function setEnvironmentMap(filename: API_setEnvironmentMap_Param0): Promise<API_setEnvironmentMap_Return> {
+async function setEnvironmentMap(filename: IBraynsSetenvironmentmapInput): Promise<IBraynsSetenvironmentmapOutput> {
    const out = await Scene.request("set-environment-map", filename)
-   return out as API_setEnvironmentMap_Return
+   return out as IBraynsSetenvironmentmapOutput
 }
 //================================================================
-// "set-model-properties" - Set the properties of the given model
+// "set-model-properties" - Set the properties of the given model 
 //----------------------------------------------------------------
-export type API_setModelProperties_Param0 = {
+export type IBraynsSetmodelpropertiesInput = {
    id: (number /* Integer */);
    properties: {};
 }
-export type API_setModelProperties_Return = boolean
+export type IBraynsSetmodelpropertiesOutput = boolean
 /**
  * Set the properties of the given model
  */
-async function setModelProperties(param: API_setModelProperties_Param0): Promise<API_setModelProperties_Return> {
+async function setModelProperties(param: IBraynsSetmodelpropertiesInput): Promise<IBraynsSetmodelpropertiesOutput> {
    const out = await Scene.request("set-model-properties", param)
-   return out as API_setModelProperties_Return
+   return out as IBraynsSetmodelpropertiesOutput
 }
 //==============================================================================
-// "set-model-transfer-function" - Set the transfer function of the given model
+// "set-model-transfer-function" - Set the transfer function of the given model 
 //------------------------------------------------------------------------------
-export type API_setModelTransferFunction_Param0 = {
+export type IBraynsSetmodeltransferfunctionInput = {
    id: (number /* Integer */);
    transfer_function: {
       colormap?: {
@@ -1195,18 +1363,18 @@ export type API_setModelTransferFunction_Param0 = {
       ];
    };
 }
-export type API_setModelTransferFunction_Return = boolean
+export type IBraynsSetmodeltransferfunctionOutput = boolean
 /**
  * Set the transfer function of the given model
  */
-async function setModelTransferFunction(param: API_setModelTransferFunction_Param0): Promise<API_setModelTransferFunction_Return> {
+async function setModelTransferFunction(param: IBraynsSetmodeltransferfunctionInput): Promise<IBraynsSetmodeltransferfunctionOutput> {
    const out = await Scene.request("set-model-transfer-function", param)
-   return out as API_setModelTransferFunction_Return
+   return out as IBraynsSetmodeltransferfunctionOutput
 }
 //================================================
-// "set-renderer" - Set the new state of renderer
+// "set-renderer" - Set the new state of renderer 
 //------------------------------------------------
-export type API_setRenderer_Param0 = {
+export type IBraynsSetrendererInput = {
    accumulation?: boolean;
    background_color?: [
       number,
@@ -1221,55 +1389,56 @@ export type API_setRenderer_Param0 = {
    types?: string[];
    variance_threshold?: number;
 }
-export type API_setRenderer_Return = boolean
+export type IBraynsSetrendererOutput = boolean
 /**
  * Set the new state of renderer
  */
-async function setRenderer(param: API_setRenderer_Param0): Promise<API_setRenderer_Return> {
+async function setRenderer(param: IBraynsSetrendererInput): Promise<IBraynsSetrendererOutput> {
    const out = await Scene.request("set-renderer", param)
-   return out as API_setRenderer_Return
+   return out as IBraynsSetrendererOutput
 }
 //================================================================
-// "set-renderer-params" - Set the params on the current renderer
+// "set-renderer-params" - Set the params on the current renderer 
 //----------------------------------------------------------------
-export type API_setRendererParams_Param0 = (
-   {
+export type IBraynsSetrendererparamsInput = (
+   {}
+   | {
          gi_distance?: number;
          gi_weight?: number;
          gi_samples?: (number /* Integer */);
          shadows?: number;
          soft_shadows?: number;
+         soft_shadows_samples?: (number /* Integer */);
+         epsilon_factor?: number;
          sampling_threshold?: number;
          volume_specular_exponent?: number;
          volume_alpha_correction?: number;
          max_distance_to_secondary_model?: number;
-         pixel_alpha?: number;
+         exposure?: number;
          fog_start?: number;
          fog_thickness?: number;
-      }
-   | {}
-   | {
-         alpha_correction?: number;
-         simulation_threshold?: number;
-         pixel_alpha?: number;
-         fog_start?: number;
-         fog_thickness?: number;
+         max_bounces?: (number /* Integer */);
+         use_hardware_randomizer?: boolean;
       }
    | {
          alpha_correction?: number;
          simulation_threshold?: number;
-         pixel_alpha?: number;
+         max_distance_to_secondary_model?: number;
+         exposure?: number;
+         max_bounces?: (number /* Integer */);
+         use_hardware_randomizer?: boolean;
+      }
+   | {
+         alpha_correction?: number;
+         simulation_threshold?: number;
+         exposure?: number;
          fog_start?: number;
          fog_thickness?: number;
-         gi_distance?: number;
-         gi_weight?: number;
-         gi_softness?: number;
-         gi_samples?: (number /* Integer */);
          tf_color?: boolean;
-      }
-   | {
-         roulette_depth?: (number /* Integer */);
-         max_contribution?: number;
+         shadows?: number;
+         soft_shadows?: number;
+         shadow_distance?: number;
+         use_hardware_randomizer?: boolean;
       }
    | {
          alpha_correction?: number;
@@ -1285,8 +1454,23 @@ export type API_setRendererParams_Param0 = (
             number
          ];
          detection_on_different_material?: boolean;
-         electron_shading_enabled?: boolean;
          surface_shading_enabled?: boolean;
+         max_bounces?: (number /* Integer */);
+         exposure?: number;
+         use_hardware_randomizer?: boolean;
+      }
+   | {
+         alpha_correction?: number;
+         simulation_threshold?: number;
+         exposure?: number;
+         fog_start?: number;
+         fog_thickness?: number;
+         max_bounces?: (number /* Integer */);
+         use_hardware_randomizer?: boolean;
+      }
+   | {
+         roulette_depth?: (number /* Integer */);
+         max_contribution?: number;
       }
    | {}
    | {}
@@ -1297,26 +1481,19 @@ export type API_setRendererParams_Param0 = (
          ao_weight?: number;
          one_sided_lighting?: boolean;
          shadows_enabled?: boolean;
-      }
-   | {
-         alpha_correction?: number;
-         simulation_threshold?: number;
-         pixel_alpha?: number;
-         fog_start?: number;
-         fog_thickness?: number;
       })
-export type API_setRendererParams_Return = boolean
+export type IBraynsSetrendererparamsOutput = boolean
 /**
  * Set the params on the current renderer
  */
-async function setRendererParams(input0: API_setRendererParams_Param0): Promise<API_setRendererParams_Return> {
+async function setRendererParams(input: IBraynsSetrendererparamsInput): Promise<IBraynsSetrendererparamsOutput> {
    const out = await Scene.request("set-renderer-params", input0)
-   return out as API_setRendererParams_Return
+   return out as IBraynsSetrendererparamsOutput
 }
 //==========================================
-// "set-scene" - Set the new state of scene
+// "set-scene" - Set the new state of scene 
 //------------------------------------------
-export type API_setScene_Param0 = {
+export type IBraynsSetsceneInput = {
    bounds?: {
       max: [
          number,
@@ -1375,18 +1552,33 @@ export type API_setScene_Param0 = {
                visible?: boolean;
             })[];
 }
-export type API_setScene_Return = boolean
+export type IBraynsSetsceneOutput = boolean
 /**
  * Set the new state of scene
  */
-async function setScene(param: API_setScene_Param0): Promise<API_setScene_Return> {
+async function setScene(param: IBraynsSetsceneInput): Promise<IBraynsSetsceneOutput> {
    const out = await Scene.request("set-scene", param)
-   return out as API_setScene_Return
+   return out as IBraynsSetsceneOutput
+}
+//========================================================
+// "set-videostream" - Set the video streaming parameters 
+//--------------------------------------------------------
+export type IBraynsSetvideostreamInput = {
+   enabled?: boolean;
+   kbps?: (number /* Integer */);
+}
+export type IBraynsSetvideostreamOutput = boolean
+/**
+ * Set the video streaming parameters
+ */
+async function setVideostream(params: IBraynsSetvideostreamInput): Promise<IBraynsSetvideostreamOutput> {
+   const out = await Scene.request("set-videostream", params)
+   return out as IBraynsSetvideostreamOutput
 }
 //==================================================================
-// "set-volume-parameters" - Set the new state of volume-parameters
+// "set-volume-parameters" - Set the new state of volume-parameters 
 //------------------------------------------------------------------
-export type API_setVolumeParameters_Param0 = {
+export type IBraynsSetvolumeparametersInput = {
    adaptive_max_sampling_rate?: number;
    adaptive_sampling?: boolean;
    clip_box?: {
@@ -1426,18 +1618,18 @@ export type API_setVolumeParameters_Param0 = {
       number
    ];
 }
-export type API_setVolumeParameters_Return = boolean
+export type IBraynsSetvolumeparametersOutput = boolean
 /**
  * Set the new state of volume-parameters
  */
-async function setVolumeParameters(param: API_setVolumeParameters_Param0): Promise<API_setVolumeParameters_Return> {
+async function setVolumeParameters(param: IBraynsSetvolumeparametersInput): Promise<IBraynsSetvolumeparametersOutput> {
    const out = await Scene.request("set-volume-parameters", param)
-   return out as API_setVolumeParameters_Return
+   return out as IBraynsSetvolumeparametersOutput
 }
 //==================================================
-// "snapshot" - Make a snapshot of the current view
+// "snapshot" - Make a snapshot of the current view 
 //--------------------------------------------------
-export type API_snapshot_Param0 = {
+export type IBraynsSnapshotInput = {
    animation_parameters?: (
       null
       | {
@@ -1470,6 +1662,7 @@ export type API_snapshot_Param0 = {
             ];
             types?: string[];
          });
+   filePath?: string;
    format: string;
    name?: string;
    quality?: (number /* Integer */);
@@ -1496,20 +1689,31 @@ export type API_snapshot_Param0 = {
       (number /* Integer */)
    ];
 }
-export type API_snapshot_Return = {
+export type IBraynsSnapshotOutput = {
    data: string;
 }
 /**
  * Make a snapshot of the current view
  */
-async function snapshot(settings: API_snapshot_Param0): Promise<API_snapshot_Return> {
+async function snapshot(settings: IBraynsSnapshotInput): Promise<IBraynsSnapshotOutput> {
    const out = await Scene.request("snapshot", settings)
-   return out as API_snapshot_Return
+   return out as IBraynsSnapshotOutput
+}
+//==============================================================================
+// "trigger-jpeg-stream" - Triggers the engine to stream a frame to the clients 
+//------------------------------------------------------------------------------
+export type IBraynsTriggerjpegstreamOutput = undefined
+/**
+ * Triggers the engine to stream a frame to the clients
+ */
+async function triggerJpegStream(): Promise<IBraynsTriggerjpegstreamOutput> {
+   const out = await Scene.request("trigger-jpeg-stream", )
+   return out as IBraynsTriggerjpegstreamOutput
 }
 //=======================================================================
-// "update-clip-plane" - Update a clip plane with the given coefficients
+// "update-clip-plane" - Update a clip plane with the given coefficients 
 //-----------------------------------------------------------------------
-export type API_updateClipPlane_Param0 = {
+export type IBraynsUpdateclipplaneInput = {
    id: (number /* Integer */);
    plane: [
       number,
@@ -1518,18 +1722,18 @@ export type API_updateClipPlane_Param0 = {
       number
    ];
 }
-export type API_updateClipPlane_Return = boolean
+export type IBraynsUpdateclipplaneOutput = boolean
 /**
  * Update a clip plane with the given coefficients
  */
-async function updateClipPlane(clip_plane: API_updateClipPlane_Param0): Promise<API_updateClipPlane_Return> {
+async function updateClipPlane(clip_plane: IBraynsUpdateclipplaneInput): Promise<IBraynsUpdateclipplaneOutput> {
    const out = await Scene.request("update-clip-plane", clip_plane)
-   return out as API_updateClipPlane_Return
+   return out as IBraynsUpdateclipplaneOutput
 }
 //===============================================================
-// "update-instance" - Update the instance with the given values
+// "update-instance" - Update the instance with the given values 
 //---------------------------------------------------------------
-export type API_updateInstance_Param0 = {
+export type IBraynsUpdateinstanceInput = {
    bounding_box?: boolean;
    instance_id: (number /* Integer */);
    model_id: (number /* Integer */);
@@ -1558,18 +1762,18 @@ export type API_updateInstance_Param0 = {
    };
    visible?: boolean;
 }
-export type API_updateInstance_Return = boolean
+export type IBraynsUpdateinstanceOutput = boolean
 /**
  * Update the instance with the given values
  */
-async function updateInstance(model_instance: API_updateInstance_Param0): Promise<API_updateInstance_Return> {
+async function updateInstance(model_instance: IBraynsUpdateinstanceInput): Promise<IBraynsUpdateinstanceOutput> {
    const out = await Scene.request("update-instance", model_instance)
-   return out as API_updateInstance_Return
+   return out as IBraynsUpdateinstanceOutput
 }
 //=========================================================
-// "update-model" - Update the model with the given values
+// "update-model" - Update the model with the given values 
 //---------------------------------------------------------
-export type API_updateModel_Param0 = {
+export type IBraynsUpdatemodelInput = {
    bounding_box?: boolean;
    bounds?: {
       max: [
@@ -1612,11 +1816,11 @@ export type API_updateModel_Param0 = {
    };
    visible?: boolean;
 }
-export type API_updateModel_Return = boolean
+export type IBraynsUpdatemodelOutput = boolean
 /**
  * Update the model with the given values
  */
-async function updateModel(model: API_updateModel_Param0): Promise<API_updateModel_Return> {
+async function updateModel(model: IBraynsUpdatemodelInput): Promise<IBraynsUpdatemodelOutput> {
    const out = await Scene.request("update-model", model)
-   return out as API_updateModel_Return
+   return out as IBraynsUpdatemodelOutput
 }

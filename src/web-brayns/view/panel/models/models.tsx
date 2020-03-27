@@ -4,6 +4,7 @@ import Tfw from 'tfw'
 import { IBraynsModel, IModel, IAsyncQuery } from '../../../types'
 import State from '../../../state'
 import Scene from '../../../scene'
+import { IBraynsGetloadersOutput } from '../../../scene/api'
 import SphereView from '../../object/sphere'
 import { ISphereOptions } from '../../object/sphere/types'
 import InputPath from '../../../view/input-path'
@@ -56,9 +57,15 @@ export default class ModelsView extends React.Component<{}, IState> {
     }
 
     handleAddObject = async () => {
+        const loaders: IBraynsGetloadersOutput = await Scene.Api.getLoaders()
+        const extensions: string[] = []
+        for (const loader of loaders) {
+            extensions.push(...loader.extensions)
+        }
+
         const handleFiles = async (files: FileList) => {
             dialog.hide()
-            this.addFiles(files)
+            this.addFiles(files, loaders)
         }
         const handleSphere = () => {
             dialog.hide()
@@ -69,25 +76,26 @@ export default class ModelsView extends React.Component<{}, IState> {
                 <p>What kind of object do you want to add?</p>
                 <Flex>
                     <InputFile label="File" icon="import"
-                        accept=".obj,.ply,.blend"
+                        accept={extensions.join(",")}
                         onClick={handleFiles} />
                     <Button label="Spheres" icon="add" onClick={handleSphere} />
                 </Flex>
             </div>,
             closeOnEscape: true,
             footer: <Button
-                        label="Cancel"
-                        flat={true}
-                        onClick={() => dialog.hide()} />,
+                label="Cancel"
+                flat={true}
+                onClick={() => dialog.hide()} />,
             title: "Add Object"
         })
     }
 
-    private async addFiles(files: FileList) {
+    private async addFiles(files: FileList, loaders: IBraynsGetloadersOutput) {
         for (const file of files) {
             try {
                 console.log("BEFORE")
-                await this.addFile(file)
+                const loaderName = figureOutLoaderName(file.name, loaders)
+                await this.addFile(file, loaderName)
                 console.log("AFTER")
                 const scene = await Scene.Api.getScene()
                 if (!scene.models) continue
@@ -127,10 +135,10 @@ export default class ModelsView extends React.Component<{}, IState> {
         }
     }
 
-    private async addFile(file: File) {
+    private async addFile(file: File, loaderName: string) {
         return new Promise(async (resolve, reject) => {
             try {
-                const asyncCall = await LoaderService.loadFromFile(file)
+                const asyncCall = await LoaderService.loadFromFile(file, loaderName)
                 const wait = new WaitService(() => {
                     asyncCall.cancel()
                     wait.hide()

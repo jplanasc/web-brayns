@@ -5,7 +5,6 @@
 import React from "react"
 import { Provider } from 'react-redux'
 
-import UrlArgs from '../../tfw/url-args'
 import Lights from '../proxy/lights'
 import Api from "./api"
 import Models from '../models'
@@ -17,7 +16,6 @@ import ServiceHost from '../service/host'
 import Model from './model'
 import Camera from './camera'
 import Renderer from './renderer'
-import Loader from './loader'
 import LoaderService from '../service/loader'
 import PresetService from '../service/preset'
 
@@ -31,7 +29,6 @@ const Scene: {
     host: string,
     renderer: Renderer,
     gestures: GesturesHandler,
-    loader: Loader,
     worldRadius: number,
     worldCenter: IVector
 } = {
@@ -40,7 +37,6 @@ const Scene: {
     host: '',
     renderer: new Renderer(),
     gestures: new GesturesHandler(),
-    loader: new Loader(),
     worldRadius: 10,
     worldCenter: [0,0,0]
 }
@@ -56,7 +52,6 @@ const defaultObjectToExport = {
     get host() { return Scene.host },
     get renderer(): Renderer { return Scene.renderer },
     get gestures(): GesturesHandler { return Scene.gestures },
-    get loader() { return Scene.loader },
     get worldCenter() { return Scene.worldCenter },
     get worldRadius() { return Scene.worldRadius }
  }
@@ -72,14 +67,6 @@ async function connect(hostName: string): Promise<BraynsService> {
     Scene.host = hostName;
     await ServiceHost.connect(Scene.brayns, hostName);
 
-    const loadersDefinition = await request("get-loaders")
-    if (Array.isArray(loadersDefinition)) {
-        Scene.loader.init(loadersDefinition)
-    }
-    /*
-    const videostreamAvailable = await isVideoStreamingAvailable()
-    console.info("videostreamAvailable=", videostreamAvailable);
-    */
     await Api.setCamera({ current: "perspective" })
     await Api.setCameraParams({
         aperture_radius: 0,

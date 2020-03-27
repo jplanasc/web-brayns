@@ -74,11 +74,11 @@ function makeCodeFunction(def, methodName, endpoint) {
     console.log(' */')
     console.log(`async function ${methodName}(${
         getCodeArguments(def.params, methodName)
-    }): Promise<API_${methodName}_Return> {`)
+    }): Promise<${getOutputInterfaceName(methodName)}> {`)
     console.log(`${spc(INDENT)}const out = await Scene.request("${endpoint}", ${
         getCodeArgumentNames(def.params)
     })`)
-    console.log(`${spc(INDENT)}return out as API_${methodName}_Return`)
+    console.log(`${spc(INDENT)}return out as ${getOutputInterfaceName(methodName)}`)
     console.log('}')
 }
 
@@ -87,8 +87,13 @@ function getCodeArguments(params, methodName) {
     if (params.length === 0) return '';
 
     return params.map((param, index) => {
-        const paramName = param.name || `input${index}`;
-        return `${camelize(paramName)}: API_${methodName}_Param${index}`
+        if (index === 0) {
+            const paramName = param.name || `input`;
+            return `${camelize(paramName)}: ${getInputInterfaceName(methodName)}`
+        } else {
+            const paramName = param.name || `input${index}`;
+            return `${camelize(paramName)}: ${getInputInterfaceName(methodName)}${index}`
+        }
     }).join(', ')
 }
 
@@ -111,12 +116,12 @@ function makeCodeHeader(def) {
 
 function makeCodeParams(params, methodName) {
     params.forEach((param, index) => {
-        console.log(`export type API_${methodName}_Param${index} = ${getCodeType(param)}`);
+        console.log(`export type ${getInputInterfaceName(methodName)}${index ? index: ''} = ${getCodeType(param)}`);
     })
 }
 
 function makeCodeReturns(returns, methodName) {
-    console.log(`export type API_${methodName}_Return = ${getCodeType(returns)}`);
+    console.log(`export type ${getOutputInterfaceName(methodName)} = ${getCodeType(returns)}`);
 }
 
 function getCodeType(type, indent = 0) {
@@ -219,4 +224,13 @@ function capitalize(name) {
 function isOptional(name, names) {
     if (!Array.isArray(names)) return true;
     return !names.includes(name);
+}
+
+
+function getInputInterfaceName(methodName) {
+    return `IBrayns${capitalize(methodName)}Input`
+}
+
+function getOutputInterfaceName(methodName) {
+    return `IBrayns${capitalize(methodName)}Output`
 }
