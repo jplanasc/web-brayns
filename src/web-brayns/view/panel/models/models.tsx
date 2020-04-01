@@ -57,15 +57,11 @@ export default class ModelsView extends React.Component<{}, IState> {
     }
 
     handleAddObject = async () => {
-        const loaders: IBraynsGetloadersOutput = await Scene.Api.getLoaders()
-        const extensions: string[] = []
-        for (const loader of loaders) {
-            extensions.push(...loader.extensions)
-        }
-
+        const extensions = await LoaderService.getLoadersExtensions()
+        console.info("extensions=", extensions)
         const handleFiles = async (files: FileList) => {
             dialog.hide()
-            this.addFiles(files, loaders)
+            this.addFiles(files)
         }
         const handleSphere = () => {
             dialog.hide()
@@ -90,18 +86,18 @@ export default class ModelsView extends React.Component<{}, IState> {
         })
     }
 
-    private async addFiles(files: FileList, loaders: IBraynsGetloadersOutput) {
-        for (const file of files) {
+    private async addFiles(files: FileList) {
+        for (let fileIndex = 0 ; fileIndex < files.length ; fileIndex++) {
+            const file = files[fileIndex]
             try {
-                console.log("BEFORE")
-                const loaderName = figureOutLoaderName(file.name, loaders)
-                await this.addFile(file, loaderName)
-                console.log("AFTER")
+                await this.addFile(file)
                 const scene = await Scene.Api.getScene()
                 if (!scene.models) continue
                 const models = scene.models
                     .filter(model => model && typeof model.id === 'number')
                     .sort((m1, m2) => {
+                        if (!m1) return -1
+                        if (!m2) return +1
                         // We are sure that m1, m2 are not NULL
                         // and that m1.id and m2.id are numbers.
                         return m1.id - m2.id
@@ -135,10 +131,10 @@ export default class ModelsView extends React.Component<{}, IState> {
         }
     }
 
-    private async addFile(file: File, loaderName: string) {
+    private async addFile(file: File) {
         return new Promise(async (resolve, reject) => {
             try {
-                const asyncCall = await LoaderService.loadFromFile(file, loaderName)
+                const asyncCall = await LoaderService.loadFromFile(file)
                 const wait = new WaitService(() => {
                     asyncCall.cancel()
                     wait.hide()

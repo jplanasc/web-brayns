@@ -1,12 +1,17 @@
+import Tfw from 'tfw'
 import React from "react"
 
 import { IQuaternion, IVector, IModel, IAsyncQuery } from '../types'
 import State from '../state'
 import Scene from '../scene'
-import { IBraynsGetloadersOutput } from '../scene/api'
+import { IBraynsGetloadersOutput, IBraynsAddmodelInput } from '../scene/api'
 import Model from '../scene/model'
 import Dialog from '../../tfw/factory/dialog'
 import CircuitLoaderView from '../view/loader/circuit'
+import ComboLoaders from '../view/loader/combo-loaders'
+
+const _ = Tfw.Intl.make(require("./loader.yaml"))
+const Button = Tfw.View.Button
 
 const CIRCUIT = 'Circuit viewer with meshes use-case'
 
@@ -32,6 +37,17 @@ export class LoaderService {
     }
 
     /**
+     * Return the list of extensions to use in "accept" attribute of <input> element.
+     * All extensions are lowercase ans start with a dot: ".jpg" for instance.
+     */
+    async getLoadersExtensions(): Promise<string[]> {
+        const loaders = await this.getLoaders()
+        const extensions: string[] = []
+        loaders.forEach(loader => extensions.push(...loader.extensions.map(ensureDotPrefix)))
+        return extensions
+    }
+
+    /**
      * Return an array of allé the loaders available for a filename.
      * This is based only on the file extension and on all available loaders.
      */
@@ -43,15 +59,17 @@ export class LoaderService {
 
     /**
      * Brayns provide many loaders that can manage several type of files.
-     * We know which loader we can use with the file extension.
+     * We know which loaders we can use with the file extension.
      * And for most of the loaders we need to ask extra parameters to the user.
      * This function is responsible on getting all the needed parameters.
      */
-    getLoaderParams(path: string): Promise<{}> {
+    getLoaderNameAndProperties(path: string): Promise<IBraynsAddmodelInput> {
         return new Promise((resolve: (arg: any) => void, reject) => {
             try {
-                const loaders = Scene.loader.listLoadersForPath(path)
-                const commonParams = { path, visible: true, bounding_box: false }
+                const loaders = this.getLoadersForFilename(path)
+                const loader = await this.askUserToSelectLoader(loaders)
+
+
                 const circuitLoader = loaders.find(loader => (
                     loader.name === CIRCUIT
                 ))
@@ -88,16 +106,16 @@ export class LoaderService {
         })
     }
 
-    async loadFromFile(
-        file: File,
-        loaderProperties: { [key: string]: string } = { geometry_quality: "high" }
-    ): Promise<IAsyncQuery> {
+    async loadFromFile(file: File, optionalParams?: IBraynsAddmodelInput): Promise<IAsyncQuery> {
+        const params: IBraynsAddmodelInput =
+            optionalParams ? optionalParams : await this.getLoaderNameAndProperties(file.name)
+
         return new Promise((resolve, reject) => {
             try {
                 const chunksId = Scene.brayns.nextId()
                 const filename = file.name
                 const size = file.size
-                const { base, extension } = parseFilename(filename)
+                const { base, extension } = this.parseFilename(filename)
                 const reader = new FileReader()
                 reader.onload = async (evt) => {
                     try {
@@ -107,14 +125,13 @@ export class LoaderService {
                             "request-model-upload",
                             {
                                 chunks_id: chunksId,
-                                loader_name: loaderName,
-                                loader_properties: loaderProperties,
+                                loader_name: params.loader_name,
+                                loader_properties: params.loader_properties,
                                 name: base,
                                 path: filename,
                                 size: size,
                                 type: extension
                             })
-
                         await Scene.request("chunk", { id: chunksId })
                         Scene.brayns.sendChunk(data)
                         resolve(asyncCall)
@@ -205,6 +222,25 @@ export class LoaderService {
 
     }
 
+    async askUserToSelectLoader(filename: string, loaders: ILoader[]): Promise<ILoader | null> {
+        return new Promise(resolve => {
+            let loader: ILoader | null = null
+            Dialog.show({
+                title: _('load-file'),
+                closeOnEscape: true,
+                onClose: () => resolve(null),
+                content: <ComboLoaders loaders={loaders} onChange={selection => loader = selection}/>,
+                footer: [
+                    <Button
+                        label="Cancel"
+                        key="Cancel"
+                        onClick={() => resolve(null)}
+                        flat={true}/>
+                ]
+            })
+        })
+    }
+
     parseFilename(filename: string) {
         const lastIndexOfDot = filename.lastIndexOf('.')
         if (lastIndexOfDot === -1) {
@@ -245,5 +281,13 @@ interface ILoadFromStringOptions {
     }
 }
 
+/**
+ * Returned a trimed lowercase extension always starting with a dot.
+ */
+function ensureDotPrefix(extension: string): string {
+    const base = extension.trim().toLowerCase()
+    if (base.charAt(0) === '.') return base
+    return `.${base}`
+}
 
 export default new LoaderService()
