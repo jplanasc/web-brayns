@@ -178,7 +178,7 @@ export default class CircuitView extends LoaderView<ICircuitState> {
         const { path } = this.props
         const {
             density, report, reports,
-            targetsAvailable, targetsSelected, targetsError,
+            targetsSelected, targetsError,
             loadingTargets
         } = this.state
         const { spikes, soma, axon, dendrite, apicalDendrite, morphoSDF, circuitColorScheme } = this.state

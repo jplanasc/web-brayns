@@ -63,40 +63,74 @@ export class LoaderService {
      * And for most of the loaders we need to ask extra parameters to the user.
      * This function is responsible on getting all the needed parameters.
      */
-    getLoaderNameAndProperties(path: string): Promise<IBraynsAddmodelInput> {
-        return new Promise((resolve: (arg: any) => void, reject) => {
+    getLoaderNameAndProperties(filename: string): Promise<IBraynsAddmodelInput | null> {
+        const { base } = this.parseFilename(filename)
+        return new Promise(async (resolve: (arg: any) => void, reject) => {
             try {
-                const loaders = this.getLoadersForFilename(path)
+                const loaders = await this.getLoadersForFilename(filename)
                 const loader = await this.askUserToSelectLoader(loaders)
+                if (!loader) {
+                    return resolve(null)
+                }
 
+                let component: JSX.Element | null = null
+                let properties: { [key: string]: any } = {}
+                let valid = true
 
-                const circuitLoader = loaders.find(loader => (
-                    loader.name === CIRCUIT
-                ))
-                if (!circuitLoader) {
-                    resolve(commonParams)
-                    return
+                switch (loader.name) {
+                    case "Synapse loader use-case":
+                    case "Advanced circuit loader (Experimental)":
+                    case "Morphology collage use-case":
+                    case "Circuit viewer with meshes use-case":
+                    case "Pair synapses use-case":
+                        component = <CircuitLoaderView
+                            path={filename}
+                            onValidation={v => valid = v}
+                            onChange={v => properties = v} />
+                        break;
+                    default:
+                        component = null
+                }
+
+                if (!component) {
+                    const params: IBraynsAddmodelInput = {
+                        bounding_box: false,
+                        loader_name: loader.name,
+                        loader_properties: {},
+                        name: base,
+                        path: filename,
+                        visible: true
+                    }
+                    return resolve(params)
                 }
 
                 const dialog = Dialog.show({
-                    title: "Loading a Circuit",
-                    closeOnEscape: false,
-                    footer: null,
-                    content: (<CircuitLoaderView
-                        path={path}
-                        onCancel={() => {
-                            dialog.hide()
-                            resolve(null)
-                        }}
-                        onOK={
-                            params => {
+                    title: loader.name,
+                    closeOnEscape: true,
+                    footer: [
+                        <Button
+                            flat={true}
+                            label="Cancel"
+                            onClick={() => {
                                 dialog.hide()
-                                resolve({
-                                    ...commonParams,
-                                    ...params
-                                })
-                            }
-                        } />)
+                                resolve(null)
+                            }} />,
+                        <Button
+                            label="Load"
+                            onClick={() => {
+                                const params: IBraynsAddmodelInput = {
+                                    bounding_box: false,
+                                    loader_name: loader.name,
+                                    loader_properties: properties,
+                                    name: base,
+                                    path: filename,
+                                    visible: true
+                                }
+                                dialog.hide()
+                                resolve(params)
+                            }} />
+                    ],
+                    content: component
                 })
             }
             catch (ex) {
@@ -106,11 +140,21 @@ export class LoaderService {
         })
     }
 
-    async loadFromFile(file: File, optionalParams?: IBraynsAddmodelInput): Promise<IAsyncQuery> {
-        const params: IBraynsAddmodelInput =
+    /**
+     * In case several loaders can deal with this file,
+     * the user have to pick one. But it ca also cancel the action.
+     * That's why this function can resolve into `null`.
+     */
+    async loadFromFile(file: File, optionalParams?: IBraynsAddmodelInput): Promise<IAsyncQuery | null> {
+        const params: IBraynsAddmodelInput | null =
             optionalParams ? optionalParams : await this.getLoaderNameAndProperties(file.name)
 
         return new Promise((resolve, reject) => {
+            if (!params) {
+                resolve(null)
+                return
+            }
+
             try {
                 const chunksId = Scene.brayns.nextId()
                 const filename = file.name
@@ -165,7 +209,7 @@ export class LoaderService {
         options: ILoadFromStringOptions = {}
     ) {
         const chunksId = Scene.brayns.nextId()
-        const { base, extension } = parseFilename(filename)
+        const { base, extension } = this.parseFilename(filename)
         const transfo: {
             rotation?: IQuaternion,
             rotation_center?: IVector,
@@ -179,7 +223,7 @@ export class LoaderService {
                 loader_name: "mesh",
                 loader_properties: { geometry_quality: "high" },
                 name: base,
-                path: options.path || filename,
+                path: filename,
                 size: content.length,
                 type: extension,
                 transformation: {
@@ -222,33 +266,54 @@ export class LoaderService {
 
     }
 
-    async askUserToSelectLoader(filename: string, loaders: ILoader[]): Promise<ILoader | null> {
+    /**
+     * If loaders has more than one item, the user will be provided a combobox to select
+     * the loader of its choice.
+     */
+    async askUserToSelectLoader(loaders: ILoader[]): Promise<ILoader | null> {
         return new Promise(resolve => {
+            if (!Array.isArray(loaders) || loaders.length === 0) {
+                resolve(null)
+                return
+            }
+            if (loaders.length === 1) {
+                resolve(loaders[0])
+                return
+            }
+
             let loader: ILoader | null = null
             Dialog.show({
                 title: _('load-file'),
                 closeOnEscape: true,
                 onClose: () => resolve(null),
-                content: <ComboLoaders loaders={loaders} onChange={selection => loader = selection}/>,
+                content: <ComboLoaders loaders={loaders} onChange={selection => loader = selection} />,
                 footer: [
                     <Button
                         label="Cancel"
                         key="Cancel"
                         onClick={() => resolve(null)}
-                        flat={true}/>
+                        flat={true} />,
+                    <Button
+                        label="OK"
+                        key="OK"
+                        onClick={() => resolve(loader)} />
                 ]
             })
         })
     }
 
     parseFilename(filename: string) {
-        const lastIndexOfDot = filename.lastIndexOf('.')
+        const lastIndexOfSlash = filename.lastIndexOf('/')
+        const path = filename.substr(0, lastIndexOfSlash - 1)
+        const rest = filename.substr(lastIndexOfSlash + 1)
+        const lastIndexOfDot = rest.lastIndexOf('.')
         if (lastIndexOfDot === -1) {
-            return { base: filename, extension: '' }
+            return { path, base: rest, extension: '' }
         }
         return {
-            base: filename.substr(0, lastIndexOfDot),
-            extension: filename.substr(lastIndexOfDot + 1)
+            path,
+            base: rest.substr(0, lastIndexOfDot),
+            extension: rest.substr(lastIndexOfDot + 1)
         }
     }
 }
