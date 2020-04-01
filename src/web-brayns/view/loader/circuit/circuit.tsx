@@ -13,7 +13,6 @@ import "./circuit.css"
 const Dialog = Tfw.Factory.Dialog
 const Input = Tfw.View.Input
 const Combo = Tfw.View.Combo
-const Button = Tfw.View.Button
 const Icon = Tfw.View.Icon
 const Flex = Tfw.Layout.Flex
 const Checkbox = Tfw.View.Checkbox
@@ -109,7 +108,6 @@ export default class CircuitView extends LoaderView<ICircuitState> {
 
     handleChange = () => {
         try {
-            const { path, onChange } = this.props
             const { density, report, targetsSelected, morphoSDF, spikes } = this.state
             const { soma, axon, dendrite, apicalDendrite, circuitColorScheme } = this.state
 
@@ -118,49 +116,45 @@ export default class CircuitView extends LoaderView<ICircuitState> {
             // When showing only soma, we will have a bigger radius.
             const radiusMultiplier = axon || dendrite || apicalDendrite ? 1 : 8
 
-            const params = {
-                path,
-                loader_name: "Advanced circuit loader (Experimental)",
-                loader_properties: {
-                    "000_db_connection_string": "",
-                    "001_density": parseFloat(density) / 100,
-                    "002_random_seed": 0,
-                    "010_targets": Array.from(targetsSelected).join(","),
-                    "011_gids": "",  // cellGIDs.map(castString).join(","),
-                    "020_report": report,
-                    "021_report_type": spikes ? "Spikes" : "Voltages from file",
-                    "022_user_data_type": "Undefined",
-                    "023_synchronous_mode": true,
-                    "030_circuit_color_scheme": circuitColorScheme || "None",
-                    "040_mesh_folder": "",
-                    "041_mesh_filename_pattern": "mesh_{gid}.obj",
-                    "042_mesh_transformation": false,
-                    "050_radius_multiplier": radiusMultiplier,
-                    "051_radius_correction": 0,
-                    "052_section_type_soma": soma,
-                    "053_section_type_axon": axon,
-                    "054_section_type_dendrite": dendrite,
-                    "055_section_type_apical_dendrite": apicalDendrite,
-                    "060_use_sdf_geometry": morphoSDF,
-                    "061_dampen_branch_thickness_changerate": true,
-                    "070_realistic_soma": false,
-                    "071_metaballs_samples_from_soma": 5,
-                    "072_metaballs_grid_size": 20,
-                    "073_metaballs_threshold": 1,
-                    "080_morphology_color_scheme": "None",
-                    "090_morphology_quality": "High",
-                    "091_max_distance_to_soma": 1.7976931348623157e+308,
-                    "100_cell_clipping": false,
-                    "101_areas_of_interest": 0,
-                    "110_synapse_radius": 1,
-                    "111_load_afferent_synapses": false,
-                    "112_load_efferent_synapses": false
-                }
+            const loader_properties = {
+                "000_db_connection_string": "",
+                "001_density": parseFloat(density) / 100,
+                "002_random_seed": 0,
+                "010_targets": Array.from(targetsSelected).join(","),
+                "011_gids": "",  // cellGIDs.map(castString).join(","),
+                "020_report": report,
+                "021_report_type": spikes ? "Spikes" : "Voltages from file",
+                "022_user_data_type": "Undefined",
+                "023_synchronous_mode": true,
+                "030_circuit_color_scheme": circuitColorScheme || "None",
+                "040_mesh_folder": "",
+                "041_mesh_filename_pattern": "mesh_{gid}.obj",
+                "042_mesh_transformation": false,
+                "050_radius_multiplier": radiusMultiplier,
+                "051_radius_correction": 0,
+                "052_section_type_soma": soma,
+                "053_section_type_axon": axon,
+                "054_section_type_dendrite": dendrite,
+                "055_section_type_apical_dendrite": apicalDendrite,
+                "060_use_sdf_geometry": morphoSDF,
+                "061_dampen_branch_thickness_changerate": true,
+                "070_realistic_soma": false,
+                "071_metaballs_samples_from_soma": 5,
+                "072_metaballs_grid_size": 20,
+                "073_metaballs_threshold": 1,
+                "080_morphology_color_scheme": "None",
+                "090_morphology_quality": "High",
+                "091_max_distance_to_soma": 1.7976931348623157e+308,
+                "100_cell_clipping": false,
+                "101_areas_of_interest": 0,
+                "110_synapse_radius": 1,
+                "111_load_afferent_synapses": false,
+                "112_load_efferent_synapses": false
             }
-            console.info("params=", params);
-            onChange(params)
-        }
-        catch (ex) {
+            console.info("loader_properties=", loader_properties)
+            this.fireUpdate(loader_properties, "Advanced circuit loader (Experimental)")
+            this.props.onValidation(true)
+        } catch (ex) {
             Dialog.error(ex)
         }
     }
@@ -181,7 +175,7 @@ export default class CircuitView extends LoaderView<ICircuitState> {
     }
 
     render() {
-        const { path, onCancel } = this.props
+        const { path } = this.props
         const {
             density, report, reports,
             targetsAvailable, targetsSelected, targetsError,
@@ -263,15 +257,6 @@ export default class CircuitView extends LoaderView<ICircuitState> {
                 <Checkbox label="Dendrite" value={dendrite} onChange={dendrite => this.setState({ dendrite })} />
                 <Checkbox label="Apical Dendrite" value={apicalDendrite} onChange={apicalDendrite => this.setState({ apicalDendrite })} />
             </div>
-            <hr />
-            <footer>
-                <Button flat={true} label="Cancel" onClick={onCancel} />
-                <Button
-                    flat={false}
-                    enabled={targetsSelected.size >= 0}
-                    label="Load Circuit"
-                    onClick={this.handleOK} />
-            </footer>
         </div>)
     }
 }

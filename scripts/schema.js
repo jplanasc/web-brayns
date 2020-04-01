@@ -1,8 +1,8 @@
 const Http = require("request-promise-native");
-const INDENT = 3;
+const INDENT = 4;
 
 if (process.argv.length < 3) {
-    console.console.error(`
+    console.error(`
 This script aims to produce a Typescript file from endpoints provided by Brayns.
 It uses the REST interface of BraynsServices and starts with the /regitry endpoint.
 
@@ -102,7 +102,7 @@ function getCodeArgumentNames(params, methodName) {
     if (params.length === 0) return '';
 
     return params.map((param, index) => {
-        const paramName = param.name || `input${index}`;
+        const paramName = param.name || `input${index === 0 ? '' : index}`;
         return camelize(paramName)
     }).join(', ')
 }

@@ -56,16 +56,16 @@ const defaultObjectToExport = {
     get worldRadius() { return Scene.worldRadius }
  }
 
- export default defaultObjectToExport;
+ export default defaultObjectToExport
 
 /**
  * Try to connect to a Brayns service and fails if it takes too long.
  */
 async function connect(hostName: string): Promise<BraynsService> {
     hostName = removeHostNamePrefix(hostName)
-    console.info("hostName=", hostName);
-    Scene.host = hostName;
-    await ServiceHost.connect(Scene.brayns, hostName);
+    console.info(`Connecting to ${hostName}...`)
+    Scene.host = hostName
+    await ServiceHost.connect(Scene.brayns, hostName)
 
     await Api.setCamera({ current: "perspective" })
     await Api.setCameraParams({
@@ -79,16 +79,16 @@ async function connect(hostName: string): Promise<BraynsService> {
         image_stream_fps: 15,
         jpeg_compression: 80
     })
-    const camera = await request('get-camera') as {};
-    const cameraParams = await request('get-camera-params') as {};
-    console.info("camera, cameraParams=", camera, cameraParams);
+    const camera = await request('get-camera') as {}
+    const cameraParams = await request('get-camera-params') as {}
+    console.info("camera, cameraParams=", camera, cameraParams)
 
-    Scene.camera = new Camera({ ...cameraParams, ...camera });
+    Scene.camera = new Camera({ ...cameraParams, ...camera })
 
     Scene.brayns.subscribe("set-animation-parameters", animation => {
         State.dispatch(State.Animation.update(animation))
     })
-    const animation = await Api.getAnimationParameters();
+    const animation = await Api.getAnimationParameters()
     animation.playing = false
     await Api.setAnimationParameters(animation)
 
@@ -116,35 +116,35 @@ async function connect(hostName: string): Promise<BraynsService> {
 
     await Scene.renderer.initialize()
 
-    return Scene.brayns;
+    return Scene.brayns
 }
 
 async function request(method: string, params: {} = {}) {
     return new Promise((resolve, reject) => {
         try {
             if (!Scene.brayns) {
-                console.error("No BraynsService!");
-                reject();
-                return;
+                console.error("No BraynsService!")
+                reject()
+                return
             }
-            const loader = Scene.brayns.exec(method, params);
+            const loader = Scene.brayns.exec(method, params)
             loader.then((output: any) => {
                 resolve(output)
             },
             (error: any) => {
                 /*
-                console.error("Brayns request error!");
-                console.error("   >>> method =", method);
-                console.error("   >>> params =", params);
-                console.error("   >>> error  =", error);
+                console.error("Brayns request error!")
+                console.error("   >>> method =", method)
+                console.error("   >>> params =", params)
+                console.error("   >>> error  =", error)
                 */
                 reject(error)
-            });
+            })
         }
         catch( error ) {
-            console.error("Brayns request exception!", error);
-            console.error("   >>> method =", method);
-            console.error("   >>> params =", params);
+            console.error("Brayns request exception!", error)
+            console.error("   >>> method =", method)
+            console.error("   >>> params =", params)
             reject(error)
         }
     })
@@ -154,15 +154,15 @@ async function request(method: string, params: {} = {}) {
  * Remove everything from the scene.
  */
 async function clear(): Promise<boolean> {
-    const scene: any = await request('get-scene');
-    if (!scene) return false;
-    const models = scene.models;
-    if (!models) return false;
-    const ids = models.map( (model: any) => model.id );
-    await request("remove-model", ids);
+    const scene: any = await request('get-scene')
+    if (!scene) return false
+    const models = scene.models
+    if (!models) return false
+    const ids = models.map( (model: any) => model.id )
+    await request("remove-model", ids)
     State.dispatch(State.Models.reset([]))
 
-    return true;
+    return true
 }
 
 async function loadMeshFromPath(path: string): Promise<Model|null> {
@@ -170,7 +170,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
 
     try {
         const params = await LoaderService.getLoaderParams(path)
-        console.info("[loadMeshFromPath] params=", params);
+        console.info("[loadMeshFromPath] params=", params)
         const query = Scene.brayns.execAsync("add-model", params)
         const wait = <Provider store={State.store}><Wait onCancel={() => {
             query.cancel()
@@ -188,7 +188,7 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
             return null
         }
 
-        const fixedOptions = await fixBoundsIfNeeded(result.message);
+        const fixedOptions = await fixBoundsIfNeeded(result.message)
 
         const model: IModel = {
             brayns: {
@@ -210,16 +210,16 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
             technical: false,
             parent: -1,
             ...fixedOptions
-        };
-        const modelInstance = new Model(model);
+        }
+        const modelInstance = new Model(model)
         // We have to applyTransfo because the scale can change the location.
         modelInstance.locate(model.brayns.transformation.translation)
         await modelInstance.applyTransfo()
-        State.dispatch(State.Models.add(model));
-        State.dispatch(State.CurrentModel.reset(model));
-        console.info("modelInstance.isCircuit()=", modelInstance.isCircuit());
+        State.dispatch(State.Models.add(model))
+        State.dispatch(State.CurrentModel.reset(model))
+        console.info("modelInstance.isCircuit()=", modelInstance.isCircuit())
         await modelInstance.setMaterial()
-        return new Model(model);
+        return new Model(model)
     }
     catch (ex) {
         dialog.hide()
@@ -232,30 +232,6 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         return null
     }
 }
-
-/**
- * SHADING_MODE_NONE = 0
- * SHADING_MODE_DIFFUSE = 1
- * SHADING_MODE_ELECTRON = 2
- * SHADING_MODE_CARTOON = 3
- * SHADING_MODE_ELECTRON_TRANSPARENCY = 4
- * SHADING_MODE_PERLIN = 5
- * SHADING_MODE_DIFFUSE_TRANSPARENCY = 6
- */
-function convertShadingMode(mode: string|undefined) {
-    if (typeof mode !== 'string') return 0
-
-    switch (mode.toLowerCase()) {
-        case 'diffuse': return 1
-        case 'electron': return 2
-        case 'cartoon': return 3
-        case 'electron-alpha': return 4
-        case 'perlin': return 5
-        case 'diffuse-alpha': return 6
-        default: return 0
-    }
-}
-
 
 /**
  * There is a bug in addModel(). The returns doen't compute the bounds.
@@ -276,7 +252,7 @@ async function fixBoundsIfNeeded(braynsModel: IBraynsModel): Promise<IBraynsMode
         ...braynsModel.bounds,
         ...modelWithSearchedId.bounds
     }
-    return braynsModel;
+    return braynsModel
 }
 
 /**
@@ -284,8 +260,8 @@ async function fixBoundsIfNeeded(braynsModel: IBraynsModel): Promise<IBraynsMode
  */
 window.setInterval(async () => {
     // Compute world radius.
-    const models = Models.getVisibleModels();
-    const bounds = Models.getModelsBounds(models);
+    const models = Models.getVisibleModels()
+    const bounds = Models.getModelsBounds(models)
     const x = bounds.max[0] - bounds.min[0]
     const y = bounds.max[1] - bounds.min[1]
     const z = bounds.max[2] - bounds.min[2]

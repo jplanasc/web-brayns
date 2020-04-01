@@ -7,7 +7,8 @@ export interface ILoaderProps {
         path: string,
         loader_name: string,
         loader_properties: { [key: string]: any }
-    }) => void
+    }) => void,
+    onValidation: (valid: boolean) => void
 }
 
 /**
@@ -35,7 +36,7 @@ export default class DefaultLoaderView<TState={}> extends React.Component<ILoade
         onChange({ path, loader_name, loader_properties: loaderProperties })
     }
 
-    render() {
+    render(): JSX.Element | null {
         return null
     }
 }
