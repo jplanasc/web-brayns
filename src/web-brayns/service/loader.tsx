@@ -53,8 +53,32 @@ export class LoaderService {
      */
     async getLoadersForFilename(filename: string): Promise<ILoader[]> {
         const loaders = await this.getLoaders()
-        const { extension } = this.parseFilename(filename)
-        return loaders.filter(loader => loader.extensions.indexOf(extension) !== -1)
+        const { extension, base } = this.parseFilename(filename)
+        const byExtension = loaders.filter(loader => loader.extensions.indexOf(extension) !== -1)
+        if (byExtension.length > 0) return byExtension
+
+        // Some file has no extension, but we can look at the base name
+        // as it was an actuyl extension.
+        const byBaseSuffix = loaders
+            .filter(loader => {
+                for (const ext of loader.extensions) {
+                    if (base.endsWith(ext)) return true
+                }
+                return false
+            })
+        if (byBaseSuffix.length > 0) return byBaseSuffix
+
+        // Sometime, Circuits have numbers at the end of the name.
+        // For instance "BlueConfig3".
+        // We must match them also.
+        const bySubstring = loaders
+            .filter(loader => {
+                for (const ext of loader.extensions) {
+                    if (base.toLowerCase().indexOf(ext.toLowerCase())) return true
+                }
+                return false
+            })
+        return bySubstring
     }
 
     /**
@@ -68,6 +92,13 @@ export class LoaderService {
         return new Promise(async (resolve: (arg: any) => void, reject) => {
             try {
                 const loaders = await this.getLoadersForFilename(filename)
+                console.info("loaders=", loaders)
+                if (loaders.length === 0) {
+                    await Dialog.alert(<div>
+                        No loader matches this kind of file:<br/><b><code>{base}</code></b>!
+                    </div>)
+                    return resolve(null)
+                }
                 const loader = await this.askUserToSelectLoader(loaders)
                 if (!loader) {
                     return resolve(null)
@@ -282,21 +313,29 @@ export class LoaderService {
             }
 
             let loader: ILoader | null = null
-            Dialog.show({
+            const dialog = Dialog.show({
                 title: _('load-file'),
                 closeOnEscape: true,
                 onClose: () => resolve(null),
-                content: <ComboLoaders loaders={loaders} onChange={selection => loader = selection} />,
+                content: <ComboLoaders
+                    loaders={loaders}
+                    onChange={selection => loader = selection} />,
                 footer: [
                     <Button
                         label="Cancel"
                         key="Cancel"
-                        onClick={() => resolve(null)}
+                        onClick={() => {
+                            dialog.hide()
+                            resolve(null)
+                        }}
                         flat={true} />,
                     <Button
                         label="OK"
                         key="OK"
-                        onClick={() => resolve(loader)} />
+                        onClick={() => {
+                            dialog.hide()
+                            resolve(loader)
+                        }} />
                 ]
             })
         })

@@ -5,7 +5,6 @@ import { ILoader } from '../../../service/loader'
 import "./combo-loaders.css"
 
 const Combo = Tfw.View.Combo
-const _ = Tfw.Intl.make(require("./combo-loaders.yaml"))
 
 interface IComboLoadersProps {
     className?: string[]
@@ -17,8 +16,14 @@ interface IComboLoadersState {
 }
 
 export default class ComboLoaders extends React.Component<IComboLoadersProps, IComboLoadersState> {
-    state = {
-        name: this.props.loaders[0]?.name
+    constructor(props: IComboLoadersProps) {
+        super(props)
+        const loaders = props.loaders
+        if (!loaders) return
+        loaders.sort(sortByName)
+        const loader = loaders[0]
+        if (!loader) return
+        this.state = { name: loader.name }
     }
 
     componentDidMount() {
@@ -36,19 +41,32 @@ export default class ComboLoaders extends React.Component<IComboLoadersProps, IC
             'webBrayns-view-loader-ComboLoaders',
             ...Tfw.Converter.StringArray(this.props.className, [])
         ]
+        const { loaders } = this.props
+        loaders.sort(sortByName)
+        let selectedLoaderName = this.state.name
+        if (!selectedLoaderName) selectedLoaderName = loaders[0].name
 
         return (<div className={classes.join(' ')}>
             <Combo
-                label={_('label')}
+                label="Please select a loader"
                 wide={true}
-                value={this.state.name}
+                value={selectedLoaderName}
                 onChange={this.handleChange}>
                 {
-                    this.props.loaders.map(
+                    loaders.map(
                         loader => <div key={loader.name}>{loader.name}</div>
                     )
                 }
             </Combo>
         </div>)
     }
+}
+
+
+function sortByName(a: ILoader, b: ILoader): number {
+    const nameA = a.name
+    const nameB = b.name
+    if (nameA < nameB) return -1
+    if (nameA > nameB) return +1
+    return 0
 }

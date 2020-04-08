@@ -2,6 +2,7 @@
  * Communication to Brayns service is made through WebSocket.
  */
 import Tfw from 'tfw'
+import React from 'react'
 import Listeners from '../../tfw/listeners'
 import { IAsyncQuery } from '../types'
 
@@ -266,8 +267,17 @@ export default class BraynsService {
     private handleClose = async (event: Event) => {
         console.log('### [WS] Close:', event)
         this.readyListeners.fire(false)
-        await Tfw.Factory.Dialog.error("Connection with Brayns Service has been lost!")
-        window.setTimeout(() => this.connect(), 250)
+        const retryConnection = await Tfw.Factory.Dialog.confirm(
+            "Try to reconnect",
+            <div>
+                <p><b>Connection with Brayns Service has been lost!</b></p>
+                <p>Do you want to try to reconnect?</p>
+            </div>)
+        if (retryConnection) {
+            window.setTimeout(() => window.location.reload(), 250)
+        } else {
+            window.location.search = ''
+        }
     }
 
     private handleError = (event: Event) => {

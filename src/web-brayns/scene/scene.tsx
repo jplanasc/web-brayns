@@ -169,8 +169,10 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
     let dialog: any = null
 
     try {
-        const params = await LoaderService.getLoaderParams(path)
+        const params = await LoaderService.getLoaderNameAndProperties(path)
         console.info("[loadMeshFromPath] params=", params)
+        if (!params) return null
+        
         const query = Scene.brayns.execAsync("add-model", params)
         const wait = <Provider store={State.store}><Wait onCancel={() => {
             query.cancel()
@@ -222,8 +224,8 @@ async function loadMeshFromPath(path: string): Promise<Model|null> {
         return new Model(model)
     }
     catch (ex) {
-        dialog.hide()
         console.error(ex)
+        if (dialog) dialog.hide()
         Dialog.alert(
             <div>
                 <h1>Error!</h1>
