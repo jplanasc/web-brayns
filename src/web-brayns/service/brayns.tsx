@@ -32,9 +32,24 @@ export default class BraynsService {
     readonly subscribers: ISubscribers = {}
     private host = ""
 
+    /**
+     * By default WebSocket connections are insecure and with protocol "rockets".
+     * If the URL has "wss" params, then we will use WWS to encrypt the connection
+     * and the protocol will be the value of this param.
+     */
+    private getConnectionParams(host: string) {
+        const urlArgs = Tfw.UrlArgs.parse()
+        const securedConnection = urlArgs.wss ? true : false
+        const protocol = typeof urlArgs.wss === 'string' ? urlArgs.wss : "rockets"
+        const url = `${securedConnection ? "wss" : "ws"}://${host}/ws`
+        console.info("{url, protocol}=", {url, protocol})
+        return { url, protocol }
+    }
+
     async connect(hostname: string | null = null): Promise<boolean> {
         this.host = hostname || this.host
-        const url = `ws://${this.host}/ws`
+
+        const { url, protocol } = this.getConnectionParams(this.host)
 
         return new Promise((resolve, reject) => {
             try {
@@ -51,7 +66,7 @@ export default class BraynsService {
 
                 // The protocol ("rocjets") is mandatory otherwise Brayns will ignore you.
                 console.log("WebSocket connection to", url, " with protocol 'rocket'...")
-                const ws = new WebSocket(url, ["rockets"])
+                const ws = new WebSocket(url, [protocol])
                 console.log("...success!")
                 // This is very IMPORTANT! With blobs,
                 // we have weird bugs when trying to get the videostreaming messages.
