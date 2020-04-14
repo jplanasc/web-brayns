@@ -1,33 +1,44 @@
+import Tfw from 'tfw'
 import React from "react"
 
-import Icon from '../../../tfw/view/icon'
-import Input from '../../../tfw/view/input'
-import Button from '../../../tfw/view/button'
-import Storage from '../../../tfw/storage'
 import Scene from '../../scene'
+import RegistryService from '../../service/registry'
 
 import "./websocket-console.css"
 
+const Input = Tfw.View.Input
+const Button = Tfw.View.Button
+const Storage = Tfw.Storage
+const TabStrip = Tfw.Layout.TabStrip
 
 interface IWebsocketConsoleState {
-    method: string,
-    params: string,
-    output: string,
-    error: string | null,
+    method: string
+    params: string
+    output: string
+    error: string | null
     querying: boolean
+    suggestions: string[]
+    tab: number
 }
 
 
 export default class WebsocketConsole extends React.Component<{}, IWebsocketConsoleState> {
-    constructor( props: {} ) {
-        super( props );
+    constructor(props: {}) {
+        super(props);
         this.state = {
             method: get("method", "get-renderer-params"),
             params: get("params", "{}"),
             output: "",
             error: null,
-            querying: false
+            querying: false,
+            suggestions: [],
+            tab: 0
         }
+    }
+
+    async componentDidMount() {
+        const entryPoints = await RegistryService.listEntryPoints()
+        this.setState({ suggestions: entryPoints })
     }
 
     handleMethodChange = (method: string) => {
@@ -38,6 +49,10 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
         this.setState({ params: event.target.value });
     }
 
+    handleExport = () => {
+
+    }
+    
     handleExecute = async () => {
         const { method, params } = this.state;
 
@@ -50,7 +65,7 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
             const output = await Scene.request(method, input);
             this.setState({ error: null, output: JSON.stringify(output, null, '  ') });
         }
-        catch( ex ) {
+        catch (ex) {
             console.error("WebSocket console error:", ex);
             this.setState({ error: parseError(ex) });
         }
@@ -62,37 +77,53 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
     render() {
         const classNames = ["webBrayns-view-WebsocketConsole", "thm-bg0"];
 
-        return (<div className={classNames.join(' ')}>
-            <div className="head">
-                <Input
-                    label="Method"
-                    value={this.state.method}
-                    onChange={this.handleMethodChange}
-                    onEnterPressed={this.handleExecute}
-                    wide={true}/>
-            </div>
-            <textarea
-                className="input"
-                onChange={this.handleParamsChange}
-                defaultValue={this.state.params}></textarea>
-            <div className="button">
-                <Button
-                    label="Execute request"
-                    wide={true}
-                    wait={this.state.querying}
-                    icon="gear"
-                    onClick={this.handleExecute}/>
-            </div>
-            {
-                this.state.error ?
-                <div className="error">{this.state.error}</div> :
-                <textarea
-                    className="output thm-bgPL"
-                    readOnly={true}
-                    value={this.state.output}>
-                </textarea>
-            }
-        </div>)
+        return <div className={classNames.join(' ')}>
+            <TabStrip
+                headers={["Input", "Output"]}
+                value={this.state.tab}
+                onChange={tab => this.setState({ tab })}>
+                <div className="input">
+                    <div className="head">
+                        <Input
+                            label="Method"
+                            suggestions={this.state.suggestions}
+                            value={this.state.method}
+                            onChange={this.handleMethodChange}
+                            onEnterPressed={this.handleExecute}
+                            wide={true} />
+                    </div>
+                    <textarea
+                        className="input"
+                        onChange={this.handleParamsChange}
+                        defaultValue={this.state.params}></textarea>
+                    <div className="button">
+                        <Button
+                            label="Export"
+                            flat={true}
+                            wide={true}
+                            icon="export"
+                            onClick={this.handleExport} />
+                        <Button
+                            label="Execute"
+                            wide={true}
+                            wait={this.state.querying}
+                            icon="play"
+                            onClick={this.handleExecute} />
+                    </div>
+                </div>
+                <div className="output">
+                    {
+                        this.state.error ?
+                            <div className="error">{this.state.error}</div> :
+                            <textarea
+                                className="output thm-bgPL"
+                                readOnly={true}
+                                value={this.state.output}>
+                            </textarea>
+                    }
+                </div>
+            </TabStrip>
+        </div>
     }
 }
 
@@ -112,7 +143,7 @@ function parseJSON(json: string): any {
     try {
         return JSON.parse(json);
     }
-    catch(ex) {
+    catch (ex) {
         throw Error(`This parameter is not in valid JSON format:\n${json}\n\nReason: ${ex}!`);
     }
 }

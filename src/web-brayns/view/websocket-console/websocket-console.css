@@ -4,15 +4,33 @@ div.webBrayns-view-WebsocketConsole {
     top: 0;
     right: 0;
     bottom: 0;
+    overflow: hidden;
+}
+
+div.webBrayns-view-WebsocketConsole>div {
+    position: absolute;
+    left: 0.25rem;
+    top: 0.25rem;
+    right: 0.25rem;
+    bottom: 0.25rem;
+}
+
+div.webBrayns-view-WebsocketConsole div.input,
+div.webBrayns-view-WebsocketConsole div.output {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    overflow: hidden;
+    height: 100%;
 }
 
-div.webBrayns-view-WebsocketConsole > textarea.input {
-    flex: 3 4 auto;
+div.webBrayns-view-WebsocketConsole div.input>*,
+div.webBrayns-view-WebsocketConsole div.output>* {
+    flex: 0 0 auto;
+}
+
+div.webBrayns-view-WebsocketConsole div.input>textarea.input {
+    flex: 1 1 auto;
     margin: .25rem;
     padding: .25rem;
     height: 100%;
@@ -20,8 +38,8 @@ div.webBrayns-view-WebsocketConsole > textarea.input {
     resize: none;
 }
 
-div.webBrayns-view-WebsocketConsole > textarea.output {
-    flex: 4 3 auto;
+div.webBrayns-view-WebsocketConsole div.input>textarea.output {
+    flex: 1 1 auto;
     margin: .25rem;
     padding: .25rem;
     height: 100%;
@@ -29,16 +47,12 @@ div.webBrayns-view-WebsocketConsole > textarea.output {
     border: none;
 }
 
-div.webBrayns-view-WebsocketConsole > div.error {
-    flex: 4 3 auto;
+div.webBrayns-view-WebsocketConsole div.output>div.error {
+    flex: 1 1 auto;
     margin: .25rem;
     padding: .25rem;
     height: 100%;
     resize: none;
     color: #fff;
     background: #f00;
-}
-
-div.webBrayns-view-WebsocketConsole > * {
-    flex: 0 0 auto;
 }
