@@ -4,8 +4,8 @@ import UrlArgs from '../../../tfw/url-args'
 import Agent from './unicore'
 //import Agent from './bbp-workflow'
 
-const KEYCLOAK_URL = "https://bbpteam.epfl.ch/auth/realms/BBP/protocol/openid-connect/auth"
-//const KEYCLOAK_URL = "https://bbpteam.epfl.ch/auth"
+const KEYCLOAK_URL = "https://bbpauth.epfl.ch/auth/realms/BBP/protocol/openid-connect/auth"
+//const KEYCLOAK_URL = "https://bbpauth.epfl.ch/auth"
 const CLIENT_ID = "webbrayns"
 const CLIENT_SECRET_KEY = "d47f9aa8-faee-4e85-a7b9-2bfe477666aa"
 

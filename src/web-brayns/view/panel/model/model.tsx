@@ -173,6 +173,7 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
         const { model } = this.props;
         const { wait, expandedId } = this.state;
         const { name, id } = model.brayns;
+        const modelObject = new Model(model)
 
         return (<div className="webBrayns-view-panel-Model">
             <header className="thm-bgPL thm-ele-nav">
@@ -192,20 +193,24 @@ export default class ModelPanel extends React.Component<IModelProps, IModelState
                         wait={wait}
                         onAction={this.handleAnterogradeAction} />
                 </Expand>
-                <Expand label="Colors"
-                    value={expandedId === 'Colors'}
-                    onValueChange={v => this.handleExpand('Colors', v)}>
-                    <MaterialFeature
-                        onClick={this.handleMaterial} />
-                </Expand>
                 {
-                    this.props.model.brayns.metadata &&
+                    !modelObject.hasSimulation() &&
+                    <Expand label="Colors"
+                        value={expandedId === 'Colors'}
+                        onValueChange={v => this.handleExpand('Colors', v)}>
+                        <MaterialFeature
+                            onClick={this.handleMaterial} />
+                    </Expand>
+                }
+                {
+                    model.brayns.metadata &&
                     <Expand label="Metadata"
                         value={expandedId === 'Metadata'}
                         onValueChange={v => this.handleExpand('Metadata', v)}>{
                             Object.keys(model.brayns.metadata)
                                 .map((key: string) => {
-                                    const data = model.brayns.metadata[key]
+                                    if (!model.brayns.metadata) return
+                                    const data = model.brayns.metadata[key] as string
                                     if (!data || typeof data !== 'string' || data.length === 0) {
                                         return null
                                     }

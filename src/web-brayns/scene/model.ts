@@ -26,7 +26,7 @@ export default class Model {
     /**
      * Create a Model from the brayns definition of a model.
      */
-    static fromBraynsModel(braynsModel: IBraynsModel) : Model {
+    static fromBraynsModel(braynsModel: IBraynsModel): Model {
         return new Model({
             brayns: braynsModel,
             deleted: false,
@@ -148,7 +148,7 @@ export default class Model {
             specularExponent: 20,
             glossiness: 0.2,
             emission: 0.2,
-            simulationDataCast: this.isCircuit(),
+            simulationDataCast: this.hasSimulation(),
             ...material,
             modelId
         })
@@ -231,6 +231,7 @@ export default class Model {
      * Is this model a Circuit?
      */
     isCircuit() {
+        if (this.hasSimulation()) return true
         const metadata = this.model.brayns.metadata
         if (!metadata) return false
         return typeof metadata.CircuitPath === 'string'
@@ -239,7 +240,12 @@ export default class Model {
     hasSimulation() {
         const metadata = this.model.brayns.metadata
         if (!metadata) return false
-        return typeof metadata.Report === 'string'
+        if (typeof metadata.Report === 'string') return true
+        // On April 16th, there is a bug in metadata:
+        // keys and values are reversed.
+        // That means that we need to also look into for "Report"
+        // in the values.
+        return Object.values(metadata).indexOf("Report") !== -1
     }
 
     /**

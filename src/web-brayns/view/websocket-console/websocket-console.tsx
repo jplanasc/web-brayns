@@ -3,6 +3,7 @@ import React from "react"
 
 import Scene from '../../scene'
 import RegistryService from '../../service/registry'
+import JupyterNotebook, { IJupyterNotebook, IJupyterNotebookCell } from '../jupyter-notebook'
 
 import "./websocket-console.css"
 
@@ -18,16 +19,18 @@ interface IWebsocketConsoleState {
     error: string | null
     querying: boolean
     suggestions: string[]
-    tab: number
+    tab: number,
+    notebookCode?: IJupyterNotebook
 }
 
 
 export default class WebsocketConsole extends React.Component<{}, IWebsocketConsoleState> {
     constructor(props: {}) {
         super(props);
+        const method = get("method", "get-renderer-params")
         this.state = {
-            method: get("method", "get-renderer-params"),
-            params: get("params", "{}"),
+            method,
+            params: get(`params/${method}`, "{}"),
             output: "",
             error: null,
             querying: false,
@@ -41,6 +44,101 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
         this.setState({ suggestions: entryPoints })
     }
 
+    private async getCodePython(): Promise<IJupyterNotebook> {
+        const cells: IJupyterNotebookCell[] = []
+        const { method, params } = this.state
+        let formattedParams = ""
+        try {
+            formattedParams = JSON.stringify(
+                JSON.parse(params),
+                null,
+                "    "
+            )
+        } catch (ex) {
+            cells.push(
+                cellMD(
+                    `# Error in ${method}\n`,
+                    "  \n", "The __params__ are not in valid JSON:\n",
+                    "```\n",
+                    params,
+                    "```"
+                )
+            )
+            return { cells }
+        }
+        const name = toUnderscoreCase(method)
+        cells.push(
+            cellCode("!pip3 install brayns==1.0.0"),
+            cellMD("# Boiler Plate"),
+            cellCode(
+                "from brayns import Client as BraynsClient\n",
+                "class Brayns:\n",
+                "    def __init__(self, host):\n",
+                "        self.client = BraynsClient(host)\n",
+                ...this.getBraynsMethod()
+            ),
+        )
+        if (await RegistryService.exists(method)) {
+            const schema = await RegistryService.getEntryPointSchema(method)
+            console.info("schema=", schema)
+            const param = schema.params[0]
+            const requiredPropNames = Object.keys(param.properties)
+                .filter((propName: string) => param.required.indexOf(propName) !== -1)
+            const optionalPropNames = Object.keys(param.properties)
+                .filter((propName: string) => param.required.indexOf(propName) === -1)
+            cells.push(
+                cellMD(
+                    `# ${schema.title}\n`,
+                    `${schema.description}  \n\n`,
+                    "## Params\n\n",
+                    `${param.description}\n\n`
+                )
+            )
+            if (requiredPropNames.length > 0) {
+                cells.push(
+                    cellMD(
+                        "### Required\n\n",
+                        ...(requiredPropNames.map((propName: string) => {
+                            const propValue = param.properties[propName]
+                            return `* __\`${propName}\`__: ${JSON.stringify(propValue.type)}\n`
+                        }))
+                    )
+                )
+            }
+            if (optionalPropNames.length > 0) {
+                cells.push(
+                    cellMD(
+                        "### Optional\n\n",
+                        ...(optionalPropNames.map((propName: string) => {
+                            const propValue = param.properties[propName]
+                            return `* __\`${propName}\`__: ${JSON.stringify(propValue.type)}\n`
+                        }))
+                    )
+                )
+            }
+        }
+        cells.push(
+            cellCode(
+                `api = Brayns("${Scene.host}")\n`,
+                `result = api.${name}(${formattedParams})\n`,
+                "print(result)"
+            )
+        )
+        console.info("cells=", cells)
+        return { cells }
+    }
+
+    private getBraynsMethod(): string[] {
+        const { method } = this.state
+        const name = toUnderscoreCase(method)
+        return [
+            `    def ${name}(self, params):\n`,
+            `        self.client.rockets_client.request(\n`,
+            `            "${method}",\n`,
+            "            params)\n"
+        ]
+    }
+
     handleMethodChange = (method: string) => {
         this.setState({ method });
     }
@@ -49,29 +147,32 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
         this.setState({ params: event.target.value });
     }
 
-    handleExport = () => {
-
-    }
-    
     handleExecute = async () => {
-        const { method, params } = this.state;
+        const { method, params } = this.state
 
-        set("method", method);
-        set("params", params);
+        set("method", method)
+        set(`params/${method}`, params)
 
-        this.setState({ querying: true, output: `${Date.now()}`, error: null });
+        this.setState({ querying: true, output: `${Date.now()}`, error: null })
         try {
-            const input = parseJSON(params);
-            const output = await Scene.request(method, input);
-            this.setState({ error: null, output: JSON.stringify(output, null, '  ') });
+            const input = parseJSON(params)
+            const output = await Scene.request(method, input)
+            this.setState({ error: null, output: JSON.stringify(output, null, '  ') })
         }
         catch (ex) {
-            console.error("WebSocket console error:", ex);
-            this.setState({ error: parseError(ex) });
+            console.error("WebSocket console error:", ex)
+            this.setState({ error: parseError(ex) })
         }
         finally {
-            this.setState({ querying: false });
+            this.setState({ querying: false, tab: 1 })
         }
+    }
+
+    private handleTabChange = async (tab: number) => {
+        this.setState({
+            tab,
+            notebookCode: await this.getCodePython()
+        })
     }
 
     render() {
@@ -79,9 +180,9 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
 
         return <div className={classNames.join(' ')}>
             <TabStrip
-                headers={["Input", "Output"]}
+                headers={["Input", "Output", "Python"]}
                 value={this.state.tab}
-                onChange={tab => this.setState({ tab })}>
+                onChange={this.handleTabChange}>
                 <div className="input">
                     <div className="head">
                         <Input
@@ -102,7 +203,7 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
                             flat={true}
                             wide={true}
                             icon="export"
-                            onClick={this.handleExport} />
+                            onClick={() => this.setState({ tab: 2 })} />
                         <Button
                             label="Execute"
                             wide={true}
@@ -122,6 +223,7 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
                             </textarea>
                     }
                 </div>
+                <JupyterNotebook className="python" code={this.state.notebookCode || {}} />
             </TabStrip>
         </div>
     }
@@ -155,4 +257,29 @@ function parseError(ex: any) {
         output += '\n\n' + ex.toString();
     }
     return output;
+}
+
+
+function cellCode(...lines: string[]): IJupyterNotebookCell {
+    return {
+        cell_type: "code",
+        metadata: { scrolled: "auto" },
+        source: lines
+    }
+}
+
+function cellMD(...lines: string[]): IJupyterNotebookCell {
+    return {
+        cell_type: "markdown",
+        metadata: {},
+        source: lines
+    }
+}
+
+/**
+ * Transforms hyphens into underscores.
+ * Example: get-properties => get_properties
+ */
+function toUnderscoreCase(name: string): string {
+    return name.split("-").join("_")
 }

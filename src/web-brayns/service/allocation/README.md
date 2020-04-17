@@ -5,7 +5,7 @@
 Method **GET**.
 
 ```
-https://bbpteam.epfl.ch/auth/realms/BBP/protocol/openid-connect/auth?
+https://bbpauth.epfl.ch/auth/realms/BBP/protocol/openid-connect/auth?
 nonce=null
 &response_type=id_token%20token
 &state=e00550b3-0559-4e1d-992d-4887ff7c33e7
@@ -23,7 +23,7 @@ nonce=null
 Method **POST**.
 
 ```
-https://bbpteam.epfl.ch/auth/realms/BBP/login-actions/authenticate?
+https://bbpauth.epfl.ch/auth/realms/BBP/login-actions/authenticate?
 session_code=HxziUE-hFeIrcyepLZqr7TRwbjAcKMTDSLdM642byO4
 &execution=82f53215-9200-4e9d-b150-d67184287893
 &client_id=webbrayns

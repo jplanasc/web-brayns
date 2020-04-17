@@ -1,15 +1,15 @@
 import Scene from '../../scene'
-import Registry from './registry'
+import Registry, { IRegistry, ISchema } from './registry'
 import Storage from './registry-storage'
 
 let globalRegistry: Registry | null = null
 
-async function loadRegistry(): Promise<any> {
+async function loadRegistry(): Promise<IRegistry> {
     try {
         const url = `http://${Scene.host}/registry`
         const response = await fetch(url)
         const data = await response.json()
-        const schemas: { [key: string]: any } = {}
+        const schemas: IRegistry = {}
         for (const entryPointName of Object.keys(data)) {
             if (!entryPointName.endsWith("/schema")) continue
             const name = entryPointName.substr(0, entryPointName.length - "/schema".length)
@@ -53,5 +53,15 @@ export default {
     async listEntryPoints(): Promise<string[]> {
         const registry = await getRegistry()
         return registry.entryPoints
+    },
+
+    async exists(entryPointName: string): Promise<boolean> {
+        const registry = await getRegistry()
+        return registry.exists(entryPointName)
+    },
+
+    async getEntryPointSchema(entryPointName: string): Promise<ISchema> {
+        const registry = await getRegistry()
+        return registry.getEntryPointSchema(entryPointName)
     }
 }

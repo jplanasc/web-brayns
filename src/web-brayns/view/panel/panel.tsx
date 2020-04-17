@@ -47,7 +47,7 @@ export default class Panel extends React.Component<IPanelProps, {}> {
                 <div>
                     <Icon
                         content="bug"
-                        onClick={() => window.open("https://bbpteam.epfl.ch/project/issues/projects/BVWS/issues/?filter=allopenissues", "JIRA")} />
+                        onClick={() => window.open("https://bbpauth.epfl.ch/project/issues/projects/BVWS/issues/?filter=allopenissues", "JIRA")} />
                 </div>
                 <p>
                     Web-Brayns <span className="faded"><big>{Package.version}</big></span><br />
