@@ -84,3 +84,51 @@ The more samples you use, the more realistic the render will be, but the more ti
 50 samples will already give you nice results. Just increase the samples if you see some sparkles in the image.
 
 When you click the "OK" button, a progress bar appears and after a while the browser will download the resulting PNG.
+
+## Playing with targets
+
+In a circuit, you can find targets. They are pre-defined sets of cells and you can use them to load only a part of the circuit.
+
+To specify targets, click on the "Targets" button.
+You can see two main columns in the dialog:
+
+* On the left, there is the list of currently selected targets. If this list is empty, all the cells will be loaded.
+* On the right, there is the list of available targets (excluding the ones that have already been added to the left column). Because this list can be huge, Brayns also provides a filtering box to quickly get the targets you are looking for.
+
+If you click o a target from the available targets list this target will be move to the selected targets list.
+And of course, clicking on a target from the selected targets list will move it back to the available targets list.
+
+Click on Close or press Escape on your keyboard to get back to the circuit loader window.
+
+Here is an example use case. Let's imagine you want to highlight the layers of a column.
+One way to do that is to load the circuit with only the cells of layers 1, 3 and 5.
+Then load the circuit again with only layers 2, 4, and 6.
+On the screen, you will see exactly the same circuit that you would have seen by loading the whole circuit once.
+But now, you have two distinct models, hence you can choose different colors for even layers and for odd layers.
+
+## Loading a Simulation
+
+The output of a simulation is stored in one or several reports. Each report contains the state of neurons over the simulated time.
+
+From the circuit file, Brayns can find its associated reports. If any report is found, you will be able to select the one you want to load.
+
+The rest of the options is the same as explained earlier in how to load a circuit.
+
+There are two main differences between loading a circuit or a simulation:
+
+The first one is that neurons are colored according to the report simulation values (for example, voltage range).
+
+The second difference is that a navigation bar will appear at he bottom of the screen.
+
+With this navigation bar, you can play or pause the animation.
+
+You can also select the playback speed.
+
+Like in most of the movie players you are used to, it's possible to view the simulation at a desired time by using the slider.
+
+And more precise positioning, you can use the arrow buttons.
+Single arrows for slow motion ... double arrows for fast motion.
+
+Finally, you can enter a precise time by clicking here and using your keyboard.
+
+[Watch the video](https://drive.google.com/file/d/1gDKbmFfGu0q51KWgqSjdOoMwzAJiiYHW/view?usp=sharing)
