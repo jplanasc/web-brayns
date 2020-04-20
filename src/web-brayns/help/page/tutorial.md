@@ -52,3 +52,35 @@ You have three possible moves:
     If you have only one mouse button, hold the Ctrl key instead.
 
 [Watch the video](https://drive.google.com/file/d/1NRFL9uk91nZp4y9Z_yo3ukqxIiyn-4PW/view?usp=sharing)
+
+## Snapshot
+
+You can get high quality snapshots by clicking the "camera" button.
+
+You will have to define the size of the picture by getting a preset one or entering custom values.
+
+As for the quality, you can set a custom number of samples.
+
+__But what is a sample?__
+
+In real life, when the light hits a rough surface, like plastic, clothes, etc...
+an infinite number of light rays will bounce from this surface in a lot of different directions.
+When one or many rays hit your eye, you perceive the color of the point you are looking at.
+
+To generate an image, Brayns will cast a ray starting from the camera towards a pixel of your screen.
+This ray will bounce on the models in the scene until it will reach a light source.
+Each hit surface will absorb the light energy, leading to different colors and intensities.
+This technique is called ray-tracing. It gives more realistic results because it mimics the path of a real light ray.
+
+The only flaw comes when the ray hits a surface. If it is a perfect mirror, then we know exactly where it will bounce.
+But for most of the existing surfaces, the ray becomes a cone after the bounce.
+So, if you want to simulate this behavior, you need to recast an infinite number of rays which is impossible with a computer.
+
+The trick is to select randomly a ray from the cone. And then render the image multiple times.
+Each render is called a sample. And to get the final image, Brayns averages all the samples.
+
+The more samples you use, the more realistic the render will be, but the more time the rendering will last.
+
+50 samples will already give you nice results. Just increase the samples if you see some sparkles in the image.
+
+When you click the "OK" button, a progress bar appears and after a while the browser will download the resulting PNG.
