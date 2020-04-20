@@ -1,6 +1,6 @@
 import Tfw from 'tfw'
 import React from "react"
-
+import Markdown from 'markdown-to-jsx'
 import Scene from '../../scene'
 import RegistryService from '../../service/registry'
 import JupyterNotebook, { IJupyterNotebook, IJupyterNotebookCell } from '../jupyter-notebook'
@@ -21,6 +21,8 @@ interface IWebsocketConsoleState {
     suggestions: string[]
     tab: number,
     notebookCode?: IJupyterNotebook
+    // Markdown doc for current method.
+    help: string
 }
 
 
@@ -35,7 +37,8 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
             error: null,
             querying: false,
             suggestions: [],
-            tab: 0
+            tab: 0,
+            help: ""
         }
     }
 
@@ -79,43 +82,10 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
             ),
         )
         if (await RegistryService.exists(method)) {
-            const schema = await RegistryService.getEntryPointSchema(method)
-            console.info("schema=", schema)
-            const param = schema.params[0]
-            const requiredPropNames = Object.keys(param.properties)
-                .filter((propName: string) => param.required.indexOf(propName) !== -1)
-            const optionalPropNames = Object.keys(param.properties)
-                .filter((propName: string) => param.required.indexOf(propName) === -1)
+            const markdown = await RegistryService.getEntryPointMarkdownDoc(method)
             cells.push(
-                cellMD(
-                    `# ${schema.title}\n`,
-                    `${schema.description}  \n\n`,
-                    "## Params\n\n",
-                    `${param.description}\n\n`
-                )
+                cellMD(...markdown)
             )
-            if (requiredPropNames.length > 0) {
-                cells.push(
-                    cellMD(
-                        "### Required\n\n",
-                        ...(requiredPropNames.map((propName: string) => {
-                            const propValue = param.properties[propName]
-                            return `* __\`${propName}\`__: ${JSON.stringify(propValue.type)}\n`
-                        }))
-                    )
-                )
-            }
-            if (optionalPropNames.length > 0) {
-                cells.push(
-                    cellMD(
-                        "### Optional\n\n",
-                        ...(optionalPropNames.map((propName: string) => {
-                            const propValue = param.properties[propName]
-                            return `* __\`${propName}\`__: ${JSON.stringify(propValue.type)}\n`
-                        }))
-                    )
-                )
-            }
         }
         cells.push(
             cellCode(
@@ -139,8 +109,17 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
         ]
     }
 
-    handleMethodChange = (method: string) => {
+    handleMethodChange = async (method: string) => {
         this.setState({ method });
+        const exists = await RegistryService.exists(method)
+        if (!exists) {
+            this.setState({ help: "" })
+        } else {
+            console.info("Exists: ", method)
+            const markdown = await RegistryService.getEntryPointMarkdownDoc(method)
+            console.info("markdown=", markdown)
+            this.setState({ help: markdown.join("") })
+        }
     }
 
     handleParamsChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -177,8 +156,17 @@ export default class WebsocketConsole extends React.Component<{}, IWebsocketCons
 
     render() {
         const classNames = ["webBrayns-view-WebsocketConsole", "thm-bg0"];
+        const hasHelp = this.state.tab === 0 && (this.state.help ? true : false)
+        console.info("hasHelp=", hasHelp)
+        console.info("this.state.help=", this.state.help)
 
         return <div className={classNames.join(' ')}>
+            <div className={`help ${hasHelp ? 'show' : 'hide'}`}>{
+                this.state.help &&
+                <div className="thm-bg1">
+                    <Markdown>{ this.state.help }</Markdown>
+                </div>
+            }</div>
             <TabStrip
                 headers={["Input", "Output", "Python"]}
                 value={this.state.tab}

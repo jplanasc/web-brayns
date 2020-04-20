@@ -4,7 +4,7 @@ div.webBrayns-view-WebsocketConsole {
     top: 0;
     right: 0;
     bottom: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 div.webBrayns-view-WebsocketConsole>div {
@@ -55,4 +55,28 @@ div.webBrayns-view-WebsocketConsole div.input>div.button {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
+}
+
+div.webBrayns-view-WebsocketConsole > div.help {
+    transition: all .2s;
+    min-width: 240px;
+    overflow: auto;
+    max-height: calc(100vh - 5rem);
+    top: 4rem;
+}
+
+div.webBrayns-view-WebsocketConsole > div.help.hide {
+    transform: translateX(0);
+    opacity: 0;
+}
+
+div.webBrayns-view-WebsocketConsole > div.help.show {
+    transform: translateX(110%);
+    opacity: 1;
+}
+
+div.webBrayns-view-WebsocketConsole > div.help > div {
+    padding: 1rem;
+    opacity: .9;
+    border-radius: 1rem;
 }

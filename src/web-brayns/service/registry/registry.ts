@@ -68,8 +68,6 @@ interface ITypeBoolean extends IBaseType {
     type: "boolean"
 }
 
-
-
 export default class Registry {
     constructor(readonly registry: IRegistry) {
         console.info("registry=", registry)
@@ -92,8 +90,40 @@ export default class Registry {
 
     getMarkdown(entryPointName: string): string[] {
         const schema = this.getEntryPointSchema(entryPointName)
+        const param = schema.params[0]
         const doc: string[] = []
-
+        doc.push(
+            `# ${schema.title}\n`,
+            `${schema.description}  \n\n`
+        )
+        if (param) {
+            const requiredPropNames = Object.keys(param.properties)
+                .filter((propName: string) => param.required.indexOf(propName) !== -1)
+            const optionalPropNames = Object.keys(param.properties)
+                .filter((propName: string) => param.required.indexOf(propName) === -1)
+            doc.push(
+                "## Params\n\n",
+                `${param.description}\n`
+            )
+            if (requiredPropNames.length > 0) {
+                doc.push(
+                    "\n### Required\n\n",
+                    ...(requiredPropNames.map((propName: string) => {
+                        const propValue = param.properties[propName]
+                        return `* __\`${propName}\`__: ${JSON.stringify(propValue.type)}\n`
+                    }))
+                )
+            }
+            if (optionalPropNames.length > 0) {
+                doc.push(
+                    "\n### Optional\n\n",
+                    ...(optionalPropNames.map((propName: string) => {
+                        const propValue = param.properties[propName]
+                        return `* __\`${propName}\`__: ${JSON.stringify(propValue.type)}\n`
+                    }))
+                )
+            }
+        }
         return doc
     }
 }

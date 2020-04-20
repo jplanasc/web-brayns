@@ -63,5 +63,10 @@ export default {
     async getEntryPointSchema(entryPointName: string): Promise<ISchema> {
         const registry = await getRegistry()
         return registry.getEntryPointSchema(entryPointName)
+    },
+
+    async getEntryPointMarkdownDoc(entryPointName: string): Promise<string[]> {
+        const registry = await getRegistry()
+        return registry.getMarkdown(entryPointName)
     }
 }
